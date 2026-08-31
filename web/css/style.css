@@ -97,10 +97,10 @@ body {
 
 .brand-logo-img-lg {
     width: 44px; height: 44px;
-    border-radius: 10px;
+    border-radius: 50%;
     object-fit: cover;
-    border: 1px solid var(--border-glow);
-    box-shadow: 0 4px 14px var(--primary-glow);
+    mix-blend-mode: screen;
+    filter: drop-shadow(0 4px 14px rgba(16, 185, 129, 0.5));
 }
 
 .brand-text h2 {
@@ -237,10 +237,10 @@ body {
 
 .brand-logo-img {
     width: 36px; height: 36px;
-    border-radius: 8px;
+    border-radius: 50%;
     object-fit: cover;
-    border: 1px solid var(--border-glow);
-    box-shadow: 0 4px 12px var(--primary-glow);
+    mix-blend-mode: screen;
+    filter: drop-shadow(0 4px 10px rgba(16, 185, 129, 0.4));
 }
 
 .top-brand-title {

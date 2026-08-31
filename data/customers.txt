@@ -1,3 +1,6 @@
-CUST101,Alice Smith,alice@example.com,555-0101,123 Main St
-CUST102,Bob Johnson,bob@example.com,555-0102,456 Oak Ave
-CUST103,Carol Williams,carol@example.com,555-0103,789 Pine Rd
+CUST101,Hardik Verma,hardik@apexbank.in,98765-43210,123 MG Road Mumbai
+CUST102,Rajesh Kumar,rajesh@example.com,98765-43211,456 Connaught Place Delhi
+CUST103,Priya Sharma,priya@example.com,98765-43212,789 Brigade Road Bengaluru
+CUST104,Alice Smith,alice@example.com,555-0101,123 Main St
+CUST105,Bob Johnson,bob@example.com,555-0102,456 Oak Ave
+CUST106,Carol Williams,carol@example.com,555-0103,789 Pine Rd
