@@ -136,7 +136,7 @@ public class BankHttpServer {
                     handleUndo(exchange);
                 } else if ("GET".equalsIgnoreCase(method) && "/api/transactions".equals(path)) {
                     handleGetTransactions(exchange);
-                } else if ("GET".equalsIgnoreCase(method) && "/api/sorted-accounts".equals(path)) {
+                } else if ("GET".equalsIgnoreCase(method) && path.startsWith("/api/sorted-accounts")) {
                     handleSortedAccounts(exchange);
                 } else if ("GET".equalsIgnoreCase(method) && path.startsWith("/api/search")) {
                     handleSearch(exchange);
@@ -261,7 +261,17 @@ public class BankHttpServer {
         }
 
         private void handleSortedAccounts(HttpExchange exchange) throws IOException {
-            List<Account> accounts = bankService.getAccountsSortedByBalance();
+            String query = exchange.getRequestURI().getQuery();
+            String sortBy = "balance_desc";
+            if (query != null && query.contains("sort=")) {
+                sortBy = query.substring(query.indexOf("sort=") + 5);
+                if (sortBy.contains("&")) {
+                    sortBy = sortBy.substring(0, sortBy.indexOf("&"));
+                }
+                sortBy = java.net.URLDecoder.decode(sortBy, StandardCharsets.UTF_8);
+            }
+
+            List<Account> accounts = bankService.getSortedAccounts(sortBy);
             StringBuilder json = new StringBuilder("[");
             for (int i = 0; i < accounts.size(); i++) {
                 Account a = accounts.get(i);

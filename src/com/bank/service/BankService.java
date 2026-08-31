@@ -267,6 +267,19 @@ public class BankService {
         return AccountSorter.quickSortByBalanceDescending(getAllAccounts());
     }
 
+    public List<Account> getSortedAccounts(String sortBy) {
+        List<Account> all = getAllAccounts();
+        if ("balance_asc".equalsIgnoreCase(sortBy)) {
+            return AccountSorter.quickSortByBalance(all, true);
+        } else if ("name_asc".equalsIgnoreCase(sortBy)) {
+            return AccountSorter.quickSortByName(all, true);
+        } else if ("name_desc".equalsIgnoreCase(sortBy)) {
+            return AccountSorter.quickSortByName(all, false);
+        } else {
+            return AccountSorter.quickSortByBalance(all, false);
+        }
+    }
+
     public Account getAccountOrThrow(String accountNumber) throws InvalidAccountException {
         Account acc = accountHashMap.get(accountNumber);
         if (acc == null) {

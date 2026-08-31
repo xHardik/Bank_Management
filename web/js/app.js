@@ -163,13 +163,28 @@ function updateCreditCardPreview(acc) {
 }
 
 async function loadAccounts() {
-    let accounts = await apiCall('/accounts');
-    if (Array.isArray(accounts) && accounts.length > 0) {
-        localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
+    const sortVal = document.getElementById('accounts-sort-select')?.value || 'balance_desc';
+    applyAccountSort(sortVal);
+}
+
+async function applyAccountSort(sortBy = 'balance_desc') {
+    const sorted = await apiCall(`/sorted-accounts?sort=${encodeURIComponent(sortBy)}`);
+    if (Array.isArray(sorted) && sorted.length > 0) {
+        renderAccountsTable(sorted);
     } else {
-        accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+        // Fallback local sorting if offline
+        let accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+        if (sortBy === 'balance_desc') {
+            accounts.sort((a, b) => b.balance - a.balance);
+        } else if (sortBy === 'balance_asc') {
+            accounts.sort((a, b) => a.balance - b.balance);
+        } else if (sortBy === 'name_asc') {
+            accounts.sort((a, b) => a.holderName.localeCompare(b.holderName));
+        } else if (sortBy === 'name_desc') {
+            accounts.sort((a, b) => b.holderName.localeCompare(a.holderName));
+        }
+        renderAccountsTable(accounts);
     }
-    renderAccountsTable(accounts);
 }
 
 function getAvatarUrl(name) {
@@ -181,7 +196,7 @@ function renderAccountsTable(accounts) {
     if (!tbody) return;
 
     if (!accounts || accounts.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No accounts found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No matching accounts found.</td></tr>';
         return;
     }
 
@@ -361,15 +376,33 @@ async function triggerUndo() {
 }
 
 async function sortAccountsByBalance() {
-    const sorted = await apiCall('/sorted-accounts');
-    if (Array.isArray(sorted)) renderAccountsTable(sorted);
+    applyAccountSort('balance_desc');
 }
 
 async function searchAccounts() {
-    const q = document.getElementById('search-input').value;
+    const q = document.getElementById('search-input').value.trim();
     if (!q) return loadAccounts();
+
+    // Auto-switch to accounts tab so search results table is displayed immediately
+    const accountsTab = document.getElementById('accounts');
+    if (accountsTab && !accountsTab.classList.contains('active')) {
+        showTab('accounts');
+    }
+
     const results = await apiCall(`/search?q=${encodeURIComponent(q)}`);
-    if (Array.isArray(results)) renderAccountsTable(results);
+    if (Array.isArray(results) && results.length > 0) {
+        renderAccountsTable(results);
+    } else {
+        // Fallback local search on localStorage accounts
+        const allAccounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+        const filtered = allAccounts.filter(a =>
+            a.accountNumber.toLowerCase().includes(q.toLowerCase()) ||
+            a.holderName.toLowerCase().includes(q.toLowerCase()) ||
+            a.type.toLowerCase().includes(q.toLowerCase()) ||
+            a.customerId.toLowerCase().includes(q.toLowerCase())
+        );
+        renderAccountsTable(filtered);
+    }
 }
 
 async function loadQueues() {
