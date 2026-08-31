@@ -64,24 +64,24 @@ public class BankService {
 
     private void seedSampleData() {
         // Seed initial customers and accounts for testing
-        Customer c1 = new Customer("CUST101", "Alice Smith", "alice@example.com", "555-0101", "123 Main St");
-        Customer c2 = new Customer("CUST102", "Bob Johnson", "bob@example.com", "555-0102", "456 Oak Ave");
-        Customer c3 = new Customer("CUST103", "Carol Williams", "carol@example.com", "555-0103", "789 Pine Rd");
+        Customer c1 = new Customer("CUST101", "Hardik Verma", "hardik@apexbank.in", "98765-43210", "123 MG Road, Mumbai");
+        Customer c2 = new Customer("CUST102", "Rajesh Kumar", "rajesh@example.com", "98765-43211", "456 Connaught Place, Delhi");
+        Customer c3 = new Customer("CUST103", "Priya Sharma", "priya@example.com", "98765-43212", "789 Brigade Road, Bengaluru");
 
         customerList.add(c1);
         customerList.add(c2);
         customerList.add(c3);
 
-        Account a1 = new SavingsAccount("ACC1001", c1.getCustomerId(), c1.getName(), 1500.00, "1234");
-        Account a2 = new CurrentAccount("ACC1002", c2.getCustomerId(), c2.getName(), 3500.00, "1234", 2000.00);
-        Account a3 = new FixedDepositAccount("ACC1003", c3.getCustomerId(), c3.getName(), 10000.00, "1234", 12);
+        Account a1 = new SavingsAccount("ACC1001", c1.getCustomerId(), c1.getName(), 150450.00, "1234");
+        Account a2 = new CurrentAccount("ACC1002", c2.getCustomerId(), c2.getName(), 350000.00, "1234", 500000.00);
+        Account a3 = new FixedDepositAccount("ACC1003", c3.getCustomerId(), c3.getName(), 1000000.00, "1234", 12);
 
         accountHashMap.put(a1.getAccountNumber(), a1);
         accountHashMap.put(a2.getAccountNumber(), a2);
         accountHashMap.put(a3.getAccountNumber(), a3);
 
         saveState();
-        logEvent("Seeded sample bank data.");
+        logEvent("Seeded sample Indian bank data.");
     }
 
     public void logEvent(String msg) {
@@ -101,14 +101,14 @@ public class BankService {
         Account account;
 
         if ("CURRENT".equalsIgnoreCase(type)) {
-            double overdraft = extraParam != null && !extraParam.isEmpty() ? Double.parseDouble(extraParam) : 1000.00;
+            double overdraft = extraParam != null && !extraParam.isEmpty() ? Double.parseDouble(extraParam) : 500000.00;
             account = new CurrentAccount(accNum, custId, name, initialBalance, pin, overdraft);
         } else if ("FIXED_DEPOSIT".equalsIgnoreCase(type)) {
             int tenure = extraParam != null && !extraParam.isEmpty() ? Integer.parseInt(extraParam) : 12;
             account = new FixedDepositAccount(accNum, custId, name, initialBalance, pin, tenure);
         } else {
             if (initialBalance < SavingsAccount.getMinimumBalance()) {
-                throw new TransactionFailedException("Savings Account requires a minimum initial balance of $" + SavingsAccount.getMinimumBalance());
+                throw new TransactionFailedException("Savings Account requires a minimum initial balance of Rs. " + SavingsAccount.getMinimumBalance());
             }
             account = new SavingsAccount(accNum, custId, name, initialBalance, pin);
         }
@@ -132,7 +132,7 @@ public class BankService {
         undoStack.push(tx);
 
         saveState();
-        logEvent("Deposit of $" + amount + " into " + accountNumber);
+        logEvent("Deposit of Rs. " + amount + " into " + accountNumber);
         return tx;
     }
 
@@ -149,7 +149,7 @@ public class BankService {
         undoStack.push(tx);
 
         saveState();
-        logEvent("Withdrawal of $" + amount + " from " + accountNumber);
+        logEvent("Withdrawal of Rs. " + amount + " from " + accountNumber);
         return tx;
     }
 
@@ -178,7 +178,7 @@ public class BankService {
         undoStack.push(txSource);
 
         saveState();
-        logEvent("Transfer of $" + amount + " from " + sourceAccNum + " to " + targetAccNum);
+        logEvent("Transfer of Rs. " + amount + " from " + sourceAccNum + " to " + targetAccNum);
         return txSource;
     }
 
@@ -209,7 +209,7 @@ public class BankService {
         }
 
         saveState();
-        String msg = "Successfully Undid Transaction " + tx.getTransactionId() + " (" + tx.getType() + " $" + tx.getAmount() + ")";
+        String msg = "Successfully Undid Transaction " + tx.getTransactionId() + " (" + tx.getType() + " Rs. " + tx.getAmount() + ")";
         logEvent(msg);
         return msg;
     }

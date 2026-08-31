@@ -1,5 +1,4 @@
 // Smart API Base Auto-detection for Vercel + Render Hybrid Architecture
-// Live Render Java Backend URL:
 const RENDER_BACKEND_URL = 'https://bank-management-7uwe.onrender.com';
 
 function getApiBaseUrl() {
@@ -30,7 +29,10 @@ function showTab(tabId) {
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
     document.getElementById(tabId).classList.add('active');
-    event.target.classList.add('active');
+    if (event && event.target) {
+        const btn = event.target.closest('.nav-btn');
+        if (btn) btn.classList.add('active');
+    }
 
     if (tabId === 'dashboard') loadDashboardData();
     if (tabId === 'accounts') loadAccounts();
@@ -47,7 +49,7 @@ function closeModal(id) {
     document.getElementById(id).style.display = 'none';
 }
 
-// Resilient API Fetch Helper with CORS support
+// Resilient API Fetch Helper with CORS & Business Error Separation
 async function apiCall(endpoint, method = 'GET', body = null) {
     try {
         const options = {
@@ -60,17 +62,24 @@ async function apiCall(endpoint, method = 'GET', body = null) {
         const text = await res.text();
 
         if (text.trim().startsWith('<')) {
-            throw new Error(`Server returned HTML instead of JSON.`);
+            showServerWarningBanner("Server returned HTML instead of JSON. Cold boot in progress.");
+            return null;
         }
 
         const data = JSON.parse(text);
-        if (!res.ok) {
-            throw new Error(data.error || `HTTP ${res.status}`);
+        
+        // If HTTP status is success (200-299)
+        if (res.ok) {
+            hideServerWarningBanner();
+            return data;
+        } else {
+            // Business rule validation failure (e.g. minimum balance, invalid account)
+            // Return data cleanly without triggering server-offline banner!
+            hideServerWarningBanner();
+            return data;
         }
-        hideServerWarningBanner();
-        return data;
     } catch (err) {
-        console.error('API Error:', err);
+        console.error('Network / Server Error:', err);
         showServerWarningBanner(err.message);
         return null;
     }
@@ -92,7 +101,7 @@ function showServerWarningBanner(msg) {
         `;
     } else {
         banner.innerHTML = `
-            ⏳ <strong>Connecting to Render Backend (${RENDER_BACKEND_URL})...</strong> Render free tier takes ~30s to boot.<br>
+            ⏳ <strong>Connecting to Render Backend...</strong> Render free tier takes ~30s to boot.<br>
             <span style="font-size: 0.8rem; opacity: 0.8;">Target API: ${API_BASE} | Details: ${msg}</span>
         `;
     }
@@ -107,7 +116,7 @@ async function loadDashboardData() {
     const accounts = await apiCall('/accounts');
     const transactions = await apiCall('/transactions');
 
-    if (accounts) {
+    if (Array.isArray(accounts)) {
         hideServerWarningBanner();
         document.getElementById('total-accounts-val').innerText = accounts.length;
         const totalCap = accounts.reduce((sum, a) => sum + a.balance, 0);
@@ -118,7 +127,7 @@ async function loadDashboardData() {
         }
     }
 
-    if (transactions) {
+    if (Array.isArray(transactions)) {
         document.getElementById('total-tx-val').innerText = transactions.length;
     }
 }
@@ -137,7 +146,7 @@ function updateCreditCardPreview(acc) {
 
 async function loadAccounts() {
     const accounts = await apiCall('/accounts');
-    if (accounts) renderAccountsTable(accounts);
+    if (Array.isArray(accounts)) renderAccountsTable(accounts);
 }
 
 function getAvatarUrl(name) {
@@ -185,7 +194,7 @@ function renderAccountsTable(accounts) {
 
 async function loadTransactions() {
     const transactions = await apiCall('/transactions');
-    if (transactions) {
+    if (Array.isArray(transactions)) {
         renderTransactions(transactions.slice().reverse());
     }
 }
@@ -324,14 +333,14 @@ async function triggerUndo() {
 
 async function sortAccountsByBalance() {
     const sorted = await apiCall('/sorted-accounts');
-    if (sorted) renderAccountsTable(sorted);
+    if (Array.isArray(sorted)) renderAccountsTable(sorted);
 }
 
 async function searchAccounts() {
     const q = document.getElementById('search-input').value;
     if (!q) return loadAccounts();
     const results = await apiCall(`/search?q=${encodeURIComponent(q)}`);
-    if (results) renderAccountsTable(results);
+    if (Array.isArray(results)) renderAccountsTable(results);
 }
 
 async function loadQueues() {
@@ -381,7 +390,7 @@ async function dequeueVip() {
 
 async function loadAuditLogs() {
     const logs = await apiCall('/audit-logs');
-    if (logs) {
+    if (Array.isArray(logs)) {
         const consoleEl = document.getElementById('log-console');
         if (consoleEl) {
             consoleEl.innerHTML = logs.map(l => `<div class="log-line">⚡ ${l}</div>`).join('');

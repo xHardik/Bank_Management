@@ -28,7 +28,7 @@ public class FixedDepositAccount extends Account {
         
         if (this.balance < totalDeduction) {
             throw new InsufficientFundsException(String.format(
-                "FD Premature withdrawal requires total deduction of $%.2f (including $%.2f early exit penalty), but balance is $%.2f",
+                "FD Premature withdrawal requires total deduction of Rs. %.2f (including Rs. %.2f early exit penalty), but balance is Rs. %.2f",
                 totalDeduction, penalty, this.balance));
         }
         this.balance -= totalDeduction;

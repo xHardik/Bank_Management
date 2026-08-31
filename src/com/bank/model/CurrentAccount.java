@@ -28,7 +28,7 @@ public class CurrentAccount extends Account {
         }
         if (this.balance - amount < -overdraftLimit) {
             throw new InsufficientFundsException(String.format(
-                "Withdrawal of $%.2f exceeds Current Account overdraft limit of $%.2f. Maximum available: $%.2f",
+                "Withdrawal of Rs. %.2f exceeds Current Account overdraft limit of Rs. %.2f. Maximum available: Rs. %.2f",
                 amount, overdraftLimit, (this.balance + overdraftLimit)));
         }
         this.balance -= amount;

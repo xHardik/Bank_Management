@@ -22,7 +22,7 @@ public class SavingsAccount extends Account {
         }
         if (this.balance - amount < MINIMUM_BALANCE) {
             throw new InsufficientFundsException(String.format(
-                "Withdrawal of $%.2f rejected. Savings Account must maintain a minimum balance of $%.2f.",
+                "Withdrawal of Rs. %.2f rejected. Savings Account must maintain a minimum balance of Rs. %.2f.",
                 amount, MINIMUM_BALANCE));
         }
         this.balance -= amount;
