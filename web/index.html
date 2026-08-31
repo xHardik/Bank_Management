@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apex Global Bank | Executive Financial Dashboard</title>
+    <title>Apex Bank India | Executive Financial Portal</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -16,33 +16,38 @@
         <aside class="sidebar">
             <div class="brand">
                 <div class="brand-logo">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                        <polyline points="2 17 12 22 22 17"></polyline>
-                        <polyline points="2 12 12 17 22 12"></polyline>
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5"></path>
+                        <path d="M2 12l10 5 10-5"></path>
                     </svg>
                 </div>
                 <div class="brand-text">
-                    <h2>APEX</h2>
-                    <span>GLOBAL BANK</span>
+                    <h2>APEX BANK</h2>
+                    <span>NATIONAL PORTAL</span>
                 </div>
             </div>
 
             <nav class="nav-menu">
                 <button class="nav-btn active" onclick="showTab('dashboard')">
-                    <span class="nav-icon">📊</span> Overview
+                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>
+                    Overview
                 </button>
                 <button class="nav-btn" onclick="showTab('accounts')">
-                    <span class="nav-icon">💳</span> Accounts
+                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                    Accounts
                 </button>
                 <button class="nav-btn" onclick="showTab('transactions')">
-                    <span class="nav-icon">📈</span> Transactions
+                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    Transactions
                 </button>
                 <button class="nav-btn" onclick="showTab('queues')">
-                    <span class="nav-icon">👑</span> Concierge Desk
+                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                    Concierge Desk
                 </button>
                 <button class="nav-btn" onclick="showTab('audit')">
-                    <span class="nav-icon">🛡️</span> Security Ledger
+                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    Security Ledger
                 </button>
             </nav>
 
@@ -50,8 +55,8 @@
                 <div class="user-card">
                     <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256" alt="User Profile" class="profile-pic">
                     <div class="user-info">
-                        <h4>Alex Morgan</h4>
-                        <span>Premium Executive</span>
+                        <h4>Hardik Parmar</h4>
+                        <span>Executive NRI Client</span>
                     </div>
                 </div>
             </div>
@@ -62,15 +67,17 @@
             <!-- Top Navbar -->
             <header class="top-nav">
                 <div class="search-bar">
-                    <span class="search-icon">🔍</span>
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     <input type="text" id="search-input" placeholder="Search account number, customer name or phone..." onkeyup="searchAccounts()">
                 </div>
                 <div class="nav-actions">
                     <button class="btn btn-secondary" onclick="triggerUndo()">
-                        <span>↺</span> Instant Undo
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                        Instant Undo
                     </button>
                     <button class="btn btn-primary" onclick="openModal('create-account-modal')">
-                        <span>+</span> Open New Account
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Open New Account
                     </button>
                     <div class="status-indicator">
                         <span class="dot green"></span> System Live
@@ -83,13 +90,13 @@
                 <div class="hero-banner">
                     <div class="hero-text">
                         <span class="hero-tag">Welcome Back</span>
-                        <h1>Next-Gen Financial Intelligence</h1>
-                        <p>Manage high-net-worth accounts, instant funds transfers, and automated VIP priority concierge in real time.</p>
+                        <h1>Apex Executive Banking Portal</h1>
+                        <p>Real-time INR ledgers, instant funds transfers across Indian banks, and priority VIP concierge desk.</p>
                     </div>
                     <div class="hero-badge-group">
                         <div class="hero-stat-pill">
                             <span class="pill-label">Security Protocol</span>
-                            <span class="pill-value">256-Bit Encrypted</span>
+                            <span class="pill-value">RBI Compliant 256-Bit</span>
                         </div>
                     </div>
                 </div>
@@ -99,33 +106,39 @@
                     <div class="stat-card">
                         <div class="stat-header">
                             <span>Total Active Accounts</span>
-                            <div class="stat-icon-wrapper blue">💳</div>
+                            <div class="stat-icon-wrapper blue">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                            </div>
                         </div>
                         <h2 id="total-accounts-val">0</h2>
                         <div class="stat-footer positive">
-                            <span>↑ 100% System Capacity</span>
+                            <span>↑ 100% Core Capacity</span>
                         </div>
                     </div>
 
                     <div class="stat-card">
                         <div class="stat-header">
-                            <span>Total Managed Capital</span>
-                            <div class="stat-icon-wrapper emerald">💰</div>
+                            <span>Total Managed Capital (INR)</span>
+                            <div class="stat-icon-wrapper emerald">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                            </div>
                         </div>
-                        <h2 id="total-capital-val">$0.00</h2>
+                        <h2 id="total-capital-val">₹0.00</h2>
                         <div class="stat-footer positive">
-                            <span>↑ Secure Asset Ledger</span>
+                            <span>↑ RBI Verified Asset Ledger</span>
                         </div>
                     </div>
 
                     <div class="stat-card">
                         <div class="stat-header">
                             <span>Transactions Processed</span>
-                            <div class="stat-icon-wrapper gold">⚡</div>
+                            <div class="stat-icon-wrapper gold">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                            </div>
                         </div>
                         <h2 id="total-tx-val">0</h2>
                         <div class="stat-footer neutral">
-                            <span>Real-time Settlement</span>
+                            <span>Instant Settlement</span>
                         </div>
                     </div>
                 </div>
@@ -135,12 +148,14 @@
                     <!-- Left: Virtual Credit Card -->
                     <div class="glass-card">
                         <div class="card-title-header">
-                            <h3>Primary Virtual Card</h3>
-                            <span class="sub-text">Active Master Card Preview</span>
+                            <h3>Primary Platinum RuPay Card</h3>
+                            <span class="sub-text">Active Domestic & International Card</span>
                         </div>
                         <div class="credit-card">
                             <div class="card-top">
-                                <span class="bank-name">APEX BLACK</span>
+                                <div class="card-brand-logo">
+                                    <span class="bank-name">APEX INDIA</span>
+                                </div>
                                 <span class="contactless">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
@@ -157,8 +172,8 @@
                                     <span class="value" id="card-holder-name">HARDIK PARMAR</span>
                                 </div>
                                 <div class="card-balance">
-                                    <span class="label">BALANCE</span>
-                                    <span class="value" id="card-acc-bal">$15,450.00</span>
+                                    <span class="label">AVAILABLE BALANCE</span>
+                                    <span class="value" id="card-acc-bal">₹1,50,450.00</span>
                                 </div>
                                 <div class="card-type-badge" id="card-type-badge">SAVINGS</div>
                             </div>
@@ -173,19 +188,27 @@
                         </div>
                         <div class="action-grid">
                             <button class="action-tile" onclick="openModal('deposit-modal')">
-                                <div class="tile-icon green">↓</div>
-                                <span>Deposit</span>
+                                <div class="tile-icon green">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                                </div>
+                                <span>Deposit Funds</span>
                             </button>
                             <button class="action-tile" onclick="openModal('withdraw-modal')">
-                                <div class="tile-icon orange">↑</div>
-                                <span>Withdraw</span>
+                                <div class="tile-icon orange">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                                </div>
+                                <span>Withdraw Cash</span>
                             </button>
                             <button class="action-tile" onclick="openModal('transfer-modal')">
-                                <div class="tile-icon blue">⇄</div>
-                                <span>Transfer</span>
+                                <div class="tile-icon blue">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                                </div>
+                                <span>Transfer Money</span>
                             </button>
                             <button class="action-tile" onclick="sortAccountsByBalance()">
-                                <div class="tile-icon gold">📊</div>
+                                <div class="tile-icon gold">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                                </div>
                                 <span>Sort High-Value</span>
                             </button>
                         </div>
@@ -201,7 +224,8 @@
                         <p>Real-time account balances, customer profiles, and direct transaction controls.</p>
                     </div>
                     <button class="btn btn-secondary" onclick="sortAccountsByBalance()">
-                        <span>📊</span> Sort by Highest Balance
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                        Sort by Highest Balance
                     </button>
                 </div>
 
@@ -210,9 +234,9 @@
                         <thead>
                             <tr>
                                 <th>Account & Customer</th>
-                                <th>Name</th>
+                                <th>Holder Name</th>
                                 <th>Account Category</th>
-                                <th>Available Balance</th>
+                                <th>Available Balance (INR)</th>
                                 <th>Direct Operations</th>
                             </tr>
                         </thead>
@@ -240,7 +264,7 @@
                                 <th>Timestamp</th>
                                 <th>Account</th>
                                 <th>Type</th>
-                                <th>Amount</th>
+                                <th>Amount (INR)</th>
                                 <th>Balance After</th>
                                 <th>Details / Remarks</th>
                             </tr>
@@ -256,7 +280,7 @@
             <section id="queues" class="tab-content">
                 <div class="section-header">
                     <div>
-                        <h2>VIP Concierge & Service Support</h2>
+                        <h2>VIP Concierge & Support Service Desk</h2>
                         <p>Manage customer service queues and priority VIP client requests.</p>
                     </div>
                 </div>
@@ -265,14 +289,16 @@
                     <!-- Standard Service Queue -->
                     <div class="glass-card">
                         <div class="card-icon-header">
-                            <span class="header-icon">🏢</span>
+                            <div class="header-icon-box blue">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                            </div>
                             <h3>Standard Service Desk</h3>
                         </div>
                         <p class="section-desc">First-Come, First-Served customer support handling.</p>
 
                         <div class="form-group">
                             <label>Customer Inquiry Details</label>
-                            <input type="text" id="teller-inquiry-input" placeholder="e.g. Account statement query / Card re-issue">
+                            <input type="text" id="teller-inquiry-input" placeholder="e.g. Passbook update / Card re-issue">
                         </div>
                         <div class="button-group">
                             <button class="btn btn-primary" onclick="enqueueTeller()">Submit Inquiry</button>
@@ -283,7 +309,9 @@
                     <!-- VIP Priority Queue -->
                     <div class="glass-card vip-border">
                         <div class="card-icon-header">
-                            <span class="header-icon">👑</span>
+                            <div class="header-icon-box gold">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                            </div>
                             <h3>VIP Priority Service Desk</h3>
                         </div>
                         <p class="section-desc">Priority score-based handling for executive high-net-worth clients.</p>
@@ -319,10 +347,11 @@
                 <div class="section-header">
                     <div>
                         <h2>System Security Audit Ledger</h2>
-                        <p>Continuous audit logging for system compliance and fraud monitoring.</p>
+                        <p>Continuous audit logging for system compliance and RBI fraud monitoring.</p>
                     </div>
                     <button class="btn btn-secondary" onclick="runAutomatedTests()">
-                        <span>🧪</span> Run System Diagnostics
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                        Run System Diagnostics
                     </button>
                 </div>
 
@@ -349,29 +378,29 @@
                 <div class="form-group">
                     <label>Account Type</label>
                     <select id="new-acc-type">
-                        <option value="SAVINGS">Savings Account (Min Balance $100 | 4.0% APY)</option>
-                        <option value="CURRENT">Current Business Account ($5,000 Overdraft Limit)</option>
+                        <option value="SAVINGS">Savings Account (Min Balance ₹1,000 | 4.0% APY)</option>
+                        <option value="CURRENT">Current Business Account (₹5,00,000 Overdraft)</option>
                         <option value="FIXED_DEPOSIT">Fixed Deposit Account (7.0% Interest | 12-Month Lock)</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Customer Full Name</label>
-                    <input type="text" id="new-cust-name" required placeholder="e.g. Eleanor Vance">
+                    <input type="text" id="new-cust-name" required placeholder="e.g. Hardik Parmar">
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Email Address</label>
-                        <input type="email" id="new-cust-email" required placeholder="eleanor@apexbank.com">
+                        <input type="email" id="new-cust-email" required placeholder="hardik@apexbank.in">
                     </div>
                     <div class="form-group">
                         <label>Phone Number</label>
-                        <input type="text" id="new-cust-phone" required placeholder="+1 555-0192">
+                        <input type="text" id="new-cust-phone" required placeholder="+91 98765 43210">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Initial Opening Deposit ($)</label>
-                        <input type="number" id="new-acc-bal" step="0.01" min="10" required value="500.00">
+                        <label>Initial Opening Deposit (₹)</label>
+                        <input type="number" id="new-acc-bal" step="0.01" min="100" required value="5000.00">
                     </div>
                     <div class="form-group">
                         <label>Set 4-Digit Security PIN</label>
@@ -380,7 +409,7 @@
                 </div>
                 <div class="form-group">
                     <label>Account Parameter (Overdraft limit / Tenure months)</label>
-                    <input type="text" id="new-acc-extra" placeholder="Optional (e.g. 5000 or 12)">
+                    <input type="text" id="new-acc-extra" placeholder="Optional (e.g. 500000 or 12)">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('create-account-modal')">Cancel</button>
@@ -403,8 +432,8 @@
                     <input type="text" id="dep-acc-num" required placeholder="ACC1001">
                 </div>
                 <div class="form-group">
-                    <label>Deposit Amount ($)</label>
-                    <input type="number" id="dep-amount" step="0.01" min="1" required placeholder="100.00">
+                    <label>Deposit Amount (₹)</label>
+                    <input type="number" id="dep-amount" step="0.01" min="1" required placeholder="1000.00">
                 </div>
                 <div class="form-group">
                     <label>Deposit Remarks</label>
@@ -431,8 +460,8 @@
                     <input type="text" id="w-acc-num" required placeholder="ACC1001">
                 </div>
                 <div class="form-group">
-                    <label>Withdrawal Amount ($)</label>
-                    <input type="number" id="w-amount" step="0.01" min="1" required placeholder="50.00">
+                    <label>Withdrawal Amount (₹)</label>
+                    <input type="number" id="w-amount" step="0.01" min="1" required placeholder="500.00">
                 </div>
                 <div class="form-group">
                     <label>Withdrawal Remarks</label>
@@ -465,12 +494,12 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Transfer Amount ($)</label>
-                    <input type="number" id="t-amount" step="0.01" min="1" required placeholder="250.00">
+                    <label>Transfer Amount (₹)</label>
+                    <input type="number" id="t-amount" step="0.01" min="1" required placeholder="2500.00">
                 </div>
                 <div class="form-group">
                     <label>Transfer Remarks</label>
-                    <input type="text" id="t-remarks" value="Peer-to-Peer Transfer">
+                    <input type="text" id="t-remarks" value="UPI / NEFT Transfer">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('transfer-modal')">Cancel</button>

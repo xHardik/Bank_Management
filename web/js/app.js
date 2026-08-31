@@ -1,7 +1,9 @@
-// Smart API Base Auto-detection
-const API_BASE = (window.location.protocol === 'file:' || !window.location.port || window.location.port !== '8080')
-    ? 'http://localhost:8080/api'
-    : '/api';
+// Dynamic API Base Auto-detection for Vercel + Render Hybrid Architecture
+const RENDER_BACKEND_URL = 'https://bank-management-xhardik.onrender.com';
+
+const API_BASE = (window.location.hostname.includes('render.com') || (window.location.hostname === 'localhost' && window.location.port === '8080'))
+    ? '/api'
+    : (RENDER_BACKEND_URL + '/api');
 
 document.addEventListener('DOMContentLoaded', () => {
     loadDashboardData();
@@ -33,7 +35,7 @@ function closeModal(id) {
     document.getElementById(id).style.display = 'none';
 }
 
-// Resilient API Fetch Helper
+// Resilient API Fetch Helper with CORS support
 async function apiCall(endpoint, method = 'GET', body = null) {
     try {
         const options = {
@@ -88,7 +90,7 @@ async function loadDashboardData() {
         hideServerWarningBanner();
         document.getElementById('total-accounts-val').innerText = accounts.length;
         const totalCap = accounts.reduce((sum, a) => sum + a.balance, 0);
-        document.getElementById('total-capital-val').innerText = `$${totalCap.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        document.getElementById('total-capital-val').innerText = `₹${totalCap.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 
         if (accounts.length > 0) {
             updateCreditCardPreview(accounts[0]);
@@ -108,7 +110,7 @@ function updateCreditCardPreview(acc) {
 
     if (cardHolder) cardHolder.innerText = acc.holderName.toUpperCase();
     if (cardNum) cardNum.innerText = `•••• •••• •••• ${acc.accountNumber.replace('ACC', '')}`;
-    if (cardBal) cardBal.innerText = `$${acc.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    if (cardBal) cardBal.innerText = `₹${acc.balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
     if (cardType) cardType.innerText = acc.type;
 }
 
@@ -132,9 +134,8 @@ function renderAccountsTable(accounts) {
 
     tbody.innerHTML = accounts.map(a => {
         let badgeClass = 'badge-savings';
-        let icon = '💎';
-        if (a.type === 'CURRENT') { badgeClass = 'badge-current'; icon = '⚡'; }
-        if (a.type === 'FIXED_DEPOSIT') { badgeClass = 'badge-fd'; icon = '🔒'; }
+        if (a.type === 'CURRENT') { badgeClass = 'badge-current'; }
+        if (a.type === 'FIXED_DEPOSIT') { badgeClass = 'badge-fd'; }
 
         return `
             <tr>
@@ -148,12 +149,12 @@ function renderAccountsTable(accounts) {
                     </div>
                 </td>
                 <td><strong>${a.holderName}</strong></td>
-                <td><span class="badge ${badgeClass}">${icon} ${a.type}</span></td>
-                <td><strong class="amount-green">$${a.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong></td>
+                <td><span class="badge ${badgeClass}">${a.type}</span></td>
+                <td><strong class="amount-green">₹${a.balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
                 <td>
                     <div class="action-buttons">
-                        <button class="btn-sm btn-success" onclick="quickAction('deposit', '${a.accountNumber}')">↓ Deposit</button>
-                        <button class="btn-sm btn-warning" onclick="quickAction('withdraw', '${a.accountNumber}')">↑ Withdraw</button>
+                        <button class="btn-sm btn-success" onclick="quickAction('deposit', '${a.accountNumber}')">Deposit</button>
+                        <button class="btn-sm btn-warning" onclick="quickAction('withdraw', '${a.accountNumber}')">Withdraw</button>
                     </div>
                 </td>
             </tr>
@@ -180,18 +181,17 @@ function renderTransactions(transactions) {
     tbody.innerHTML = transactions.map(t => {
         let typeColor = 'badge-deposit';
         let sign = '+';
-        let txIcon = '📥';
-        if (t.type.includes('WITHDRAWAL')) { typeColor = 'badge-withdrawal'; sign = '-'; txIcon = '📤'; }
-        if (t.type.includes('TRANSFER')) { typeColor = 'badge-transfer'; sign = '⇄'; txIcon = '🔄'; }
+        if (t.type.includes('WITHDRAWAL')) { typeColor = 'badge-withdrawal'; sign = '-'; }
+        if (t.type.includes('TRANSFER')) { typeColor = 'badge-transfer'; sign = '⇄'; }
 
         return `
             <tr>
                 <td><code class="tx-code">${t.txId}</code></td>
                 <td><span class="sub-text">${t.timestamp}</span></td>
                 <td><strong>${t.accNum}</strong></td>
-                <td><span class="badge-tx ${typeColor}">${txIcon} ${t.type}</span></td>
-                <td><strong class="${sign === '+' ? 'text-green' : 'text-red'}">${sign} $${t.amount.toFixed(2)}</strong></td>
-                <td>$${t.balanceAfter.toFixed(2)}</td>
+                <td><span class="badge-tx ${typeColor}">${t.type}</span></td>
+                <td><strong class="${sign === '+' ? 'text-green' : 'text-red'}">${sign} ₹${t.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
+                <td>₹${t.balanceAfter.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                 <td>${t.targetAcc !== 'N/A' ? 'Target: <strong>' + t.targetAcc + '</strong>' : t.remarks}</td>
             </tr>
         `;
@@ -222,7 +222,7 @@ async function handleCreateAccount(e) {
 
     const res = await apiCall('/accounts/create', 'POST', data);
     if (res && res.success) {
-        alert(`🎉 Account Created Successfully!\nAccount #: ${res.accountNumber}\nBalance: $${res.balance.toFixed(2)}`);
+        alert(`Account Created Successfully!\nAccount #: ${res.accountNumber}\nBalance: ₹${res.balance.toFixed(2)}`);
         closeModal('create-account-modal');
         loadDashboardData();
         loadAccounts();
@@ -241,7 +241,7 @@ async function handleDeposit(e) {
 
     const res = await apiCall('/deposit', 'POST', data);
     if (res && res.success) {
-        alert(`✅ Deposit Successful!\nNew Balance: $${res.newBalance.toFixed(2)}`);
+        alert(`Deposit Successful!\nNew Balance: ₹${res.newBalance.toFixed(2)}`);
         closeModal('deposit-modal');
         loadDashboardData();
         loadAccounts();
@@ -260,7 +260,7 @@ async function handleWithdraw(e) {
 
     const res = await apiCall('/withdraw', 'POST', data);
     if (res && res.success) {
-        alert(`✅ Withdrawal Successful!\nNew Balance: $${res.newBalance.toFixed(2)}`);
+        alert(`Withdrawal Successful!\nNew Balance: ₹${res.newBalance.toFixed(2)}`);
         closeModal('withdraw-modal');
         loadDashboardData();
         loadAccounts();
@@ -280,7 +280,7 @@ async function handleTransfer(e) {
 
     const res = await apiCall('/transfer', 'POST', data);
     if (res && res.success) {
-        alert(`💸 Transfer Successful!\nTx ID: ${res.txId}\nSource New Balance: $${res.sourceBalance.toFixed(2)}`);
+        alert(`Transfer Successful!\nTx ID: ${res.txId}\nSource New Balance: ₹${res.sourceBalance.toFixed(2)}`);
         closeModal('transfer-modal');
         loadDashboardData();
         loadAccounts();
@@ -293,7 +293,7 @@ async function triggerUndo() {
     if (!confirm('Are you sure you want to rollback the most recent transaction?')) return;
     const res = await apiCall('/undo', 'POST');
     if (res && res.success) {
-        alert('↺ ' + res.message);
+        alert(res.message);
         loadDashboardData();
         loadAccounts();
     } else if (res) {
@@ -322,7 +322,7 @@ async function enqueueTeller() {
     if (!req) return alert('Please enter inquiry details.');
     const res = await apiCall('/teller/enqueue', 'POST', { request: req });
     if (res && res.success) {
-        alert('📥 ' + res.message);
+        alert(res.message);
         document.getElementById('teller-inquiry-input').value = '';
     }
 }
@@ -330,7 +330,7 @@ async function enqueueTeller() {
 async function dequeueTeller() {
     const res = await apiCall('/teller/dequeue', 'POST');
     if (res && res.success) {
-        alert('✅ Serviced Customer: ' + res.processed);
+        alert('Serviced Customer: ' + res.processed);
     }
 }
 
@@ -342,7 +342,7 @@ async function enqueueVip() {
     if (!name) return alert('Enter VIP client name.');
     const res = await apiCall('/vip/enqueue', 'POST', { name, type, priority });
     if (res && res.success) {
-        alert('👑 ' + res.message);
+        alert(res.message);
         document.getElementById('vip-name-input').value = '';
     }
 }
@@ -351,7 +351,7 @@ async function dequeueVip() {
     const res = await apiCall('/vip/dequeue', 'POST');
     if (res && res.success) {
         if (res.name) {
-            alert(`👑 Serviced High-Priority VIP Request:\nRequest ID: ${res.requestId}\nName: ${res.name}\nPriority Score: ${res.priority}`);
+            alert(`Serviced High-Priority VIP Request:\nRequest ID: ${res.requestId}\nName: ${res.name}\nPriority Score: ${res.priority}`);
         } else {
             alert(res.message);
         }
@@ -372,7 +372,7 @@ async function loadAuditLogs() {
 async function runAutomatedTests() {
     openModal('test-modal');
     const box = document.getElementById('test-output-box');
-    box.innerText = '⚡ Executing System Diagnostics...\nPlease wait...';
+    box.innerText = 'Executing System Diagnostics...\nPlease wait...';
 
     const res = await apiCall('/tests/run');
     if (res) {
