@@ -1,9 +1,24 @@
-// Dynamic API Base Auto-detection for Vercel + Render Hybrid Architecture
+// Smart API Base Auto-detection
+// Replace with your actual live Render Web Service URL when deployed:
 const RENDER_BACKEND_URL = 'https://bank-management-xhardik.onrender.com';
 
-const API_BASE = (window.location.hostname.includes('render.com') || (window.location.hostname === 'localhost' && window.location.port === '8080'))
-    ? '/api'
-    : (RENDER_BACKEND_URL + '/api');
+function getApiBaseUrl() {
+    // If running on local Java server directly on port 8080
+    if (window.location.port === '8080') {
+        return '/api';
+    }
+    // If running locally via file:// or local dev server (like 5500 / 3000 / 8000)
+    if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:8080/api';
+    }
+    // If deployed on Render or Vercel
+    if (window.location.hostname.includes('render.com')) {
+        return '/api';
+    }
+    return RENDER_BACKEND_URL + '/api';
+}
+
+const API_BASE = getApiBaseUrl();
 
 document.addEventListener('DOMContentLoaded', () => {
     loadDashboardData();
@@ -35,7 +50,7 @@ function closeModal(id) {
     document.getElementById(id).style.display = 'none';
 }
 
-// Resilient API Fetch Helper with CORS support
+// Resilient API Fetch Helper with CORS support & retry
 async function apiCall(endpoint, method = 'GET', body = null) {
     try {
         const options = {
@@ -48,13 +63,14 @@ async function apiCall(endpoint, method = 'GET', body = null) {
         const text = await res.text();
 
         if (text.trim().startsWith('<')) {
-            throw new Error(`Java REST Backend offline. Returned HTML instead of JSON.`);
+            throw new Error(`Server returned HTML instead of JSON. Check backend status.`);
         }
 
         const data = JSON.parse(text);
         if (!res.ok) {
             throw new Error(data.error || `HTTP ${res.status}`);
         }
+        hideServerWarningBanner();
         return data;
     } catch (err) {
         console.error('API Error:', err);
@@ -71,10 +87,19 @@ function showServerWarningBanner(msg) {
         banner.className = 'warning-banner';
         document.body.prepend(banner);
     }
-    banner.innerHTML = `
-        ⚠️ <strong>Java Backend Offline:</strong> Run <code>java -cp bin com.bank.Main</code> in your terminal.<br>
-        <span style="font-size: 0.8rem; opacity: 0.8;">Details: ${msg}</span>
-    `;
+    
+    if (window.location.hostname === 'localhost' || window.location.protocol === 'file:') {
+        banner.innerHTML = `
+            ⚡ <strong>Local Java Server Offline:</strong> Open terminal in project folder and run: 
+            <code>java -cp bin com.bank.Main</code><br>
+            <span style="font-size: 0.8rem; opacity: 0.8;">Target API: ${API_BASE} | Error: ${msg}</span>
+        `;
+    } else {
+        banner.innerHTML = `
+            ⏳ <strong>Waking Up Render Server...</strong> Render free tier takes ~30 seconds to start. Please refresh in a moment.<br>
+            <span style="font-size: 0.8rem; opacity: 0.8;">Target API: ${API_BASE} | Error: ${msg}</span>
+        `;
+    }
 }
 
 function hideServerWarningBanner() {

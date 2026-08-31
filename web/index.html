@@ -17,9 +17,9 @@
             <div class="brand">
                 <div class="brand-logo">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                        <path d="M2 17l10 5 10-5"></path>
-                        <path d="M2 12l10 5 10-5"></path>
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
                     </svg>
                 </div>
                 <div class="brand-text">
@@ -55,7 +55,7 @@
                 <div class="user-card">
                     <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256" alt="User Profile" class="profile-pic">
                     <div class="user-info">
-                        <h4>Hardik Parmar</h4>
+                        <h4>Hardik Verma</h4>
                         <span>Executive NRI Client</span>
                     </div>
                 </div>
@@ -66,6 +66,15 @@
         <main class="main-content">
             <!-- Top Navbar -->
             <header class="top-nav">
+                <div class="brand-top-header">
+                    <div class="brand-logo-small">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                        </svg>
+                    </div>
+                    <span class="top-brand-title">APEX BANK INDIA</span>
+                </div>
                 <div class="search-bar">
                     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     <input type="text" id="search-input" placeholder="Search account number, customer name or phone..." onkeyup="searchAccounts()">
@@ -169,7 +178,7 @@
                             <div class="card-bottom">
                                 <div class="card-holder">
                                     <span class="label">CARD HOLDER</span>
-                                    <span class="value" id="card-holder-name">HARDIK PARMAR</span>
+                                    <span class="value" id="card-holder-name">HARDIK VERMA</span>
                                 </div>
                                 <div class="card-balance">
                                     <span class="label">AVAILABLE BALANCE</span>
@@ -385,7 +394,7 @@
                 </div>
                 <div class="form-group">
                     <label>Customer Full Name</label>
-                    <input type="text" id="new-cust-name" required placeholder="e.g. Hardik Parmar">
+                    <input type="text" id="new-cust-name" required placeholder="e.g. Hardik Verma">
                 </div>
                 <div class="form-row">
                     <div class="form-group">
