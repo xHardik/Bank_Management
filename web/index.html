@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apex Bank India | Executive Financial Portal</title>
+    <title>Apex Bank India | Mobile Executive Portal</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -12,7 +12,7 @@
     <div class="bg-grid-overlay"></div>
 
     <div class="app-container">
-        <!-- Sidebar Navigation -->
+        <!-- Sidebar Navigation (Drawer on Mobile) -->
         <aside class="sidebar">
             <div class="brand">
                 <div class="brand-logo">
@@ -24,6 +24,7 @@
                     <h2>APEX BANK</h2>
                     <span>NATIONAL PORTAL</span>
                 </div>
+                <button class="sidebar-close-btn" onclick="toggleMobileSidebar()">&times;</button>
             </div>
 
             <nav class="nav-menu">
@@ -62,28 +63,39 @@
 
         <!-- Main Content Area -->
         <main class="main-content">
-            <!-- Top Navbar -->
+            <!-- Top Navbar with Mobile Hamburger -->
             <header class="top-nav">
-                <div class="brand-top-header">
-                    <div class="brand-logo-small">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M8 10v11M12 10v11M16 10v11M20 10v11"/>
+                <div class="top-nav-left">
+                    <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Toggle Navigation">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
+                    </button>
+                    <div class="brand-top-header">
+                        <div class="brand-logo-small">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M8 10v11M12 10v11M16 10v11M20 10v11"/>
+                            </svg>
+                        </div>
+                        <span class="top-brand-title">APEX BANK INDIA</span>
                     </div>
-                    <span class="top-brand-title">APEX BANK INDIA</span>
                 </div>
+
                 <div class="search-bar">
                     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     <input type="text" id="search-input" placeholder="Search account number, customer name or phone..." onkeyup="searchAccounts()">
                 </div>
+
                 <div class="nav-actions">
                     <button class="btn btn-secondary" onclick="triggerUndo()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-                        Instant Undo
+                        <span>Undo</span>
                     </button>
                     <button class="btn btn-primary" onclick="openModal('create-account-modal')">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        Open New Account
+                        <span>New Account</span>
                     </button>
                 </div>
             </header>
@@ -230,7 +242,7 @@
                     </div>
                     <button class="btn btn-secondary" onclick="sortAccountsByBalance()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                        Sort by Highest Balance
+                        Sort by Balance
                     </button>
                 </div>
 
@@ -240,9 +252,9 @@
                             <tr>
                                 <th>Account & Customer</th>
                                 <th>Holder Name</th>
-                                <th>Account Category</th>
-                                <th>Available Balance (INR)</th>
-                                <th>Direct Operations</th>
+                                <th>Category</th>
+                                <th>Balance (INR)</th>
+                                <th>Operations</th>
                             </tr>
                         </thead>
                         <tbody id="accounts-body">
@@ -307,7 +319,7 @@
                         </div>
                         <div class="button-group">
                             <button class="btn btn-primary" onclick="enqueueTeller()">Submit Inquiry</button>
-                            <button class="btn btn-secondary" onclick="dequeueTeller()">Process Next Customer</button>
+                            <button class="btn btn-secondary" onclick="dequeueTeller()">Process Next</button>
                         </div>
                     </div>
 
@@ -340,8 +352,8 @@
                             </div>
                         </div>
                         <div class="button-group">
-                            <button class="btn btn-gold" onclick="enqueueVip()">Add VIP Request</button>
-                            <button class="btn btn-secondary" onclick="dequeueVip()">Serve Highest Priority VIP</button>
+                            <button class="btn btn-gold" onclick="enqueueVip()">Add VIP</button>
+                            <button class="btn btn-secondary" onclick="dequeueVip()">Serve Highest</button>
                         </div>
                     </div>
                 </div>
@@ -356,7 +368,7 @@
                     </div>
                     <button class="btn btn-secondary" onclick="runAutomatedTests()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
-                        Run System Diagnostics
+                        Diagnostics
                     </button>
                 </div>
 
@@ -409,7 +421,7 @@
                     </div>
                     <div class="form-group">
                         <label>Set 4-Digit Security PIN</label>
-                        <input type="password" id="new-acc-pin" maxlength="4" required placeholder="••••">
+                        <input type="password" id="new-acc-pin" maxlength="4" required placeholder="••••" value="1234">
                     </div>
                 </div>
                 <div class="form-group">
@@ -441,6 +453,10 @@
                     <input type="number" id="dep-amount" step="0.01" min="1" required placeholder="1000.00">
                 </div>
                 <div class="form-group">
+                    <label>Enter Security PIN</label>
+                    <input type="password" id="dep-pin" maxlength="4" required placeholder="••••" value="1234">
+                </div>
+                <div class="form-group">
                     <label>Deposit Remarks</label>
                     <input type="text" id="dep-remarks" value="Direct Cash Deposit">
                 </div>
@@ -467,6 +483,10 @@
                 <div class="form-group">
                     <label>Withdrawal Amount (₹)</label>
                     <input type="number" id="w-amount" step="0.01" min="1" required placeholder="500.00">
+                </div>
+                <div class="form-group">
+                    <label>Enter Security PIN</label>
+                    <input type="password" id="w-pin" maxlength="4" required placeholder="••••" value="1234">
                 </div>
                 <div class="form-group">
                     <label>Withdrawal Remarks</label>
@@ -501,6 +521,10 @@
                 <div class="form-group">
                     <label>Transfer Amount (₹)</label>
                     <input type="number" id="t-amount" step="0.01" min="1" required placeholder="2500.00">
+                </div>
+                <div class="form-group">
+                    <label>Source Security PIN</label>
+                    <input type="password" id="t-pin" maxlength="4" required placeholder="••••" value="1234">
                 </div>
                 <div class="form-group">
                     <label>Transfer Remarks</label>

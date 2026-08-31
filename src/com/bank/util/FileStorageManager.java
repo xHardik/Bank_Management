@@ -6,10 +6,12 @@ import com.bank.ds.AccountHashMap;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Utility for persisting and loading banking system data to/from plain text/CSV files.
  * Handles Accounts, Customers, and Transaction ledgers.
+ * Uses Locale.US to ensure reliable decimal parsing across all operating systems.
  */
 public class FileStorageManager {
 
@@ -39,7 +41,7 @@ public class FileStorageManager {
         try (PrintWriter writer = new PrintWriter(new FileWriter(CUSTOMERS_FILE))) {
             for (Customer c : customers) {
                 // CSV format: customerId,name,email,phone,address
-                writer.println(String.format("%s,%s,%s,%s,%s",
+                writer.println(String.format(Locale.US, "%s,%s,%s,%s,%s",
                         c.getCustomerId(), c.getName(), c.getEmail(), c.getPhone(), c.getAddress()));
             }
         } catch (IOException e) {
@@ -57,7 +59,7 @@ public class FileStorageManager {
                 } else if (a instanceof FixedDepositAccount) {
                     extra = String.valueOf(((FixedDepositAccount) a).getTenureMonths());
                 }
-                writer.println(String.format("%s,%s,%s,%.2f,%s,%s,%s",
+                writer.println(String.format(Locale.US, "%s,%s,%s,%.2f,%s,%s,%s",
                         a.getAccountNumber(), a.getCustomerId(), a.getHolderName(),
                         a.getBalance(), a.getPin(), a.getAccountType(), extra));
             }
@@ -70,9 +72,10 @@ public class FileStorageManager {
         try (PrintWriter writer = new PrintWriter(new FileWriter(TRANSACTIONS_FILE))) {
             for (Transaction t : transactions) {
                 // Format: txId,accNum,type,amount,balanceAfter,targetAccNum,timestamp,remarks
-                writer.println(String.format("%s,%s,%s,%.2f,%.2f,%s,%s,%s",
+                writer.println(String.format(Locale.US, "%s,%s,%s,%.2f,%.2f,%s,%s,%s",
                         t.getTransactionId(), t.getAccountNumber(), t.getType(),
-                        t.getAmount(), t.getBalanceAfter(), t.getTargetAccountNumber(),
+                        t.getAmount(), t.getBalanceAfter(),
+                        t.getTargetAccountNumber() != null ? t.getTargetAccountNumber() : "N/A",
                         t.getTimestamp(), t.getRemarks()));
             }
         } catch (IOException e) {

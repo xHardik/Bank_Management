@@ -15,6 +15,7 @@ import java.util.UUID;
 
 /**
  * Main Service Facade coordinating Banking Operations, Data Structures, and Persistence.
+ * Enforces Security PIN authentication across all financial operations.
  */
 public class BankService {
 
@@ -93,6 +94,10 @@ public class BankService {
         if (initialBalance < 0) {
             throw new TransactionFailedException("Initial balance cannot be negative.");
         }
+        if (pin == null || pin.trim().length() < 4) {
+            throw new TransactionFailedException("A valid 4-digit Security PIN is required.");
+        }
+
         String custId = "CUST" + (100 + customerList.size() + 1);
         Customer cust = new Customer(custId, name, email, phone, address);
         customerList.add(cust);
@@ -119,9 +124,12 @@ public class BankService {
         return account;
     }
 
-    // Deposit Operation
-    public Transaction deposit(String accountNumber, double amount, String remarks) throws InvalidAccountException, TransactionFailedException {
+    // Deposit Operation with PIN Authentication
+    public Transaction deposit(String accountNumber, double amount, String pin, String remarks) throws InvalidAccountException, TransactionFailedException {
         Account acc = getAccountOrThrow(accountNumber);
+        if (!acc.validatePin(pin)) {
+            throw new TransactionFailedException("Invalid Security PIN entered for Account #" + accountNumber);
+        }
         acc.deposit(amount);
 
         String txId = "TX" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
@@ -136,9 +144,12 @@ public class BankService {
         return tx;
     }
 
-    // Withdraw Operation
-    public Transaction withdraw(String accountNumber, double amount, String remarks) throws InvalidAccountException, InsufficientFundsException, TransactionFailedException {
+    // Withdraw Operation with PIN Authentication
+    public Transaction withdraw(String accountNumber, double amount, String pin, String remarks) throws InvalidAccountException, InsufficientFundsException, TransactionFailedException {
         Account acc = getAccountOrThrow(accountNumber);
+        if (!acc.validatePin(pin)) {
+            throw new TransactionFailedException("Invalid Security PIN entered for Account #" + accountNumber);
+        }
         acc.withdraw(amount);
 
         String txId = "TX" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
@@ -153,13 +164,17 @@ public class BankService {
         return tx;
     }
 
-    // Transfer Operation
-    public Transaction transfer(String sourceAccNum, String targetAccNum, double amount, String remarks) throws InvalidAccountException, InsufficientFundsException, TransactionFailedException {
+    // Transfer Operation with PIN Authentication
+    public Transaction transfer(String sourceAccNum, String targetAccNum, double amount, String pin, String remarks) throws InvalidAccountException, InsufficientFundsException, TransactionFailedException {
         if (sourceAccNum.equals(targetAccNum)) {
             throw new TransactionFailedException("Source and Target account numbers cannot be identical.");
         }
         Account sourceAcc = getAccountOrThrow(sourceAccNum);
         Account targetAcc = getAccountOrThrow(targetAccNum);
+
+        if (!sourceAcc.validatePin(pin)) {
+            throw new TransactionFailedException("Invalid Security PIN entered for Source Account #" + sourceAccNum);
+        }
 
         // Perform withdrawal from source
         sourceAcc.withdraw(amount);
@@ -194,13 +209,10 @@ public class BankService {
         }
 
         if (tx.getType() == TransactionType.DEPOSIT) {
-            // Revert deposit by deducting
             acc.adjustBalanceForRollback(-tx.getAmount());
         } else if (tx.getType() == TransactionType.WITHDRAWAL) {
-            // Revert withdrawal by adding back
             acc.adjustBalanceForRollback(tx.getAmount());
         } else if (tx.getType() == TransactionType.TRANSFER_OUT) {
-            // Revert transfer out
             acc.adjustBalanceForRollback(tx.getAmount());
             Account targetAcc = accountHashMap.get(tx.getTargetAccountNumber());
             if (targetAcc != null) {

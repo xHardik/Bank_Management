@@ -9,64 +9,66 @@ import com.bank.test.TestRunner;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Console Application Launcher and Interactive CLI Entry Point for Bank Management System.
+ * Supports dual-mode execution: Standalone Console Menu or Web Application Mode via embedded HTTP Server.
+ */
 public class Main {
 
-    public static void main(String[] args) {
-        System.out.println("=========================================================");
-        System.out.println("  SMART BANK ACCOUNT & TRANSACTION MANAGEMENT SYSTEM  ");
-        System.out.println("=========================================================");
+    private static final int PORT = 8080;
 
+    public static void main(String[] args) {
         BankService bankService = new BankService();
 
-        // Start Web REST HTTP Server on Port 8080
+        // Launch Embedded Web Server in background thread
         try {
-            BankHttpServer server = new BankHttpServer(8080, bankService);
-            server.start();
+            BankHttpServer webServer = new BankHttpServer(PORT, bankService);
+            webServer.start();
         } catch (Exception e) {
-            System.err.println("Could not start Web Server: " + e.getMessage());
+            System.err.println("Warning: Could not start web server on port " + PORT + ": " + e.getMessage());
         }
 
-        // Run interactive CLI menu alongside
-        runCliMenu(bankService);
-    }
-
-    private static void runCliMenu(BankService bankService) {
+        // Run Interactive Console CLI
         Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.println("\n---------------------------------------------------------");
-            System.out.println(" MAIN TERMINAL MENU");
-            System.out.println("---------------------------------------------------------");
-            System.out.println(" 1. View All Accounts (HashMap)");
-            System.out.println(" 2. Create New Account");
-            System.out.println(" 3. Deposit Money");
-            System.out.println(" 4. Withdraw Money");
-            System.out.println(" 5. Transfer Funds");
-            System.out.println(" 6. Undo Recent Transaction (Stack LIFO)");
-            System.out.println(" 7. View Accounts Sorted by Balance (QuickSort)");
-            System.out.println(" 8. Search Accounts (Binary Search / Linear Search)");
-            System.out.println(" 9. Process Teller Service Queue (Queue FIFO)");
-            System.out.println("10. Process VIP Service Queue (Max-Heap Priority Queue)");
-            System.out.println("11. Run Automated Test Harness");
-            System.out.println("12. Save & Exit");
-            System.out.print("Select Option (1-12): ");
+        System.out.println("\n=================================================");
+        System.out.println("    APEX BANK MANAGEMENT SYSTEM (CLI)");
+        System.out.println("=================================================");
 
-            String choiceStr = scanner.nextLine().trim();
-            if (choiceStr.isEmpty()) continue;
+        while (true) {
+            System.out.println("\n--- MAIN MENU ---");
+            System.out.println("1. List All Accounts");
+            System.out.println("2. Create New Account");
+            System.out.println("3. Deposit Funds");
+            System.out.println("4. Withdraw Funds");
+            System.out.println("5. Transfer Funds");
+            System.out.println("6. Undo Last Transaction (LIFO Stack)");
+            System.out.println("7. Sort Accounts by Balance (QuickSort)");
+            System.out.println("8. Search Account (Linear / Binary Search)");
+            System.out.println("9. Run Automated Diagnostics & Unit Tests");
+            System.out.println("10. Exit");
+            System.out.print("Select an option (1-10): ");
+
+            String input = scanner.nextLine().trim();
+            if ("10".equals(input) || "exit".equalsIgnoreCase(input)) {
+                System.out.println("Thank you for using Apex Bank. Goodbye!");
+                System.exit(0);
+            }
 
             try {
-                int choice = Integer.parseInt(choiceStr);
+                int choice = Integer.parseInt(input);
                 switch (choice) {
                     case 1:
-                        List<Account> accounts = bankService.getAllAccounts();
-                        System.out.println("\n--- ACCOUNT LISTING ---");
-                        for (Account a : accounts) {
-                            System.out.println(a);
+                        List<Account> accs = bankService.getAllAccounts();
+                        System.out.println("\n--- ALL REGISTERED ACCOUNTS ---");
+                        for (Account a : accs) {
+                            System.out.printf("Acc #: %s | Cust ID: %s | Name: %-15s | Type: %-13s | Balance: Rs. %.2f%n",
+                                    a.getAccountNumber(), a.getCustomerId(), a.getHolderName(), a.getAccountType(), a.getBalance());
                         }
                         break;
                     case 2:
-                        System.out.print("Enter Account Type (SAVINGS/CURRENT/FIXED_DEPOSIT): ");
+                        System.out.print("Enter Account Type (SAVINGS / CURRENT / FIXED_DEPOSIT): ");
                         String type = scanner.nextLine().trim();
-                        System.out.print("Enter Customer Name: ");
+                        System.out.print("Enter Customer Full Name: ");
                         String name = scanner.nextLine().trim();
                         System.out.print("Enter Email: ");
                         String email = scanner.nextLine().trim();
@@ -87,7 +89,9 @@ public class Main {
                         String depAcc = scanner.nextLine().trim();
                         System.out.print("Enter Deposit Amount: ");
                         double depAmt = Double.parseDouble(scanner.nextLine().trim());
-                        Transaction depTx = bankService.deposit(depAcc, depAmt, "CLI Deposit");
+                        System.out.print("Enter 4-Digit Security PIN: ");
+                        String depPin = scanner.nextLine().trim();
+                        Transaction depTx = bankService.deposit(depAcc, depAmt, depPin, "CLI Deposit");
                         System.out.println("SUCCESS! " + depTx);
                         break;
                     case 4:
@@ -95,7 +99,9 @@ public class Main {
                         String wAcc = scanner.nextLine().trim();
                         System.out.print("Enter Withdrawal Amount: ");
                         double wAmt = Double.parseDouble(scanner.nextLine().trim());
-                        Transaction wTx = bankService.withdraw(wAcc, wAmt, "CLI Withdrawal");
+                        System.out.print("Enter 4-Digit Security PIN: ");
+                        String wPin = scanner.nextLine().trim();
+                        Transaction wTx = bankService.withdraw(wAcc, wAmt, wPin, "CLI Withdrawal");
                         System.out.println("SUCCESS! " + wTx);
                         break;
                     case 5:
@@ -105,7 +111,9 @@ public class Main {
                         String tgtAcc = scanner.nextLine().trim();
                         System.out.print("Enter Transfer Amount: ");
                         double tAmt = Double.parseDouble(scanner.nextLine().trim());
-                        Transaction tTx = bankService.transfer(srcAcc, tgtAcc, tAmt, "CLI Transfer");
+                        System.out.print("Enter Source Account Security PIN: ");
+                        String tPin = scanner.nextLine().trim();
+                        Transaction tTx = bankService.transfer(srcAcc, tgtAcc, tAmt, tPin, "CLI Transfer");
                         System.out.println("SUCCESS! Transfer completed: " + tTx);
                         break;
                     case 6:
@@ -116,7 +124,7 @@ public class Main {
                         List<Account> sorted = bankService.getAccountsSortedByBalance();
                         System.out.println("\n--- ACCOUNTS SORTED BY BALANCE (QuickSort Descending) ---");
                         for (Account a : sorted) {
-                            System.out.printf("Acc #: %s | Name: %-15s | Type: %-13s | Balance: $%.2f%n",
+                            System.out.printf("Acc #: %s | Name: %-15s | Type: %-13s | Balance: Rs. %.2f%n",
                                     a.getAccountNumber(), a.getHolderName(), a.getAccountType(), a.getBalance());
                         }
                         break;
@@ -130,57 +138,26 @@ public class Main {
                             if (match != null) {
                                 System.out.println("FOUND (Binary Search): " + match);
                             } else {
-                                System.out.println("ACCOUNT NOT FOUND.");
+                                System.out.println("Account not found.");
                             }
                         } else {
-                            System.out.print("Enter Search Keyword: ");
+                            System.out.print("Enter Name Keyword: ");
                             String kw = scanner.nextLine().trim();
                             List<Account> matches = bankService.searchAccounts(kw);
-                            System.out.println("FOUND " + matches.size() + " MATCHES:");
+                            System.out.println("Found " + matches.size() + " matching account(s):");
                             for (Account m : matches) {
-                                System.out.println(m);
+                                System.out.println(" - " + m);
                             }
                         }
                         break;
                     case 9:
-                        System.out.print("(1) Enqueue Request or (2) Dequeue Request: ");
-                        String qOpt = scanner.nextLine().trim();
-                        if ("1".equals(qOpt)) {
-                            System.out.print("Enter Customer Inquiry Details: ");
-                            String inq = scanner.nextLine().trim();
-                            bankService.enqueueTellerRequest(inq);
-                            System.out.println("Enqueued in Teller Queue.");
-                        } else {
-                            System.out.println("Serviced Customer: " + bankService.dequeueTellerRequest());
-                        }
-                        break;
-                    case 10:
-                        System.out.print("(1) Add VIP Request or (2) Process Top VIP Request: ");
-                        String vipOpt = scanner.nextLine().trim();
-                        if ("1".equals(vipOpt)) {
-                            System.out.print("Customer Name: ");
-                            String vName = scanner.nextLine().trim();
-                            System.out.print("Priority Score (1-10): ");
-                            int prio = Integer.parseInt(scanner.nextLine().trim());
-                            bankService.addVipRequest("REQ" + System.currentTimeMillis() % 1000, vName, "VIP Inquiry", prio);
-                            System.out.println("VIP Request added to Max-Heap.");
-                        } else {
-                            System.out.println("Serviced VIP: " + bankService.processVipRequest());
-                        }
-                        break;
-                    case 11:
                         TestRunner.runAllTests(System.out);
                         break;
-                    case 12:
-                        bankService.saveState();
-                        System.out.println("Banking state saved to disk. Goodbye!");
-                        System.exit(0);
-                        break;
                     default:
-                        System.out.println("Invalid selection. Enter a number between 1 and 12.");
+                        System.out.println("Invalid selection. Try again.");
                 }
             } catch (Exception e) {
-                System.out.println("ERROR: " + e.getMessage());
+                System.err.println("Error: " + e.getMessage());
             }
         }
     }

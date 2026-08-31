@@ -55,6 +55,15 @@ public class BankHttpServer {
         }
     }
 
+    public static void sendHttpResponse(HttpExchange exchange, int statusCode, String contentType, String response) throws IOException {
+        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+        exchange.getResponseHeaders().set("Content-Type", contentType);
+        exchange.sendResponseHeaders(statusCode, bytes.length);
+        OutputStream os = exchange.getResponseBody();
+        os.write(bytes);
+        os.close();
+    }
+
     // Static File Server
     static class StaticFileHandler implements HttpHandler {
         @Override
@@ -66,7 +75,7 @@ public class BankHttpServer {
 
             File file = new File("web" + path);
             if (!file.exists() || file.isDirectory()) {
-                sendResponse(exchange, 404, "text/plain", "404 Not Found");
+                sendHttpResponse(exchange, 404, "text/plain", "404 Not Found");
                 return;
             }
 
@@ -144,10 +153,10 @@ public class BankHttpServer {
                 } else if ("GET".equalsIgnoreCase(method) && "/api/tests/run".equals(path)) {
                     handleRunTests(exchange);
                 } else {
-                    sendResponse(exchange, 404, "application/json", "{\"error\": \"Endpoint not found\"}");
+                    sendHttpResponse(exchange, 404, "application/json", "{\"error\": \"Endpoint not found\"}");
                 }
             } catch (Exception e) {
-                sendResponse(exchange, 500, "application/json", "{\"error\": \"" + escapeJson(e.getMessage()) + "\"}");
+                sendHttpResponse(exchange, 500, "application/json", "{\"error\": \"" + escapeJson(e.getMessage()) + "\"}");
             }
         }
 
@@ -161,7 +170,7 @@ public class BankHttpServer {
                 if (i < accounts.size() - 1) json.append(",");
             }
             json.append("]");
-            sendResponse(exchange, 200, "application/json", json.toString());
+            sendHttpResponse(exchange, 200, "application/json", json.toString());
         }
 
         private void handleCreateAccount(HttpExchange exchange) throws IOException {
@@ -178,9 +187,9 @@ public class BankHttpServer {
 
                 Account acc = bankService.createAccount(type, name, email, phone, address, initialBalance, pin, extra);
                 String resp = String.format("{\"success\":true,\"accountNumber\":\"%s\",\"balance\":%.2f}", acc.getAccountNumber(), acc.getBalance());
-                sendResponse(exchange, 200, "application/json", resp);
+                sendHttpResponse(exchange, 200, "application/json", resp);
             } catch (Exception e) {
-                sendResponse(exchange, 400, "application/json", "{\"success\":false,\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+                sendHttpResponse(exchange, 400, "application/json", "{\"success\":false,\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
             }
         }
 
@@ -189,11 +198,12 @@ public class BankHttpServer {
             try {
                 String accNum = body.get("accountNumber");
                 double amount = Double.parseDouble(body.get("amount"));
+                String pin = body.getOrDefault("pin", "1234");
                 String remarks = body.getOrDefault("remarks", "Deposit via Web");
-                Transaction tx = bankService.deposit(accNum, amount, remarks);
-                sendResponse(exchange, 200, "application/json", String.format("{\"success\":true,\"txId\":\"%s\",\"newBalance\":%.2f}", tx.getTransactionId(), tx.getBalanceAfter()));
+                Transaction tx = bankService.deposit(accNum, amount, pin, remarks);
+                sendHttpResponse(exchange, 200, "application/json", String.format("{\"success\":true,\"txId\":\"%s\",\"newBalance\":%.2f}", tx.getTransactionId(), tx.getBalanceAfter()));
             } catch (Exception e) {
-                sendResponse(exchange, 400, "application/json", "{\"success\":false,\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+                sendHttpResponse(exchange, 400, "application/json", "{\"success\":false,\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
             }
         }
 
@@ -202,11 +212,12 @@ public class BankHttpServer {
             try {
                 String accNum = body.get("accountNumber");
                 double amount = Double.parseDouble(body.get("amount"));
+                String pin = body.getOrDefault("pin", "1234");
                 String remarks = body.getOrDefault("remarks", "Withdrawal via Web");
-                Transaction tx = bankService.withdraw(accNum, amount, remarks);
-                sendResponse(exchange, 200, "application/json", String.format("{\"success\":true,\"txId\":\"%s\",\"newBalance\":%.2f}", tx.getTransactionId(), tx.getBalanceAfter()));
+                Transaction tx = bankService.withdraw(accNum, amount, pin, remarks);
+                sendHttpResponse(exchange, 200, "application/json", String.format("{\"success\":true,\"txId\":\"%s\",\"newBalance\":%.2f}", tx.getTransactionId(), tx.getBalanceAfter()));
             } catch (Exception e) {
-                sendResponse(exchange, 400, "application/json", "{\"success\":false,\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+                sendHttpResponse(exchange, 400, "application/json", "{\"success\":false,\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
             }
         }
 
@@ -216,20 +227,21 @@ public class BankHttpServer {
                 String src = body.get("sourceAccount");
                 String target = body.get("targetAccount");
                 double amount = Double.parseDouble(body.get("amount"));
+                String pin = body.getOrDefault("pin", "1234");
                 String remarks = body.getOrDefault("remarks", "Transfer via Web");
-                Transaction tx = bankService.transfer(src, target, amount, remarks);
-                sendResponse(exchange, 200, "application/json", String.format("{\"success\":true,\"txId\":\"%s\",\"sourceBalance\":%.2f}", tx.getTransactionId(), tx.getBalanceAfter()));
+                Transaction tx = bankService.transfer(src, target, amount, pin, remarks);
+                sendHttpResponse(exchange, 200, "application/json", String.format("{\"success\":true,\"txId\":\"%s\",\"sourceBalance\":%.2f}", tx.getTransactionId(), tx.getBalanceAfter()));
             } catch (Exception e) {
-                sendResponse(exchange, 400, "application/json", "{\"success\":false,\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+                sendHttpResponse(exchange, 400, "application/json", "{\"success\":false,\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
             }
         }
 
         private void handleUndo(HttpExchange exchange) throws IOException {
             try {
                 String resultMsg = bankService.undoLastTransaction();
-                sendResponse(exchange, 200, "application/json", String.format("{\"success\":true,\"message\":\"%s\"}", escapeJson(resultMsg)));
+                sendHttpResponse(exchange, 200, "application/json", String.format("{\"success\":true,\"message\":\"%s\"}", escapeJson(resultMsg)));
             } catch (Exception e) {
-                sendResponse(exchange, 400, "application/json", "{\"success\":false,\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+                sendHttpResponse(exchange, 400, "application/json", "{\"success\":false,\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
             }
         }
 
@@ -240,73 +252,75 @@ public class BankHttpServer {
                 Transaction t = txs.get(i);
                 json.append(String.format("{\"txId\":\"%s\",\"accNum\":\"%s\",\"type\":\"%s\",\"amount\":%.2f,\"balanceAfter\":%.2f,\"targetAcc\":\"%s\",\"timestamp\":\"%s\",\"remarks\":\"%s\"}",
                         t.getTransactionId(), t.getAccountNumber(), t.getType(), t.getAmount(), t.getBalanceAfter(),
-                        t.getTargetAccountNumber(), t.getTimestamp(), escapeJson(t.getRemarks())));
+                        t.getTargetAccountNumber() != null ? t.getTargetAccountNumber() : "N/A",
+                        escapeJson(t.getTimestamp()), escapeJson(t.getRemarks())));
                 if (i < txs.size() - 1) json.append(",");
             }
             json.append("]");
-            sendResponse(exchange, 200, "application/json", json.toString());
+            sendHttpResponse(exchange, 200, "application/json", json.toString());
         }
 
         private void handleSortedAccounts(HttpExchange exchange) throws IOException {
-            List<Account> sorted = bankService.getAccountsSortedByBalance();
+            List<Account> accounts = bankService.getAccountsSortedByBalance();
             StringBuilder json = new StringBuilder("[");
-            for (int i = 0; i < sorted.size(); i++) {
-                Account a = sorted.get(i);
-                json.append(String.format("{\"accountNumber\":\"%s\",\"holderName\":\"%s\",\"type\":\"%s\",\"balance\":%.2f}",
-                        a.getAccountNumber(), escapeJson(a.getHolderName()), a.getAccountType(), a.getBalance()));
-                if (i < sorted.size() - 1) json.append(",");
+            for (int i = 0; i < accounts.size(); i++) {
+                Account a = accounts.get(i);
+                json.append(String.format("{\"accountNumber\":\"%s\",\"holderName\":\"%s\",\"type\":\"%s\",\"balance\":%.2f,\"customerId\":\"%s\"}",
+                        a.getAccountNumber(), escapeJson(a.getHolderName()), a.getAccountType(), a.getBalance(), a.getCustomerId()));
+                if (i < accounts.size() - 1) json.append(",");
             }
             json.append("]");
-            sendResponse(exchange, 200, "application/json", json.toString());
+            sendHttpResponse(exchange, 200, "application/json", json.toString());
         }
 
         private void handleSearch(HttpExchange exchange) throws IOException {
             String query = exchange.getRequestURI().getQuery();
-            String keyword = "";
+            String q = "";
             if (query != null && query.contains("q=")) {
-                keyword = query.split("q=")[1];
+                q = query.substring(query.indexOf("q=") + 2);
+                q = java.net.URLDecoder.decode(q, StandardCharsets.UTF_8);
             }
-            List<Account> results = bankService.searchAccounts(keyword);
+            List<Account> results = bankService.searchAccounts(q);
             StringBuilder json = new StringBuilder("[");
             for (int i = 0; i < results.size(); i++) {
                 Account a = results.get(i);
-                json.append(String.format("{\"accountNumber\":\"%s\",\"holderName\":\"%s\",\"type\":\"%s\",\"balance\":%.2f}",
-                        a.getAccountNumber(), escapeJson(a.getHolderName()), a.getAccountType(), a.getBalance()));
+                json.append(String.format("{\"accountNumber\":\"%s\",\"holderName\":\"%s\",\"type\":\"%s\",\"balance\":%.2f,\"customerId\":\"%s\"}",
+                        a.getAccountNumber(), escapeJson(a.getHolderName()), a.getAccountType(), a.getBalance(), a.getCustomerId()));
                 if (i < results.size() - 1) json.append(",");
             }
             json.append("]");
-            sendResponse(exchange, 200, "application/json", json.toString());
+            sendHttpResponse(exchange, 200, "application/json", json.toString());
         }
 
         private void handleTellerEnqueue(HttpExchange exchange) throws IOException {
             Map<String, String> body = parseJsonBody(exchange);
-            String req = body.getOrDefault("request", "General Customer Inquiry");
+            String req = body.getOrDefault("request", "");
             bankService.enqueueTellerRequest(req);
-            sendResponse(exchange, 200, "application/json", "{\"success\":true,\"message\":\"Customer enqueued in Teller Queue.\"}");
+            sendHttpResponse(exchange, 200, "application/json", "{\"success\":true,\"message\":\"Teller request enqueued successfully.\"}");
         }
 
         private void handleTellerDequeue(HttpExchange exchange) throws IOException {
-            String item = bankService.dequeueTellerRequest();
-            sendResponse(exchange, 200, "application/json", String.format("{\"success\":true,\"processed\":\"%s\"}", escapeJson(item)));
+            String processed = bankService.dequeueTellerRequest();
+            sendHttpResponse(exchange, 200, "application/json", String.format("{\"success\":true,\"processed\":\"%s\"}", escapeJson(processed)));
         }
 
         private void handleVipEnqueue(HttpExchange exchange) throws IOException {
             Map<String, String> body = parseJsonBody(exchange);
             String name = body.getOrDefault("name", "VIP Client");
-            String type = body.getOrDefault("type", "VIP Transaction");
-            int prio = Integer.parseInt(body.getOrDefault("priority", "5"));
-            String reqId = "REQ" + System.currentTimeMillis() % 10000;
-            bankService.addVipRequest(reqId, name, type, prio);
-            sendResponse(exchange, 200, "application/json", "{\"success\":true,\"message\":\"VIP Request inserted into Max-Heap Priority Queue.\"}");
+            String type = body.getOrDefault("type", "General Service");
+            int priority = Integer.parseInt(body.getOrDefault("priority", "5"));
+            String reqId = "VIP" + System.currentTimeMillis() % 10000;
+            bankService.addVipRequest(reqId, name, type, priority);
+            sendHttpResponse(exchange, 200, "application/json", "{\"success\":true,\"message\":\"VIP Service request added with Priority " + priority + "\"}");
         }
 
         private void handleVipDequeue(HttpExchange exchange) throws IOException {
             PriorityServiceQueue.ServiceRequest sr = bankService.processVipRequest();
             if (sr == null) {
-                sendResponse(exchange, 200, "application/json", "{\"success\":true,\"message\":\"No VIP requests pending.\"}");
+                sendHttpResponse(exchange, 200, "application/json", "{\"success\":true,\"message\":\"No VIP requests in priority queue.\"}");
             } else {
-                sendResponse(exchange, 200, "application/json", String.format("{\"success\":true,\"requestId\":\"%s\",\"name\":\"%s\",\"priority\":%d}",
-                        sr.getRequestId(), escapeJson(sr.getCustomerName()), sr.getPriorityScore()));
+                sendHttpResponse(exchange, 200, "application/json", String.format("{\"success\":true,\"requestId\":\"%s\",\"name\":\"%s\",\"type\":\"%s\",\"priority\":%d}",
+                        sr.getRequestId(), escapeJson(sr.getCustomerName()), escapeJson(sr.getRequestType()), sr.getPriorityScore()));
             }
         }
 
@@ -318,59 +332,50 @@ public class BankHttpServer {
                 if (i < logs.size() - 1) json.append(",");
             }
             json.append("]");
-            sendResponse(exchange, 200, "application/json", json.toString());
+            sendHttpResponse(exchange, 200, "application/json", json.toString());
         }
 
         private void handleRunTests(HttpExchange exchange) throws IOException {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(out);
-            boolean allPassed = TestRunner.runAllTests(ps);
-            String resultOutput = out.toString(StandardCharsets.UTF_8);
-
-            String json = String.format("{\"allPassed\":%b,\"log\":\"%s\"}", allPassed, escapeJson(resultOutput));
-            sendResponse(exchange, 200, "application/json", json);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8.name());
+            TestRunner.runAllTests(ps);
+            String log = baos.toString(StandardCharsets.UTF_8.name());
+            sendHttpResponse(exchange, 200, "application/json", String.format("{\"success\":true,\"log\":\"%s\"}", escapeJson(log)));
         }
-    }
 
-    private static Map<String, String> parseJsonBody(HttpExchange exchange) throws IOException {
-        Map<String, String> map = new HashMap<>();
-        InputStream is = exchange.getRequestBody();
-        BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = br.readLine()) != null) {
-            sb.append(line);
-        }
-        String json = sb.toString().trim();
-        if (json.startsWith("{") && json.endsWith("}")) {
-            json = json.substring(1, json.length() - 1);
-            String[] pairs = json.split(",");
-            for (String pair : pairs) {
-                String[] kv = pair.split(":", 2);
-                if (kv.length == 2) {
-                    String k = kv[0].trim().replaceAll("^\"|\"$", "");
-                    String v = kv[1].trim().replaceAll("^\"|\"$", "");
-                    map.put(k, v);
+        private Map<String, String> parseJsonBody(HttpExchange exchange) throws IOException {
+            InputStream is = exchange.getRequestBody();
+            BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            String raw = sb.toString().trim();
+            Map<String, String> map = new HashMap<>();
+
+            if (raw.startsWith("{") && raw.endsWith("}")) {
+                raw = raw.substring(1, raw.length() - 1);
+                String[] pairs = raw.split(",");
+                for (String pair : pairs) {
+                    String[] kv = pair.split(":", 2);
+                    if (kv.length == 2) {
+                        String key = kv[0].trim().replace("\"", "");
+                        String val = kv[1].trim().replace("\"", "");
+                        map.put(key, val);
+                    }
                 }
             }
+            return map;
         }
-        return map;
-    }
 
-    private static String escapeJson(String input) {
-        if (input == null) return "";
-        return input.replace("\\", "\\\\")
+        private String escapeJson(String input) {
+            if (input == null) return "";
+            return input.replace("\\", "\\\\")
                     .replace("\"", "\\\"")
                     .replace("\n", "\\n")
-                    .replace("\r", "\\r");
-    }
-
-    private static void sendResponse(HttpExchange exchange, int statusCode, String contentType, String response) throws IOException {
-        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
-        exchange.getResponseHeaders().set("Content-Type", contentType);
-        exchange.sendResponseHeaders(statusCode, bytes.length);
-        OutputStream os = exchange.getResponseBody();
-        os.write(bytes);
-        os.close();
+                    .replace("\r", "\\r")
+                    .replace("\t", "\\t");
+        }
     }
 }

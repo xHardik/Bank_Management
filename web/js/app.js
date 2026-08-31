@@ -16,6 +16,10 @@ function getApiBaseUrl() {
 
 const API_BASE = getApiBaseUrl();
 
+// LocalStorage Persistence Keys
+const LS_ACCOUNTS_KEY = 'apex_bank_accounts';
+const LS_TXS_KEY = 'apex_bank_transactions';
+
 document.addEventListener('DOMContentLoaded', () => {
     loadDashboardData();
     loadAccounts();
@@ -23,6 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
     loadQueues();
     loadAuditLogs();
 });
+
+function toggleMobileSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('open');
+    }
+}
 
 function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -32,6 +43,12 @@ function showTab(tabId) {
     if (event && event.target) {
         const btn = event.target.closest('.nav-btn');
         if (btn) btn.classList.add('active');
+    }
+
+    // Auto-close mobile drawer when tab is clicked
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar && window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
     }
 
     if (tabId === 'dashboard') loadDashboardData();
@@ -49,7 +66,7 @@ function closeModal(id) {
     document.getElementById(id).style.display = 'none';
 }
 
-// Resilient API Fetch Helper with CORS & Business Error Separation
+// Resilient API Fetch Helper
 async function apiCall(endpoint, method = 'GET', body = null) {
     try {
         const options = {
@@ -67,17 +84,8 @@ async function apiCall(endpoint, method = 'GET', body = null) {
         }
 
         const data = JSON.parse(text);
-        
-        // If HTTP status is success (200-299)
-        if (res.ok) {
-            hideServerWarningBanner();
-            return data;
-        } else {
-            // Business rule validation failure (e.g. minimum balance, invalid account)
-            // Return data cleanly without triggering server-offline banner!
-            hideServerWarningBanner();
-            return data;
-        }
+        hideServerWarningBanner();
+        return data;
     } catch (err) {
         console.error('Network / Server Error:', err);
         showServerWarningBanner(err.message);
@@ -113,21 +121,31 @@ function hideServerWarningBanner() {
 }
 
 async function loadDashboardData() {
-    const accounts = await apiCall('/accounts');
-    const transactions = await apiCall('/transactions');
+    let accounts = await apiCall('/accounts');
+    let transactions = await apiCall('/transactions');
 
-    if (Array.isArray(accounts)) {
+    if (!Array.isArray(accounts)) {
+        accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+    } else {
+        localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
+    }
+
+    if (!Array.isArray(transactions)) {
+        transactions = JSON.parse(localStorage.getItem(LS_TXS_KEY) || '[]');
+    } else {
+        localStorage.setItem(LS_TXS_KEY, JSON.stringify(transactions));
+    }
+
+    if (accounts.length > 0) {
         hideServerWarningBanner();
         document.getElementById('total-accounts-val').innerText = accounts.length;
         const totalCap = accounts.reduce((sum, a) => sum + a.balance, 0);
         document.getElementById('total-capital-val').innerText = `₹${totalCap.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 
-        if (accounts.length > 0) {
-            updateCreditCardPreview(accounts[0]);
-        }
+        updateCreditCardPreview(accounts[0]);
     }
 
-    if (Array.isArray(transactions)) {
+    if (transactions.length > 0) {
         document.getElementById('total-tx-val').innerText = transactions.length;
     }
 }
@@ -145,8 +163,13 @@ function updateCreditCardPreview(acc) {
 }
 
 async function loadAccounts() {
-    const accounts = await apiCall('/accounts');
-    if (Array.isArray(accounts)) renderAccountsTable(accounts);
+    let accounts = await apiCall('/accounts');
+    if (Array.isArray(accounts) && accounts.length > 0) {
+        localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
+    } else {
+        accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+    }
+    renderAccountsTable(accounts);
 }
 
 function getAvatarUrl(name) {
@@ -157,7 +180,7 @@ function renderAccountsTable(accounts) {
     const tbody = document.getElementById('accounts-body');
     if (!tbody) return;
 
-    if (accounts.length === 0) {
+    if (!accounts || accounts.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" class="text-center">No accounts found.</td></tr>';
         return;
     }
@@ -193,17 +216,20 @@ function renderAccountsTable(accounts) {
 }
 
 async function loadTransactions() {
-    const transactions = await apiCall('/transactions');
-    if (Array.isArray(transactions)) {
-        renderTransactions(transactions.slice().reverse());
+    let transactions = await apiCall('/transactions');
+    if (Array.isArray(transactions) && transactions.length > 0) {
+        localStorage.setItem(LS_TXS_KEY, JSON.stringify(transactions));
+    } else {
+        transactions = JSON.parse(localStorage.getItem(LS_TXS_KEY) || '[]');
     }
+    renderTransactions(transactions.slice().reverse());
 }
 
 function renderTransactions(transactions) {
     const tbody = document.getElementById('transactions-body');
     if (!tbody) return;
 
-    if (transactions.length === 0) {
+    if (!transactions || transactions.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="text-center">No transactions recorded.</td></tr>';
         return;
     }
@@ -266,6 +292,7 @@ async function handleDeposit(e) {
     const data = {
         accountNumber: document.getElementById('dep-acc-num').value,
         amount: document.getElementById('dep-amount').value,
+        pin: document.getElementById('dep-pin').value,
         remarks: document.getElementById('dep-remarks').value
     };
 
@@ -285,6 +312,7 @@ async function handleWithdraw(e) {
     const data = {
         accountNumber: document.getElementById('w-acc-num').value,
         amount: document.getElementById('w-amount').value,
+        pin: document.getElementById('w-pin').value,
         remarks: document.getElementById('w-remarks').value
     };
 
@@ -305,6 +333,7 @@ async function handleTransfer(e) {
         sourceAccount: document.getElementById('t-src-num').value,
         targetAccount: document.getElementById('t-target-num').value,
         amount: document.getElementById('t-amount').value,
+        pin: document.getElementById('t-pin').value,
         remarks: document.getElementById('t-remarks').value
     };
 
