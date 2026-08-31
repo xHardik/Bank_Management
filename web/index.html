@@ -3,312 +3,496 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Banking System | Java & Data Structures</title>
+    <title>Apex Global Bank | Executive Financial Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Top Navigation Bar -->
-    <header class="navbar">
-        <div class="nav-brand">
-            <span class="brand-icon">🏦</span>
-            <h2>Apex Banking Core</h2>
-        </div>
-        <nav class="nav-links">
-            <button class="nav-btn active" onclick="showTab('dashboard')">Dashboard</button>
-            <button class="nav-btn" onclick="showTab('accounts')">Accounts & DSA</button>
-            <button class="nav-btn" onclick="showTab('queues')">Service Queues</button>
-            <button class="nav-btn" onclick="showTab('audit')">Audit Logs</button>
-            <button class="nav-btn highlight" onclick="runAutomatedTests()">⚡ Run Unit Tests</button>
-        </nav>
-    </header>
+    <div class="bg-glow"></div>
+    <div class="bg-grid-overlay"></div>
 
-    <main class="container">
-        <!-- Dashboard Section -->
-        <section id="dashboard" class="tab-content active">
-            <!-- Stats Cards Overview -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">💳</div>
-                    <div class="stat-info">
-                        <h3>Total Accounts</h3>
-                        <p id="total-accounts-val">0</p>
-                        <span class="stat-sub">HashMap Indexed</span>
-                    </div>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">💰</div>
-                    <div class="stat-info">
-                        <h3>Total Liquidity</h3>
-                        <p id="total-capital-val">$0.00</p>
-                        <span class="stat-sub">Live Aggregate</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">📜</div>
-                    <div class="stat-info">
-                        <h3>Ledger Entries</h3>
-                        <p id="total-tx-val">0</p>
-                        <span class="stat-sub">Doubly Linked List</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">👑</div>
-                    <div class="stat-info">
-                        <h3>VIP Queue</h3>
-                        <p id="vip-count-val">0 Pending</p>
-                        <span class="stat-sub">Max-Heap Priority</span>
-                    </div>
+                <div class="brand-text">
+                    <h2>APEX</h2>
+                    <span>GLOBAL BANK</span>
                 </div>
             </div>
 
-            <!-- Quick Action Bar -->
-            <div class="action-bar">
-                <button class="btn btn-primary" onclick="openModal('create-account-modal')">+ Create Account</button>
-                <button class="btn btn-success" onclick="openModal('deposit-modal')">↓ Deposit</button>
-                <button class="btn btn-warning" onclick="openModal('withdraw-modal')">↑ Withdraw</button>
-                <button class="btn btn-purple" onclick="openModal('transfer-modal')">⇄ Transfer</button>
-                <button class="btn btn-danger" onclick="triggerUndo()">↺ Undo Last Action (Stack)</button>
-            </div>
+            <nav class="nav-menu">
+                <button class="nav-btn active" onclick="showTab('dashboard')">
+                    <span class="nav-icon">📊</span> Overview
+                </button>
+                <button class="nav-btn" onclick="showTab('accounts')">
+                    <span class="nav-icon">💳</span> Accounts
+                </button>
+                <button class="nav-btn" onclick="showTab('transactions')">
+                    <span class="nav-icon">📈</span> Transactions
+                </button>
+                <button class="nav-btn" onclick="showTab('queues')">
+                    <span class="nav-icon">👑</span> Concierge Desk
+                </button>
+                <button class="nav-btn" onclick="showTab('audit')">
+                    <span class="nav-icon">🛡️</span> Security Ledger
+                </button>
+            </nav>
 
-            <!-- Recent Ledger Transactions -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>Recent Transactions (Doubly Linked List Ledger)</h3>
-                    <button class="btn-sm" onclick="loadTransactions()">Refresh</button>
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256" alt="User Profile" class="profile-pic">
+                    <div class="user-info">
+                        <h4>Alex Morgan</h4>
+                        <span>Premium Executive</span>
+                    </div>
                 </div>
-                <div class="table-wrapper">
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="top-nav">
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="search-input" placeholder="Search account number, customer name or phone..." onkeyup="searchAccounts()">
+                </div>
+                <div class="nav-actions">
+                    <button class="btn btn-secondary" onclick="triggerUndo()">
+                        <span>↺</span> Instant Undo
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('create-account-modal')">
+                        <span>+</span> Open New Account
+                    </button>
+                    <div class="status-indicator">
+                        <span class="dot green"></span> System Live
+                    </div>
+                </div>
+            </header>
+
+            <!-- TAB 1: DASHBOARD OVERVIEW -->
+            <section id="dashboard" class="tab-content active">
+                <div class="hero-banner">
+                    <div class="hero-text">
+                        <span class="hero-tag">Welcome Back</span>
+                        <h1>Next-Gen Financial Intelligence</h1>
+                        <p>Manage high-net-worth accounts, instant funds transfers, and automated VIP priority concierge in real time.</p>
+                    </div>
+                    <div class="hero-badge-group">
+                        <div class="hero-stat-pill">
+                            <span class="pill-label">Security Protocol</span>
+                            <span class="pill-value">256-Bit Encrypted</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span>Total Active Accounts</span>
+                            <div class="stat-icon-wrapper blue">💳</div>
+                        </div>
+                        <h2 id="total-accounts-val">0</h2>
+                        <div class="stat-footer positive">
+                            <span>↑ 100% System Capacity</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span>Total Managed Capital</span>
+                            <div class="stat-icon-wrapper emerald">💰</div>
+                        </div>
+                        <h2 id="total-capital-val">$0.00</h2>
+                        <div class="stat-footer positive">
+                            <span>↑ Secure Asset Ledger</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span>Transactions Processed</span>
+                            <div class="stat-icon-wrapper gold">⚡</div>
+                        </div>
+                        <h2 id="total-tx-val">0</h2>
+                        <div class="stat-footer neutral">
+                            <span>Real-time Settlement</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Section: Credit Card & Quick Operations -->
+                <div class="dashboard-grid">
+                    <!-- Left: Virtual Credit Card -->
+                    <div class="glass-card">
+                        <div class="card-title-header">
+                            <h3>Primary Virtual Card</h3>
+                            <span class="sub-text">Active Master Card Preview</span>
+                        </div>
+                        <div class="credit-card">
+                            <div class="card-top">
+                                <span class="bank-name">APEX BLACK</span>
+                                <span class="contactless">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                                        <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                                        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="card-chip"></div>
+                            <div class="card-number" id="card-acc-num">•••• •••• •••• 1001</div>
+                            <div class="card-bottom">
+                                <div class="card-holder">
+                                    <span class="label">CARD HOLDER</span>
+                                    <span class="value" id="card-holder-name">HARDIK PARMAR</span>
+                                </div>
+                                <div class="card-balance">
+                                    <span class="label">BALANCE</span>
+                                    <span class="value" id="card-acc-bal">$15,450.00</span>
+                                </div>
+                                <div class="card-type-badge" id="card-type-badge">SAVINGS</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Quick Money Operations -->
+                    <div class="glass-card">
+                        <div class="card-title-header">
+                            <h3>Quick Money Operations</h3>
+                            <span class="sub-text">Instant settlement actions</span>
+                        </div>
+                        <div class="action-grid">
+                            <button class="action-tile" onclick="openModal('deposit-modal')">
+                                <div class="tile-icon green">↓</div>
+                                <span>Deposit</span>
+                            </button>
+                            <button class="action-tile" onclick="openModal('withdraw-modal')">
+                                <div class="tile-icon orange">↑</div>
+                                <span>Withdraw</span>
+                            </button>
+                            <button class="action-tile" onclick="openModal('transfer-modal')">
+                                <div class="tile-icon blue">⇄</div>
+                                <span>Transfer</span>
+                            </button>
+                            <button class="action-tile" onclick="sortAccountsByBalance()">
+                                <div class="tile-icon gold">📊</div>
+                                <span>Sort High-Value</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: ACCOUNTS OVERVIEW -->
+            <section id="accounts" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <h2>Customer Account Ledgers</h2>
+                        <p>Real-time account balances, customer profiles, and direct transaction controls.</p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="sortAccountsByBalance()">
+                        <span>📊</span> Sort by Highest Balance
+                    </button>
+                </div>
+
+                <div class="table-card">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>TX ID</th>
-                                <th>Timestamp</th>
-                                <th>Account #</th>
-                                <th>Type</th>
-                                <th>Amount</th>
-                                <th>Balance After</th>
-                                <th>Target / Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactions-body">
-                            <tr><td colspan="7" class="text-center">Loading transactions...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- Accounts & DSA Section -->
-        <section id="accounts" class="tab-content">
-            <div class="card">
-                <div class="card-header flex-between">
-                    <h3>Account Catalog</h3>
-                    <div class="search-sort-bar">
-                        <input type="text" id="search-input" placeholder="Search by name/acc #..." onkeyup="searchAccounts()">
-                        <button class="btn-sm btn-info" onclick="sortAccountsByBalance()">Sort by Balance (QuickSort)</button>
-                        <button class="btn-sm" onclick="loadAccounts()">Reset</button>
-                    </div>
-                </div>
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Acc Number</th>
-                                <th>Holder Name</th>
-                                <th>Customer ID</th>
-                                <th>Account Type</th>
-                                <th>Balance</th>
-                                <th>Quick Actions</th>
+                                <th>Account & Customer</th>
+                                <th>Name</th>
+                                <th>Account Category</th>
+                                <th>Available Balance</th>
+                                <th>Direct Operations</th>
                             </tr>
                         </thead>
                         <tbody id="accounts-body">
-                            <tr><td colspan="6" class="text-center">Loading accounts...</td></tr>
+                            <!-- Populated dynamically -->
                         </tbody>
                     </table>
                 </div>
+            </section>
+
+            <!-- TAB 3: TRANSACTIONS HISTORY -->
+            <section id="transactions" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <h2>Transaction Ledger</h2>
+                        <p>Complete historical record of deposits, withdrawals, and inter-bank transfers.</p>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Ref ID</th>
+                                <th>Timestamp</th>
+                                <th>Account</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Balance After</th>
+                                <th>Details / Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 4: CONCIERGE DESK -->
+            <section id="queues" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <h2>VIP Concierge & Service Support</h2>
+                        <p>Manage customer service queues and priority VIP client requests.</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Standard Service Queue -->
+                    <div class="glass-card">
+                        <div class="card-icon-header">
+                            <span class="header-icon">🏢</span>
+                            <h3>Standard Service Desk</h3>
+                        </div>
+                        <p class="section-desc">First-Come, First-Served customer support handling.</p>
+
+                        <div class="form-group">
+                            <label>Customer Inquiry Details</label>
+                            <input type="text" id="teller-inquiry-input" placeholder="e.g. Account statement query / Card re-issue">
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="enqueueTeller()">Submit Inquiry</button>
+                            <button class="btn btn-secondary" onclick="dequeueTeller()">Process Next Customer</button>
+                        </div>
+                    </div>
+
+                    <!-- VIP Priority Queue -->
+                    <div class="glass-card vip-border">
+                        <div class="card-icon-header">
+                            <span class="header-icon">👑</span>
+                            <h3>VIP Priority Service Desk</h3>
+                        </div>
+                        <p class="section-desc">Priority score-based handling for executive high-net-worth clients.</p>
+
+                        <div class="form-group">
+                            <label>VIP Client Name</label>
+                            <input type="text" id="vip-name-input" placeholder="e.g. Sarah Jenkins">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Service Category</label>
+                                <select id="vip-type-select">
+                                    <option value="Wealth Management">Wealth Management</option>
+                                    <option value="Corporate Credit">Corporate Credit</option>
+                                    <option value="International Wire">International Wire</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Priority Score (1-10)</label>
+                                <input type="number" id="vip-prio-input" min="1" max="10" value="9">
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-gold" onclick="enqueueVip()">Add VIP Request</button>
+                            <button class="btn btn-secondary" onclick="dequeueVip()">Serve Highest Priority VIP</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: AUDIT LOGS -->
+            <section id="audit" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <h2>System Security Audit Ledger</h2>
+                        <p>Continuous audit logging for system compliance and fraud monitoring.</p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="runAutomatedTests()">
+                        <span>🧪</span> Run System Diagnostics
+                    </button>
+                </div>
+
+                <div class="console-card">
+                    <div class="console-header">
+                        <div class="console-title">AUDIT_LOG_CONSOLE</div>
+                    </div>
+                    <div id="log-console" class="console-body">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL 1: CREATE ACCOUNT -->
+    <div id="create-account-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Create New Bank Account</h3>
+                <button class="modal-close" onclick="closeModal('create-account-modal')">&times;</button>
             </div>
-        </section>
-
-        <!-- Service Queues Section -->
-        <section id="queues" class="tab-content">
-            <div class="grid-2">
-                <!-- Teller Queue Card -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Teller Customer Queue (FIFO Queue)</h3>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="teller-inquiry-input" placeholder="Enter customer inquiry/request...">
-                        <button class="btn btn-primary" onclick="enqueueTeller()">Enqueue Customer</button>
-                    </div>
-                    <div class="queue-box">
-                        <h4>Pending Queue Items:</h4>
-                        <div id="teller-queue-list" class="queue-items">No customers in queue.</div>
-                        <button class="btn btn-success mt-2" onclick="dequeueTeller()">Process Front Customer</button>
-                    </div>
-                </div>
-
-                <!-- Priority Queue Card -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3>VIP Request Queue (Max-Heap Priority Queue)</h3>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="vip-name-input" placeholder="Client Name">
-                        <select id="vip-type-select">
-                            <option value="LOAN_APPROVAL">Loan Approval</option>
-                            <option value="WIRE_TRANSFER">High-Value Transfer</option>
-                            <option value="INVESTMENT_CONSULT">Investment Advisory</option>
-                        </select>
-                        <input type="number" id="vip-prio-input" placeholder="Priority Score (1-10)" min="1" max="10" value="8">
-                        <button class="btn btn-purple" onclick="enqueueVip()">Insert into Max-Heap</button>
-                    </div>
-                    <div class="queue-box">
-                        <h4>Pending VIP Requests (Sorted by Priority):</h4>
-                        <div id="vip-queue-list" class="queue-items">No VIP requests pending.</div>
-                        <button class="btn btn-warning mt-2" onclick="dequeueVip()">Process Highest Priority</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Audit Logs Section -->
-        <section id="audit" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <h3>System Audit Logs (Circular Queue Rolling Buffer)</h3>
-                    <button class="btn-sm" onclick="loadAuditLogs()">Refresh Logs</button>
-                </div>
-                <div class="log-console" id="log-console">
-                    <div class="log-line">Initializing audit console...</div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Modals -->
-    <!-- Create Account Modal -->
-    <div id="create-account-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('create-account-modal')">&times;</span>
-            <h3>Create New Bank Account</h3>
-            <form id="create-account-form" onsubmit="handleCreateAccount(event)">
+            <form onsubmit="handleCreateAccount(event)">
                 <div class="form-group">
-                    <label>Account Type:</label>
-                    <select id="new-acc-type" required>
-                        <option value="SAVINGS">Savings Account (Min Bal $100, 4% Interest)</option>
-                        <option value="CURRENT">Current Account (Overdraft $5,000)</option>
-                        <option value="FIXED_DEPOSIT">Fixed Deposit Account (7% High Interest)</option>
+                    <label>Account Type</label>
+                    <select id="new-acc-type">
+                        <option value="SAVINGS">Savings Account (Min Balance $100 | 4.0% APY)</option>
+                        <option value="CURRENT">Current Business Account ($5,000 Overdraft Limit)</option>
+                        <option value="FIXED_DEPOSIT">Fixed Deposit Account (7.0% Interest | 12-Month Lock)</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Customer Name:</label>
-                    <input type="text" id="new-cust-name" required placeholder="John Doe">
+                    <label>Customer Full Name</label>
+                    <input type="text" id="new-cust-name" required placeholder="e.g. Eleanor Vance">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="new-cust-email" required placeholder="eleanor@apexbank.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="new-cust-phone" required placeholder="+1 555-0192">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Initial Opening Deposit ($)</label>
+                        <input type="number" id="new-acc-bal" step="0.01" min="10" required value="500.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Set 4-Digit Security PIN</label>
+                        <input type="password" id="new-acc-pin" maxlength="4" required placeholder="••••">
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Email Address:</label>
-                    <input type="email" id="new-cust-email" required placeholder="john@example.com">
+                    <label>Account Parameter (Overdraft limit / Tenure months)</label>
+                    <input type="text" id="new-acc-extra" placeholder="Optional (e.g. 5000 or 12)">
                 </div>
-                <div class="form-group">
-                    <label>Phone Number:</label>
-                    <input type="text" id="new-cust-phone" required placeholder="555-0199">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('create-account-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Account</button>
                 </div>
-                <div class="form-group">
-                    <label>Initial Deposit Amount ($):</label>
-                    <input type="number" step="0.01" id="new-acc-bal" required value="500.00">
-                </div>
-                <div class="form-group">
-                    <label>Security PIN (4 digits):</label>
-                    <input type="password" id="new-acc-pin" required maxlength="4" value="1234">
-                </div>
-                <div class="form-group">
-                    <label>Extra Parameter (Overdraft Limit / Tenure Months):</label>
-                    <input type="text" id="new-acc-extra" placeholder="e.g. 1000 or 12">
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Create Account</button>
             </form>
         </div>
     </div>
 
-    <!-- Deposit Modal -->
-    <div id="deposit-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('deposit-modal')">&times;</span>
-            <h3>Deposit Money</h3>
-            <form id="deposit-form" onsubmit="handleDeposit(event)">
+    <!-- MODAL 2: DEPOSIT -->
+    <div id="deposit-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Deposit Money</h3>
+                <button class="modal-close" onclick="closeModal('deposit-modal')">&times;</button>
+            </div>
+            <form onsubmit="handleDeposit(event)">
                 <div class="form-group">
-                    <label>Account Number:</label>
+                    <label>Target Account Number</label>
                     <input type="text" id="dep-acc-num" required placeholder="ACC1001">
                 </div>
                 <div class="form-group">
-                    <label>Deposit Amount ($):</label>
-                    <input type="number" step="0.01" id="dep-amount" required placeholder="100.00">
+                    <label>Deposit Amount ($)</label>
+                    <input type="number" id="dep-amount" step="0.01" min="1" required placeholder="100.00">
                 </div>
                 <div class="form-group">
-                    <label>Remarks:</label>
-                    <input type="text" id="dep-remarks" placeholder="Salary / Cash Deposit">
+                    <label>Deposit Remarks</label>
+                    <input type="text" id="dep-remarks" value="Direct Cash Deposit">
                 </div>
-                <button type="submit" class="btn btn-success w-100">Execute Deposit</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('deposit-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-success">Confirm Deposit</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- Withdraw Modal -->
-    <div id="withdraw-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('withdraw-modal')">&times;</span>
-            <h3>Withdraw Money</h3>
-            <form id="withdraw-form" onsubmit="handleWithdraw(event)">
+    <!-- MODAL 3: WITHDRAW -->
+    <div id="withdraw-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Withdraw Money</h3>
+                <button class="modal-close" onclick="closeModal('withdraw-modal')">&times;</button>
+            </div>
+            <form onsubmit="handleWithdraw(event)">
                 <div class="form-group">
-                    <label>Account Number:</label>
+                    <label>Source Account Number</label>
                     <input type="text" id="w-acc-num" required placeholder="ACC1001">
                 </div>
                 <div class="form-group">
-                    <label>Withdrawal Amount ($):</label>
-                    <input type="number" step="0.01" id="w-amount" required placeholder="50.00">
+                    <label>Withdrawal Amount ($)</label>
+                    <input type="number" id="w-amount" step="0.01" min="1" required placeholder="50.00">
                 </div>
                 <div class="form-group">
-                    <label>Remarks:</label>
-                    <input type="text" id="w-remarks" placeholder="ATM Cash Withdrawal">
+                    <label>Withdrawal Remarks</label>
+                    <input type="text" id="w-remarks" value="ATM Cash Withdrawal">
                 </div>
-                <button type="submit" class="btn btn-warning w-100">Execute Withdrawal</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('withdraw-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Confirm Withdrawal</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- Transfer Modal -->
-    <div id="transfer-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('transfer-modal')">&times;</span>
-            <h3>Transfer Funds</h3>
-            <form id="transfer-form" onsubmit="handleTransfer(event)">
-                <div class="form-group">
-                    <label>Source Account Number:</label>
-                    <input type="text" id="t-src-num" required placeholder="ACC1001">
+    <!-- MODAL 4: TRANSFER -->
+    <div id="transfer-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Inter-Account Funds Transfer</h3>
+                <button class="modal-close" onclick="closeModal('transfer-modal')">&times;</button>
+            </div>
+            <form onsubmit="handleTransfer(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Source Account Number</label>
+                        <input type="text" id="t-src-num" required placeholder="ACC1001">
+                    </div>
+                    <div class="form-group">
+                        <label>Target Account Number</label>
+                        <input type="text" id="t-target-num" required placeholder="ACC1002">
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Target Account Number:</label>
-                    <input type="text" id="t-target-num" required placeholder="ACC1002">
+                    <label>Transfer Amount ($)</label>
+                    <input type="number" id="t-amount" step="0.01" min="1" required placeholder="250.00">
                 </div>
                 <div class="form-group">
-                    <label>Transfer Amount ($):</label>
-                    <input type="number" step="0.01" id="t-amount" required placeholder="200.00">
+                    <label>Transfer Remarks</label>
+                    <input type="text" id="t-remarks" value="Peer-to-Peer Transfer">
                 </div>
-                <div class="form-group">
-                    <label>Remarks:</label>
-                    <input type="text" id="t-remarks" placeholder="Rent / Peer-to-peer transfer">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('transfer-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Execute Transfer</button>
                 </div>
-                <button type="submit" class="btn btn-purple w-100">Execute Transfer</button>
             </form>
         </div>
     </div>
 
-    <!-- Test Runner Output Modal -->
-    <div id="test-modal" class="modal">
-        <div class="modal-content large">
-            <span class="close-btn" onclick="closeModal('test-modal')">&times;</span>
-            <h3>⚡ Automated Unit Test Execution Harness</h3>
-            <div id="test-output-box" class="test-console">Running unit tests...</div>
+    <!-- MODAL 5: TEST RUNNER -->
+    <div id="test-modal" class="modal-overlay">
+        <div class="modal-card modal-lg">
+            <div class="modal-header">
+                <h3>System Automated Diagnostics</h3>
+                <button class="modal-close" onclick="closeModal('test-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <pre id="test-output-box" class="code-output">Running diagnostics...</pre>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('test-modal')">Close</button>
+            </div>
         </div>
     </div>
 
