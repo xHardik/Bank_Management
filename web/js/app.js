@@ -34,12 +34,12 @@ function openCustomerLoginModal() {
     const adminModal = document.getElementById('admin-auth-modal');
     if (adminModal) {
         adminModal.classList.remove('active');
-        adminModal.style.display = 'none';
+        adminModal.style.cssText = 'display: none !important;';
     }
     const modal = document.getElementById('customer-login-modal');
     if (modal) {
-        modal.style.display = 'flex';
         modal.classList.add('active');
+        modal.style.cssText = 'display: flex !important; z-index: 999999 !important; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5, 7, 15, 0.95); backdrop-filter: blur(24px);';
         populateLoginAccounts();
         const pinInput = document.getElementById('customer-pin-input');
         if (pinInput) {
@@ -63,7 +63,7 @@ function verifyCustomerPin(event) {
         const modal = document.getElementById('customer-login-modal');
         if (modal) {
             modal.classList.remove('active');
-            modal.style.display = 'none';
+            modal.style.cssText = 'display: none !important;';
         }
         switchPortalRole('customer');
         loadDashboardData();
@@ -78,7 +78,7 @@ function openAdminAuthModal() {
     const custModal = document.getElementById('customer-login-modal');
     if (custModal) {
         custModal.classList.remove('active');
-        custModal.style.display = 'none';
+        custModal.style.cssText = 'display: none !important;';
     }
     if (isAdminAuthenticated) {
         switchPortalRole('admin');
@@ -86,8 +86,8 @@ function openAdminAuthModal() {
     }
     const modal = document.getElementById('admin-auth-modal');
     if (modal) {
-        modal.style.display = 'flex';
         modal.classList.add('active');
+        modal.style.cssText = 'display: flex !important; z-index: 999999 !important; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5, 7, 15, 0.95); backdrop-filter: blur(24px);';
         const pwdInput = document.getElementById('admin-passcode-input');
         if (pwdInput) {
             pwdInput.value = '';
@@ -106,7 +106,7 @@ function verifyAdminPasscode(event) {
         const modal = document.getElementById('admin-auth-modal');
         if (modal) {
             modal.classList.remove('active');
-            modal.style.display = 'none';
+            modal.style.cssText = 'display: none !important;';
         }
         window.location.hash = 'admin';
         switchPortalRole('admin');
