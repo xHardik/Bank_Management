@@ -16,14 +16,65 @@ const API_BASE = getApiBaseUrl();
 // LocalStorage Persistence Keys
 const LS_ACCOUNTS_KEY = 'apex_bank_accounts';
 const LS_TXS_KEY = 'apex_bank_transactions';
-let currentRole = 'admin';
+let currentRole = 'customer';
+let isAdminAuthenticated = false;
 let isCardLocked = false;
 
 document.addEventListener('DOMContentLoaded', () => {
-    switchPortalRole('admin');
+    // URL Hash Routing (#admin or /admin prompts for passcode 7878)
+    if (window.location.hash === '#admin' || window.location.pathname.endsWith('/admin')) {
+        requestAdminAccess();
+    } else {
+        switchPortalRole('customer');
+    }
 });
 
+function requestAdminAccess() {
+    if (isAdminAuthenticated) {
+        switchPortalRole('admin');
+        return;
+    }
+    const modal = document.getElementById('admin-auth-modal');
+    if (modal) {
+        modal.classList.add('active');
+        const pwdInput = document.getElementById('admin-passcode-input');
+        if (pwdInput) {
+            pwdInput.value = '';
+            setTimeout(() => pwdInput.focus(), 100);
+        }
+    }
+}
+
+function closeAdminAuthModal() {
+    const modal = document.getElementById('admin-auth-modal');
+    if (modal) modal.classList.remove('active');
+    if (!isAdminAuthenticated) {
+        switchPortalRole('customer');
+    }
+}
+
+function verifyAdminPasscode(event) {
+    if (event) event.preventDefault();
+    const input = document.getElementById('admin-passcode-input');
+    const code = input ? input.value.trim() : '';
+
+    if (code === '7878') {
+        isAdminAuthenticated = true;
+        closeAdminAuthModal();
+        window.location.hash = 'admin';
+        switchPortalRole('admin');
+    } else {
+        alert('Invalid Security Passcode! Access Denied.');
+        if (input) input.value = '';
+    }
+}
+
 function switchPortalRole(role) {
+    if (role === 'admin' && !isAdminAuthenticated) {
+        requestAdminAccess();
+        return;
+    }
+
     currentRole = role;
     const body = document.body;
     const adminBtn = document.getElementById('role-btn-admin');

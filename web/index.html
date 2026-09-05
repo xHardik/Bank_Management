@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body class="role-admin">
+<body class="role-customer">
     <div class="bg-glow"></div>
     <div class="bg-grid-overlay"></div>
 
@@ -18,13 +18,13 @@
                 <img src="assets/logo.png" class="brand-logo-img-lg" alt="Apex Bank Emblem">
                 <div class="brand-text">
                     <h2>APEX BANK</h2>
-                    <span id="portal-subtitle-badge">ADMIN EXECUTIVE PORTAL</span>
+                    <span id="portal-subtitle-badge">CUSTOMER MOBILE PORTAL</span>
                 </div>
                 <button class="sidebar-close-btn" onclick="toggleMobileSidebar()">&times;</button>
             </div>
 
-            <!-- Role Switcher Toggle Pill -->
-            <div class="role-switcher-box">
+            <!-- Role Switcher Toggle Pill (Visible only in Admin Mode) -->
+            <div class="role-switcher-box admin-only">
                 <button id="role-btn-admin" class="role-pill-btn active admin" onclick="switchPortalRole('admin')">
                     👑 Admin
                 </button>
@@ -709,6 +709,28 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('test-modal')">Close</button>
             </div>
+    <!-- MODAL 6: ADMIN AUTHENTICATION GATE -->
+    <div id="admin-auth-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>🔐 Executive Admin Verification</h3>
+                <button class="modal-close" onclick="closeAdminAuthModal()">&times;</button>
+            </div>
+            <form id="admin-auth-form" onsubmit="verifyAdminPasscode(event)">
+                <div class="modal-body">
+                    <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 0.9rem;">
+                        This area is restricted to Apex Bank Executive Officers. Please enter the passcode to access Admin Portal.
+                    </p>
+                    <div class="form-group">
+                        <label>Security Passcode</label>
+                        <input type="password" id="admin-passcode-input" required placeholder="Enter passcode (e.g. 7878)" autocomplete="off">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeAdminAuthModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Unlock Admin Portal</button>
+                </div>
+            </form>
         </div>
     </div>
 
