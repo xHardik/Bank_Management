@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apex Bank India | Executive & Premium Customer Portal</title>
-    <link rel="stylesheet" href="css/style.css?v=6.0">
+    <link rel="stylesheet" href="css/style.css?v=7.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="role-customer">
@@ -50,10 +50,7 @@
                     <span class="customer-only-text" style="display:none;">Apply Loan</span>
                 </button>
 
-                <button class="nav-btn admin-nav-item" onclick="showTab('queues')">
-                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                    Concierge Support
-                </button>
+
 
                 <button class="nav-btn admin-nav-item" onclick="showTab('audit')">
                     <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
@@ -331,8 +328,8 @@
             <section id="loans" class="tab-content">
                 <div class="section-header">
                     <div>
-                        <h2>Loan Applications — Priority Queue Engine</h2>
-                        <p>Applications ranked dynamically using Max-Heap Priority Queue (Emergency & Senior Citizen loans processed first).</p>
+                        <h2>Loan Applications </h2>
+                        <p>Applications (Emergency & Senior Citizen loans processed first).</p>
                     </div>
                 </div>
 
@@ -347,12 +344,12 @@
                             <form onsubmit="handleApplyLoanSubmit(event)">
                                 <div class="form-group">
                                     <label>Applicant Name</label>
-                                    <input type="text" id="loan-name-input" required placeholder="Hardik Verma">
+                                    <input type="text" id="loan-name-input" required value="Hardik Verma" readonly style="background:rgba(255,255,255,0.05); color:#10b981; font-weight:700; cursor:not-allowed;">
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label>Account Number</label>
-                                        <input type="text" id="loan-acc-input" required value="ACC1001">
+                                        <input type="text" id="loan-acc-input" required value="ACC1001" readonly style="background:rgba(255,255,255,0.05); color:#10b981; font-weight:700; cursor:not-allowed;">
                                     </div>
                                     <div class="form-group">
                                         <label>Loan Category</label>
@@ -380,7 +377,7 @@
                     <!-- ADMIN LEFT CARD: History of Accepted / Approved Loans -->
                     <div class="glass-card admin-only-block" style="display:none;">
                         <div class="card-title-header">
-                            <h3 style="color:#8b5cf6;">👑 Accepted Loans History</h3>
+                            <h3 style="color:#8b5cf6;"> Accepted Loans History</h3>
                             <span class="sub-text">Complete Record of Executive Approved & Disbursed Loans</span>
                         </div>
                         <div id="admin-accepted-loans-list" style="display:flex; flex-direction:column; gap:12px; max-height:340px; overflow-y:auto;">
@@ -404,7 +401,7 @@
                         <div class="card-title-header" style="display:flex; justify-content:space-between; align-items:center;">
                             <div>
                                 <h3>Pending Loan Applications Queue</h3>
-                                <span class="sub-text">Max-Heap Binary Priority Queue Order</span>
+                                <span class="sub-text">Priority Queue Order</span>
                             </div>
                             <button class="btn btn-success btn-sm" onclick="approveHighestLoan()">Approve Highest Priority</button>
                         </div>
@@ -774,6 +771,6 @@
         </div>
     </div>
 
-    <script src="js/app.js?v=6.0"></script>
+    <script src="js/app.js?v=7.0"></script>
 </body>
 </html>

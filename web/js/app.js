@@ -510,6 +510,11 @@ async function loadLoans() {
     const accInput = document.getElementById('customer-page-acc-input') || document.getElementById('loan-acc-input');
     const currentAccNum = accInput ? accInput.value.trim().toUpperCase() : 'ACC1001';
 
+    const loanAccField = document.getElementById('loan-acc-input');
+    const loanNameField = document.getElementById('loan-name-input');
+    if (loanAccField) loanAccField.value = currentAccNum;
+    if (loanNameField && !loanNameField.value) loanNameField.value = 'Hardik Verma';
+
     const myPending = pendingLoans.find(l => (l.accNum || l.accountNumber) === currentAccNum);
     const formContainer = document.getElementById('customer-loan-bid-form-container');
     const activeNotice = document.getElementById('customer-loan-bid-active-notice');
