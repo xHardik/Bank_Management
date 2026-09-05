@@ -1027,3 +1027,283 @@ async function runAutomatedTests() {
         box.innerText = res.log;
     }
 }
+
+// ----------------------------------------------------
+// FEATURE 2: DIGITAL PASSBOOK EXPORT (CSV & PRINT/PDF)
+// ----------------------------------------------------
+function exportPassbookCSV() {
+    let transactions = JSON.parse(localStorage.getItem(LS_TXS_KEY) || '[]');
+    if (currentRole === 'customer') {
+        transactions = transactions.filter(t => t.accNum === 'ACC1001' || t.targetAcc === 'ACC1001');
+    }
+    if (transactions.length === 0) {
+        return alert('No transactions recorded to export.');
+    }
+
+    let csvContent = 'data:text/csv;charset=utf-8,Ref ID,Timestamp,Account,Type,Amount (INR),Balance After (INR),Remarks\n';
+    transactions.slice().reverse().forEach(t => {
+        const row = [
+            `"${t.txId}"`,
+            `"${t.timestamp}"`,
+            `"${t.accNum}"`,
+            `"${t.type}"`,
+            `"${t.amount}"`,
+            `"${t.balanceAfter}"`,
+            `"${(t.remarks || '').replace(/"/g, '""')}"`
+        ].join(',');
+        csvContent += row + '\n';
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `Apex_Bank_Statement_ACC1001_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function printPassbookPDF() {
+    let transactions = JSON.parse(localStorage.getItem(LS_TXS_KEY) || '[]');
+    if (currentRole === 'customer') {
+        transactions = transactions.filter(t => t.accNum === 'ACC1001' || t.targetAcc === 'ACC1001');
+    }
+    const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+    const acc = accounts.find(a => a.accountNumber === 'ACC1001') || { holderName: 'Hardik Verma', balance: 250450.00, accountNumber: 'ACC1001' };
+
+    const printWindow = window.open('', '_blank');
+    const rowsHtml = transactions.slice().reverse().map(t => `
+        <tr>
+            <td>${t.txId}</td>
+            <td>${t.timestamp}</td>
+            <td>${t.type}</td>
+            <td style="text-align:right; font-weight:bold; color:${t.type.includes('WITHDRAWAL') ? '#ef4444' : '#10b981'};">
+                ${t.type.includes('WITHDRAWAL') ? '-' : '+'}₹${parseFloat(t.amount).toLocaleString('en-IN', {minimumFractionDigits:2})}
+            </td>
+            <td style="text-align:right;">₹${parseFloat(t.balanceAfter).toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+            <td>${t.remarks || 'N/A'}</td>
+        </tr>
+    `).join('');
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Apex Bank Account Statement - ACC1001</title>
+            <style>
+                body { font-family: 'Inter', Helvetica, Arial, sans-serif; padding: 40px; color: #111; line-height: 1.5; }
+                .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #10b981; padding-bottom: 20px; margin-bottom: 30px; }
+                .brand h1 { font-size: 24px; font-weight: 800; color: #059669; margin: 0; letter-spacing: 1px; }
+                .brand p { font-size: 11px; color: #6b7280; margin: 2px 0 0 0; text-transform: uppercase; letter-spacing: 1.5px; }
+                .statement-title { text-align: right; }
+                .statement-title h2 { margin: 0; font-size: 18px; color: #111827; }
+                .statement-title p { margin: 4px 0 0 0; font-size: 12px; color: #6b7280; }
+                .account-meta { display: flex; justify-content: space-between; background: #f9fafb; padding: 18px 24px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #e5e7eb; }
+                .meta-box label { font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 700; display: block; }
+                .meta-box span { font-size: 15px; font-weight: 800; color: #111827; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                th { background: #111827; color: #fff; text-align: left; padding: 12px 14px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+                td { padding: 12px 14px; border-bottom: 1px solid #e5e7eb; font-size: 13px; }
+                .footer { margin-top: 50px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e5e7eb; padding-top: 20px; font-size: 11px; color: #6b7280; }
+                .stamp { border: 2px dashed #10b981; padding: 8px 16px; border-radius: 8px; color: #059669; font-weight: 800; text-transform: uppercase; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div class="brand">
+                    <h1>APEX BANK INDIA</h1>
+                    <p>Executive & Premium Customer Banking Statement</p>
+                </div>
+                <div class="statement-title">
+                    <h2>OFFICIAL ACCOUNT STATEMENT</h2>
+                    <p>Generated on ${new Date().toLocaleString()}</p>
+                </div>
+            </div>
+
+            <div class="account-meta">
+                <div class="meta-box">
+                    <label>Account Holder</label>
+                    <span>${acc.holderName}</span>
+                </div>
+                <div class="meta-box">
+                    <label>Account Number</label>
+                    <span>${acc.accountNumber}</span>
+                </div>
+                <div class="meta-box">
+                    <label>Account Type</label>
+                    <span>SAVINGS PLATINUM</span>
+                </div>
+                <div class="meta-box">
+                    <label>Current Available Balance</label>
+                    <span>₹${parseFloat(acc.balance).toLocaleString('en-IN', {minimumFractionDigits:2})}</span>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Transaction Ref</th>
+                        <th>Timestamp</th>
+                        <th>Type</th>
+                        <th style="text-align:right;">Amount (INR)</th>
+                        <th style="text-align:right;">Balance After</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rowsHtml}
+                </tbody>
+            </table>
+
+            <div class="footer">
+                <div>
+                    <p>This is a computer-generated bank statement and does not require a physical signature.</p>
+                    <p>Apex Bank India • Registered RBI Digital Banking Portal</p>
+                </div>
+                <div class="stamp">✓ VERIFIED OFFICIAL BANK DOCUMENT</div>
+            </div>
+
+            <script>
+                window.onload = function() {
+                    window.print();
+                }
+            </script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
+
+// ----------------------------------------------------
+// FEATURE 5: UTILITY BILL PAYMENTS & RECHARGES
+// ----------------------------------------------------
+function updateUtilityProviders() {
+    const cat = document.getElementById('util-category-select').value;
+    const providerSelect = document.getElementById('util-provider-select');
+    const labelEl = document.getElementById('util-consumer-label');
+    if (!providerSelect) return;
+
+    if (cat.includes('Electricity')) {
+        labelEl.innerText = 'Consumer Account Number (CA)';
+        providerSelect.innerHTML = `
+            <option value="BSES Rajdhani Power">BSES Rajdhani Power Limited</option>
+            <option value="MSEDCL Electricity">MSEDCL Maharashtra Electricity</option>
+            <option value="Tata Power Delhi">Tata Power DDL</option>
+            <option value="Adani Electricity">Adani Electricity Mumbai</option>
+        `;
+    } else if (cat.includes('Mobile')) {
+        labelEl.innerText = 'Mobile Number (+91)';
+        providerSelect.innerHTML = `
+            <option value="Jio Prepaid / Postpaid">Reliance Jio Infocomm</option>
+            <option value="Airtel India">Bharti Airtel India</option>
+            <option value="Vodafone Idea (Vi)">Vodafone Idea (Vi)</option>
+            <option value="BSNL Mobile">BSNL Prepaid</option>
+        `;
+    } else if (cat.includes('Broadband')) {
+        labelEl.innerText = 'Broadband Account ID / Phone';
+        providerSelect.innerHTML = `
+            <option value="JioFiber Broadband">JioFiber High Speed Broadband</option>
+            <option value="Airtel Xstream Fiber">Airtel Xstream Fiber</option>
+            <option value="ACT Fibernet">ACT Fibernet</option>
+            <option value="Tata Play Fiber">Tata Play Fiber</option>
+        `;
+    } else if (cat.includes('FASTag')) {
+        labelEl.innerText = 'Vehicle Registration Number';
+        providerSelect.innerHTML = `
+            <option value="ICICI Bank FASTag">ICICI Bank FASTag Toll</option>
+            <option value="HDFC Bank FASTag">HDFC Bank FASTag</option>
+            <option value="Paytm FASTag">Paytm FASTag National Toll</option>
+            <option value="SBI FASTag">State Bank of India FASTag</option>
+        `;
+    } else {
+        labelEl.innerText = 'Subscriber ID / VC Number';
+        providerSelect.innerHTML = `
+            <option value="Tata Play DTH">Tata Play (formerly Tata Sky)</option>
+            <option value="Airtel Digital TV">Airtel Digital TV</option>
+            <option value="Dish TV India">Dish TV India</option>
+            <option value="Sun Direct">Sun Direct DTH</option>
+        `;
+    }
+}
+
+async function handleUtilityPaymentSubmit(e) {
+    e.preventDefault();
+
+    const category = document.getElementById('util-category-select').value;
+    const provider = document.getElementById('util-provider-select').value;
+    const consumerId = document.getElementById('util-consumer-input').value.trim();
+    const amount = parseFloat(document.getElementById('util-amount-input').value) || 0;
+    const pin = document.getElementById('util-pin-input').value.trim();
+
+    if (amount <= 0) {
+        return alert('Please enter a valid bill amount.');
+    }
+
+    if (pin !== '1234') {
+        return alert('Invalid Security PIN! Payment cancelled.');
+    }
+
+    const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+    const myAcc = accounts.find(a => a.accountNumber === 'ACC1001') || accounts[0];
+
+    if (myAcc.balance < amount) {
+        return alert(`Insufficient Funds!\nRequired: ₹${amount.toFixed(2)}\nAvailable Balance: ₹${myAcc.balance.toFixed(2)}`);
+    }
+
+    myAcc.balance -= amount;
+    localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
+
+    const transactions = JSON.parse(localStorage.getItem(LS_TXS_KEY) || '[]');
+    const txId = 'TXN' + Math.floor(100000 + Math.random() * 900000);
+    const newTx = {
+        txId: txId,
+        timestamp: new Date().toLocaleString(),
+        accNum: myAcc.accountNumber,
+        type: 'WITHDRAWAL',
+        amount: amount,
+        balanceAfter: myAcc.balance,
+        remarks: `Utility Bill (${category}): ${provider} #${consumerId}`,
+        targetAcc: 'N/A'
+    };
+    transactions.push(newTx);
+    localStorage.setItem(LS_TXS_KEY, JSON.stringify(transactions));
+
+    closeModal('utility-bill-modal');
+
+    const receiptContainer = document.getElementById('receipt-details-container');
+    if (receiptContainer) {
+        receiptContainer.innerHTML = `
+            <div style="text-align:center; margin-bottom:20px;">
+                <div style="width:60px; height:60px; background:rgba(16,185,129,0.15); border:2px solid #10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:#10b981; font-size:28px;">✓</div>
+                <h3 style="color:#10b981; font-weight:800; margin:0;">PAYMENT SUCCESSFUL</h3>
+                <p style="color:#9ca3af; font-size:0.85rem; margin-top:4px;">Transaction Ref: ${txId}</p>
+            </div>
+            <div style="background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:18px; margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span style="color:#9ca3af;">Service Category</span>
+                    <strong style="color:#fff;">${category}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span style="color:#9ca3af;">Biller / Operator</span>
+                    <strong style="color:#fff;">${provider}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span style="color:#9ca3af;">Consumer ID / Phone</span>
+                    <strong style="color:#fff;">${consumerId}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span style="color:#9ca3af;">Paid Amount</span>
+                    <strong style="color:#10b981; font-size:1.1rem;">₹${amount.toLocaleString('en-IN', {minimumFractionDigits:2})}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:#9ca3af;">Updated Balance</span>
+                    <strong style="color:#fff;">₹${myAcc.balance.toLocaleString('en-IN', {minimumFractionDigits:2})}</strong>
+                </div>
+            </div>
+        `;
+    }
+    openModal('receipt-modal');
+
+    loadDashboardData();
+    loadTransactions();
+}
