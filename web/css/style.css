@@ -82,14 +82,7 @@ body {
 
 /* Role Switcher Pill Container */
 .role-switcher-box {
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid var(--border-color);
-    border-radius: 30px;
-    padding: 4px;
-    display: flex;
-    gap: 4px;
-    margin-top: 16px;
-    margin-bottom: 8px;
+    display: none !important;
 }
 
 .role-pill-btn {
@@ -704,8 +697,104 @@ body {
 .console-body { padding: 20px; max-height: 450px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; }
 .log-line { color: #10b981; margin-bottom: 8px; }
 
-.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(16px); z-index: 1000; align-items: center; justify-content: center; }
-.modal-overlay.active { display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; z-index: 999999 !important; }
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(3, 6, 14, 0.88);
+    backdrop-filter: blur(24px) saturate(1.8);
+    -webkit-backdrop-filter: blur(24px) saturate(1.8);
+    z-index: 100000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-card {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: rgba(10, 14, 26, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 24px;
+    padding: 32px 28px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.95), 0 0 45px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    animation: modalFadeUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.modal-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
+    border-radius: 24px 24px 0 0;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modal-header h3 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, #ffffff 0%, #a7f3d0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.modal-close {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #9ca3af;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #ef4444;
+    transform: rotate(90deg);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@keyframes modalFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
 
 /* Crickingo Style Glassmorphism & Modal Animation */
 @keyframes fadeUp {

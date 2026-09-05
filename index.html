@@ -23,15 +23,7 @@
                 <button class="sidebar-close-btn" onclick="toggleMobileSidebar()">&times;</button>
             </div>
 
-            <!-- Role Switcher Toggle Pill (Visible only in Admin Mode) -->
-            <div class="role-switcher-box admin-only">
-                <button id="role-btn-admin" class="role-pill-btn active admin" onclick="switchPortalRole('admin')">
-                    👑 Admin
-                </button>
-                <button id="role-btn-customer" class="role-pill-btn customer" onclick="switchPortalRole('customer')">
-                    👤 Customer
-                </button>
-            </div>
+
 
             <!-- Sidebar Navigation Menu -->
             <nav class="nav-menu">
@@ -196,7 +188,7 @@
                                 <h3>Primary Platinum RuPay Card</h3>
                                 <span class="sub-text">Active Domestic & International Card</span>
                             </div>
-                            <button id="card-lock-btn" class="btn-sm btn-secondary" onclick="toggleCardLock()">
+                            <button id="card-lock-btn" class="btn-sm btn-secondary customer-only-inline" onclick="toggleCardLock()">
                                 🔒 Lock Card
                             </button>
                         </div>
@@ -335,51 +327,80 @@
                 </div>
             </section>
 
-            <!-- NEW TAB: LOANS PRIORITY QUEUE MODULE -->
+            <!-- TAB 3: LOANS PRIORITY QUEUE MODULE -->
             <section id="loans" class="tab-content">
                 <div class="section-header">
                     <div>
                         <h2>Loan Applications — Priority Queue Engine</h2>
                         <p>Applications ranked dynamically using Max-Heap Priority Queue (Emergency & Senior Citizen loans processed first).</p>
                     </div>
-                    <button class="btn btn-gold" onclick="openModal('apply-loan-modal')">Apply New Loan</button>
                 </div>
 
                 <div class="dashboard-grid">
-                    <div class="glass-card">
+                    <!-- CUSTOMER LEFT CARD: Apply for Bank Loan (1 Bid Limit) -->
+                    <div class="glass-card customer-only-block">
                         <div class="card-title-header">
                             <h3>Apply for Bank Loan</h3>
-                            <span class="sub-text">Emergency, Senior Citizen, Education & Personal Loans</span>
+                            <span class="sub-text">Emergency, Senior Citizen, Education & Personal Loans (1 Bid Limit)</span>
                         </div>
-                        <form onsubmit="handleApplyLoanSubmit(event)">
-                            <div class="form-group">
-                                <label>Applicant Name</label>
-                                <input type="text" id="loan-name-input" required placeholder="Hardik Verma">
-                            </div>
-                            <div class="form-row">
+                        <div id="customer-loan-bid-form-container">
+                            <form onsubmit="handleApplyLoanSubmit(event)">
                                 <div class="form-group">
-                                    <label>Account Number</label>
-                                    <input type="text" id="loan-acc-input" required value="ACC1001">
+                                    <label>Applicant Name</label>
+                                    <input type="text" id="loan-name-input" required placeholder="Hardik Verma">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Account Number</label>
+                                        <input type="text" id="loan-acc-input" required value="ACC1001">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Loan Category</label>
+                                        <select id="loan-type-select">
+                                            <option value="EMERGENCY">Emergency Loan (Priority 10 - HIGH)</option>
+                                            <option value="SENIOR_CITIZEN">Senior Citizen Loan (Priority 9 - HIGH)</option>
+                                            <option value="EDUCATION">Education Loan (Priority 7 - MEDIUM)</option>
+                                            <option value="PERSONAL">Personal Loan (Priority 5 - LOW)</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Loan Category</label>
-                                    <select id="loan-type-select">
-                                        <option value="EMERGENCY">Emergency Loan (Priority 10 - HIGH)</option>
-                                        <option value="SENIOR_CITIZEN">Senior Citizen Loan (Priority 9 - HIGH)</option>
-                                        <option value="EDUCATION">Education Loan (Priority 7 - MEDIUM)</option>
-                                        <option value="PERSONAL">Personal Loan (Priority 5 - LOW)</option>
-                                    </select>
+                                    <label>Loan Amount (₹)</label>
+                                    <input type="number" id="loan-amount-input" required value="500000.00">
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Loan Amount (₹)</label>
-                                <input type="number" id="loan-amount-input" required value="500000.00">
-                            </div>
-                            <button type="submit" class="btn btn-primary" style="width:100%;">Submit Loan Application</button>
-                        </form>
+                                <button type="submit" class="btn btn-primary" style="width:100%;">Submit Loan Bid</button>
+                            </form>
+                        </div>
+                        <div id="customer-loan-bid-active-notice" style="display:none; padding:20px; background:rgba(16,185,129,0.08); border:1px solid #10b981; border-radius:14px;">
+                            <h4 style="color:#10b981; margin-bottom:6px; font-size:1rem; font-weight:800;">✓ Active Loan Application Registered</h4>
+                            <p style="font-size:0.85rem; color:#9ca3af; margin:0;">You have already submitted a loan application. Bidding is restricted to <strong>1 active application</strong> at a time per customer account. Please await Executive Admin review.</p>
+                        </div>
                     </div>
 
-                    <div class="glass-card admin-nav-item">
+                    <!-- ADMIN LEFT CARD: History of Accepted / Approved Loans -->
+                    <div class="glass-card admin-only-block" style="display:none;">
+                        <div class="card-title-header">
+                            <h3 style="color:#8b5cf6;">👑 Accepted Loans History</h3>
+                            <span class="sub-text">Complete Record of Executive Approved & Disbursed Loans</span>
+                        </div>
+                        <div id="admin-accepted-loans-list" style="display:flex; flex-direction:column; gap:12px; max-height:340px; overflow-y:auto;">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- CUSTOMER RIGHT CARD: My Pending Loan Application -->
+                    <div class="glass-card customer-only-block">
+                        <div class="card-title-header">
+                            <h3>My Pending Application</h3>
+                            <span class="sub-text">Live Priority Queue Ranking & Review Status</span>
+                        </div>
+                        <div id="customer-pending-loan-display" style="display:flex; flex-direction:column; gap:12px;">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- ADMIN RIGHT CARD: Pending Loan Applications Queue -->
+                    <div class="glass-card admin-only-block" style="display:none;">
                         <div class="card-title-header" style="display:flex; justify-content:space-between; align-items:center;">
                             <div>
                                 <h3>Pending Loan Applications Queue</h3>

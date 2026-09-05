@@ -178,6 +178,8 @@ function switchPortalRole(role) {
     const adminItems = document.querySelectorAll('.admin-nav-item');
     const custQuickActions = document.querySelectorAll('.customer-quick-action');
     const custOnlyInlines = document.querySelectorAll('.customer-only-inline');
+    const adminOnlyBlocks = document.querySelectorAll('.admin-only-block');
+    const custOnlyBlocks = document.querySelectorAll('.customer-only-block');
 
     if (role === 'admin') {
         body.classList.remove('role-customer');
@@ -198,6 +200,8 @@ function switchPortalRole(role) {
         adminItems.forEach(el => el.style.display = '');
         custQuickActions.forEach(el => el.style.display = 'none');
         custOnlyInlines.forEach(el => el.style.display = 'none');
+        adminOnlyBlocks.forEach(el => el.style.display = 'block');
+        custOnlyBlocks.forEach(el => el.style.display = 'none');
 
         document.getElementById('capital-card-label').innerText = 'Total Managed Capital (INR)';
         document.getElementById('tx-card-label').innerText = 'Transactions Processed';
@@ -222,6 +226,8 @@ function switchPortalRole(role) {
         adminItems.forEach(el => el.style.display = 'none');
         custQuickActions.forEach(el => el.style.display = 'inline-flex');
         custOnlyInlines.forEach(el => el.style.display = 'inline-flex');
+        adminOnlyBlocks.forEach(el => el.style.display = 'none');
+        custOnlyBlocks.forEach(el => el.style.display = 'block');
 
         document.getElementById('capital-card-label').innerText = 'My Total Account Balance (INR)';
         document.getElementById('tx-card-label').innerText = 'My Completed Transactions';
@@ -450,28 +456,101 @@ function selectAutocomplete(name) {
     searchAccounts();
 }
 
-async function loadLoans() {
-    const loans = await apiCall('/loans/pending');
-    const listEl = document.getElementById('loans-queue-list');
-    if (!listEl) return;
+const LS_PENDING_LOANS = 'apex_bank_pending_loans';
+const LS_APPROVED_LOANS = 'apex_bank_approved_loans';
 
-    if (Array.isArray(loans) && loans.length > 0) {
-        listEl.innerHTML = loans.map(l => `
-            <div style="background:rgba(0,0,0,0.5); border:1px solid var(--border-color); padding:12px; border-radius:8px; display:flex; justify-space-between; align-items:center;">
-                <div>
-                    <strong>${l.appId} - ${l.name} (${l.accNum})</strong>
-                    <div class="sub-text">Category: ${l.type} | Amount: ₹${l.amount.toLocaleString('en-IN')}</div>
-                </div>
-                <span class="badge ${l.priority >= 9 ? 'badge-tx badge-withdrawal' : 'badge-tx badge-deposit'}">Prio ${l.priority}</span>
-            </div>
-        `).join('');
+async function loadLoans() {
+    let pendingLoans = await apiCall('/loans/pending');
+    if (!pendingLoans || !Array.isArray(pendingLoans)) {
+        pendingLoans = JSON.parse(localStorage.getItem(LS_PENDING_LOANS) || '[]');
     } else {
-        listEl.innerHTML = '<p class="sub-text">No pending loan applications in Max-Heap Priority Queue.</p>';
+        localStorage.setItem(LS_PENDING_LOANS, JSON.stringify(pendingLoans));
+    }
+
+    const approvedLoans = JSON.parse(localStorage.getItem(LS_APPROVED_LOANS) || '[]');
+
+    // 1. Update Admin Pending Queue List
+    const queueListEl = document.getElementById('loans-queue-list');
+    if (queueListEl) {
+        if (Array.isArray(pendingLoans) && pendingLoans.length > 0) {
+            queueListEl.innerHTML = pendingLoans.map(l => `
+                <div style="background:rgba(0,0,0,0.5); border:1px solid var(--border-color); padding:12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong>${l.appId || l.applicationId} - ${l.name || l.customerName} (${l.accNum || l.accountNumber})</strong>
+                        <div class="sub-text">Category: ${l.type || l.loanType} | Amount: ₹${parseFloat(l.amount).toLocaleString('en-IN')}</div>
+                    </div>
+                    <span class="badge ${(l.priority || l.priorityScore) >= 9 ? 'badge-tx badge-withdrawal' : 'badge-tx badge-deposit'}">Prio ${l.priority || l.priorityScore}</span>
+                </div>
+            `).join('');
+        } else {
+            queueListEl.innerHTML = '<p class="sub-text">No pending loan applications in Max-Heap Priority Queue.</p>';
+        }
+    }
+
+    // 2. Update Admin Accepted Loans History
+    const acceptedListEl = document.getElementById('admin-accepted-loans-list');
+    if (acceptedListEl) {
+        if (approvedLoans.length > 0) {
+            acceptedListEl.innerHTML = approvedLoans.map(l => `
+                <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); padding:14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-weight:700; color:#fff;">${l.appId || l.applicationId} — ${l.name || l.customerName}</div>
+                        <div class="sub-text" style="font-size:0.8rem; margin-top:2px;">Account: ${l.accNum || l.accountNumber} | Type: ${l.type || l.loanType} | Amount: ₹${parseFloat(l.amount).toLocaleString('en-IN')}</div>
+                    </div>
+                    <span class="badge badge-tx badge-deposit" style="background:#10b981; color:#000; font-weight:800;">APPROVED & DISBURSED</span>
+                </div>
+            `).join('');
+        } else {
+            acceptedListEl.innerHTML = '<p class="sub-text">No accepted loan history recorded yet.</p>';
+        }
+    }
+
+    // 3. Update Customer View: One-time Bid Restriction & My Pending Application
+    const accInput = document.getElementById('customer-page-acc-input') || document.getElementById('loan-acc-input');
+    const currentAccNum = accInput ? accInput.value.trim().toUpperCase() : 'ACC1001';
+
+    const myPending = pendingLoans.find(l => (l.accNum || l.accountNumber) === currentAccNum);
+    const formContainer = document.getElementById('customer-loan-bid-form-container');
+    const activeNotice = document.getElementById('customer-loan-bid-active-notice');
+    const myPendingDisplay = document.getElementById('customer-pending-loan-display');
+
+    if (myPending) {
+        if (formContainer) formContainer.style.display = 'none';
+        if (activeNotice) activeNotice.style.display = 'block';
+
+        if (myPendingDisplay) {
+            myPendingDisplay.innerHTML = `
+                <div style="background:rgba(16,185,129,0.08); border:1px solid #10b981; padding:18px; border-radius:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <span style="font-weight:800; color:#10b981;">APPLICATION #${myPending.appId || myPending.applicationId}</span>
+                        <span class="badge badge-tx badge-deposit">Priority Score: ${myPending.priority || myPending.priorityScore}</span>
+                    </div>
+                    <div style="font-size:1.1rem; font-weight:800; color:#fff; margin-bottom:6px;">₹${parseFloat(myPending.amount).toLocaleString('en-IN')} (${myPending.type || myPending.loanType})</div>
+                    <div style="font-size:0.85rem; color:#9ca3af; margin-bottom:12px;">Applicant: ${myPending.name || myPending.customerName} | Account: ${myPending.accNum || myPending.accountNumber}</div>
+                    <div style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.4); padding:10px 14px; border-radius:8px; font-size:0.82rem; color:#fbbf24; border:1px solid rgba(251,191,36,0.3);">
+                        ⏳ <span>Status: Pending Executive Priority Heap Review</span>
+                    </div>
+                </div>
+            `;
+        }
+    } else {
+        if (formContainer) formContainer.style.display = 'block';
+        if (activeNotice) activeNotice.style.display = 'none';
+
+        if (myPendingDisplay) {
+            myPendingDisplay.innerHTML = `
+                <div style="text-align:center; padding:30px 20px; background:rgba(0,0,0,0.3); border:1px dashed rgba(255,255,255,0.15); border-radius:14px;">
+                    <p style="color:#9ca3af; font-size:0.9rem; margin-bottom:8px;">No Active Pending Loan Application</p>
+                    <span style="font-size:0.78rem; color:#6b7280;">Fill in the loan bid form on the left to submit an emergency or personal loan request.</span>
+                </div>
+            `;
+        }
     }
 }
 
 async function handleApplyLoanSubmit(e) {
     e.preventDefault();
+
     const data = {
         name: document.getElementById('loan-name-input').value,
         accountNumber: document.getElementById('loan-acc-input').value,
@@ -479,22 +558,89 @@ async function handleApplyLoanSubmit(e) {
         amount: document.getElementById('loan-amount-input').value
     };
 
-    const res = await apiCall('/loans/apply', 'POST', data);
-    if (res && res.success) {
-        alert(`Loan Application Submitted!\nApp ID: ${res.applicationId}\nMax-Heap Priority Score: ${res.priority}`);
-        loadLoans();
+    const pendingLoans = JSON.parse(localStorage.getItem(LS_PENDING_LOANS) || '[]');
+    const existing = pendingLoans.find(l => (l.accNum || l.accountNumber) === data.accountNumber.trim().toUpperCase());
+    if (existing) {
+        alert('You already have an active pending loan application!\nBidding is allowed only 1 time per account.');
+        return;
     }
+
+    const res = await apiCall('/loans/apply', 'POST', data);
+    let newApp = null;
+    if (res && res.success) {
+        newApp = {
+            appId: res.applicationId,
+            name: data.name,
+            accNum: data.accountNumber,
+            type: data.loanType,
+            amount: parseFloat(data.amount),
+            priority: res.priority
+        };
+        alert(`Loan Application Submitted Successfully!\nApp ID: ${res.applicationId}\nMax-Heap Priority Score: ${res.priority}`);
+    } else {
+        let score = 5;
+        if (data.loanType === 'EMERGENCY') score = 10;
+        else if (data.loanType === 'SENIOR_CITIZEN') score = 9;
+        else if (data.loanType === 'EDUCATION') score = 7;
+
+        newApp = {
+            appId: 'LOAN' + Math.floor(1000 + Math.random() * 9000),
+            name: data.name,
+            accNum: data.accountNumber,
+            type: data.loanType,
+            amount: parseFloat(data.amount),
+            priority: score
+        };
+        alert(`Loan Application Submitted Successfully!\nApp ID: ${newApp.appId}\nMax-Heap Priority Score: ${newApp.priority}`);
+    }
+
+    pendingLoans.push(newApp);
+    localStorage.setItem(LS_PENDING_LOANS, JSON.stringify(pendingLoans));
+
+    loadLoans();
 }
 
 async function approveHighestLoan() {
+    const pendingLoans = JSON.parse(localStorage.getItem(LS_PENDING_LOANS) || '[]');
+
+    let approvedLoan = null;
     const res = await apiCall('/loans/approve', 'POST');
+
     if (res && res.success) {
-        alert(`Highest Priority Loan Approved!\nApp ID: ${res.applicationId}\nApplicant: ${res.name}\nAmount Credited: ₹${res.amount}`);
-        loadLoans();
-        loadDashboardData();
-    } else if (res) {
-        alert(res.message);
+        approvedLoan = {
+            appId: res.applicationId,
+            name: res.name,
+            accNum: res.accountNumber || 'ACC1001',
+            type: 'EMERGENCY',
+            amount: res.amount
+        };
+    } else if (pendingLoans.length > 0) {
+        pendingLoans.sort((a, b) => (b.priority || b.priorityScore || 0) - (a.priority || a.priorityScore || 0));
+        approvedLoan = pendingLoans.shift();
+        localStorage.setItem(LS_PENDING_LOANS, JSON.stringify(pendingLoans));
+    } else {
+        return alert('No pending loan applications in queue to approve.');
     }
+
+    if (approvedLoan) {
+        const approvedLoans = JSON.parse(localStorage.getItem(LS_APPROVED_LOANS) || '[]');
+        approvedLoan.status = 'APPROVED & DISBURSED';
+        approvedLoan.approvedAt = new Date().toLocaleString();
+        approvedLoans.unshift(approvedLoan);
+        localStorage.setItem(LS_APPROVED_LOANS, JSON.stringify(approvedLoans));
+
+        const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+        const targetAcc = accounts.find(a => a.accountNumber === (approvedLoan.accNum || approvedLoan.accountNumber));
+        if (targetAcc) {
+            targetAcc.balance += parseFloat(approvedLoan.amount);
+            localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
+        }
+
+        alert(`Highest Priority Loan Approved!\nApp ID: ${approvedLoan.appId || approvedLoan.applicationId}\nApplicant: ${approvedLoan.name || approvedLoan.customerName}\nAmount Credited: ₹${parseFloat(approvedLoan.amount).toLocaleString('en-IN')}`);
+    }
+
+    loadLoans();
+    loadDashboardData();
 }
 
 async function checkFraudCycle() {
@@ -645,14 +791,29 @@ async function handleCreateAccount(e) {
     };
 
     const res = await apiCall('/accounts/create', 'POST', data);
+    let createdAccNum = 'ACC1001';
     if (res && res.success) {
+        createdAccNum = res.accountNumber;
         alert(`Account Created Successfully!\nAccount #: ${res.accountNumber}\nBalance: ₹${res.balance.toFixed(2)}`);
-        closeModal('create-account-modal');
-        loadDashboardData();
-        loadAccounts();
-    } else if (res) {
-        alert('Creation Failed: ' + (res.error || 'Unknown error'));
+    } else {
+        const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+        createdAccNum = 'ACC' + Math.floor(1000 + Math.random() * 9000);
+        const newAcc = {
+            accountNumber: createdAccNum,
+            holderName: data.name || 'New Customer',
+            type: data.type || 'SAVINGS',
+            balance: parseFloat(data.initialBalance) || 1000,
+            pin: data.pin || '1234'
+        };
+        accounts.push(newAcc);
+        localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
+        alert(`Account Created Successfully!\nAccount #: ${createdAccNum}\nBalance: ₹${newAcc.balance.toFixed(2)}`);
     }
+
+    closeModal('create-account-modal');
+    showCustomerLoginPage();
+    const accInput = document.getElementById('customer-page-acc-input');
+    if (accInput) accInput.value = createdAccNum;
 }
 
 async function handleDeposit(e) {
