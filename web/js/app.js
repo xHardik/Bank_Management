@@ -2,15 +2,12 @@
 const RENDER_BACKEND_URL = 'https://bank-management-7uwe.onrender.com';
 
 function getApiBaseUrl() {
-    // 1. If deployed on Render directly or running on port 8080 locally -> Use relative /api path
     if (window.location.hostname.includes('render.com') || window.location.port === '8080') {
         return '/api';
     }
-    // 2. If running locally via file:// or dev servers
     if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return 'http://localhost:8080/api';
     }
-    // 3. If deployed on Vercel / Netlify
     return RENDER_BACKEND_URL.replace(/\/$/, '') + '/api';
 }
 
@@ -19,14 +16,123 @@ const API_BASE = getApiBaseUrl();
 // LocalStorage Persistence Keys
 const LS_ACCOUNTS_KEY = 'apex_bank_accounts';
 const LS_TXS_KEY = 'apex_bank_transactions';
+let currentRole = 'admin';
+let isCardLocked = false;
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadDashboardData();
-    loadAccounts();
-    loadTransactions();
-    loadQueues();
-    loadAuditLogs();
+    switchPortalRole('admin');
 });
+
+function switchPortalRole(role) {
+    currentRole = role;
+    const body = document.body;
+    const adminBtn = document.getElementById('role-btn-admin');
+    const custBtn = document.getElementById('role-btn-customer');
+    const badge = document.getElementById('portal-subtitle-badge');
+    const heroTag = document.getElementById('portal-hero-tag');
+    const heroTitle = document.getElementById('portal-hero-title');
+    const heroDesc = document.getElementById('portal-hero-desc');
+    const userName = document.getElementById('user-display-name');
+    const userRole = document.getElementById('user-display-role');
+
+    const adminOnlyTexts = document.querySelectorAll('.admin-only-text');
+    const custOnlyTexts = document.querySelectorAll('.customer-only-text');
+    const adminItems = document.querySelectorAll('.admin-nav-item');
+    const custQuickActions = document.querySelectorAll('.customer-quick-action');
+    const custOnlyInlines = document.querySelectorAll('.customer-only-inline');
+
+    if (role === 'admin') {
+        body.classList.remove('role-customer');
+        body.classList.add('role-admin');
+
+        if (adminBtn) adminBtn.className = 'role-pill-btn active admin';
+        if (custBtn) custBtn.className = 'role-pill-btn customer';
+
+        if (badge) badge.innerText = 'ADMIN EXECUTIVE PORTAL';
+        if (heroTag) heroTag.innerText = 'System Admin Mode';
+        if (heroTitle) heroTitle.innerText = 'Apex Executive Banking Portal';
+        if (heroDesc) heroDesc.innerText = 'Real-time INR ledgers, instant funds transfers across Indian banks, and priority VIP concierge desk.';
+        if (userName) userName.innerText = 'System Administrator';
+        if (userRole) userRole.innerText = 'Super Admin Rights';
+
+        adminOnlyTexts.forEach(el => el.style.display = 'inline');
+        custOnlyTexts.forEach(el => el.style.display = 'none');
+        adminItems.forEach(el => el.style.display = '');
+        custQuickActions.forEach(el => el.style.display = 'none');
+        custOnlyInlines.forEach(el => el.style.display = 'none');
+
+        document.getElementById('capital-card-label').innerText = 'Total Managed Capital (INR)';
+        document.getElementById('tx-card-label').innerText = 'Transactions Processed';
+        document.getElementById('tx-page-title').innerText = 'Transaction Ledger Log';
+        document.getElementById('tx-page-desc').innerText = 'Complete historical record of deposits, withdrawals, and inter-bank transfers.';
+    } else {
+        body.classList.remove('role-admin');
+        body.classList.add('role-customer');
+
+        if (adminBtn) adminBtn.className = 'role-pill-btn admin';
+        if (custBtn) custBtn.className = 'role-pill-btn active customer';
+
+        if (badge) badge.innerText = 'CUSTOMER MOBILE PORTAL';
+        if (heroTag) heroTag.innerText = 'Welcome Back, Hardik';
+        if (heroTitle) heroTitle.innerText = 'My NRI Platinum Banking Portal';
+        if (heroDesc) heroDesc.innerText = 'View personal account balance, send money via instant UPI/NEFT, and check digital passbook history.';
+        if (userName) userName.innerText = 'Hardik Verma';
+        if (userRole) userRole.innerText = 'Executive NRI Customer';
+
+        adminOnlyTexts.forEach(el => el.style.display = 'none');
+        custOnlyTexts.forEach(el => el.style.display = 'inline');
+        adminItems.forEach(el => el.style.display = 'none');
+        custQuickActions.forEach(el => el.style.display = 'inline-flex');
+        custOnlyInlines.forEach(el => el.style.display = 'inline-flex');
+
+        document.getElementById('capital-card-label').innerText = 'My Total Account Balance (INR)';
+        document.getElementById('tx-card-label').innerText = 'My Completed Transactions';
+        document.getElementById('tx-page-title').innerText = 'My Digital Passbook';
+        document.getElementById('tx-page-desc').innerText = 'Personal transaction ledger statement for Account #ACC1001.';
+
+        const activeTab = document.querySelector('.tab-content.active');
+        if (activeTab && (activeTab.id === 'accounts' || activeTab.id === 'queues' || activeTab.id === 'audit')) {
+            showTab('dashboard');
+        }
+    }
+
+    loadDashboardData();
+    loadTransactions();
+}
+
+function toggleCardLock() {
+    isCardLocked = !isCardLocked;
+    const cardEl = document.getElementById('credit-card-element');
+    const lockBtn = document.getElementById('card-lock-btn');
+
+    if (isCardLocked) {
+        if (cardEl) cardEl.style.filter = 'grayscale(1) opacity(0.6)';
+        if (lockBtn) {
+            lockBtn.innerText = '🔓 Unlock Card';
+            lockBtn.className = 'btn-sm btn-warning';
+        }
+        alert('Card Frozen Successfully!\nATM & Online POS transactions are now temporarily blocked.');
+    } else {
+        if (cardEl) cardEl.style.filter = 'none';
+        if (lockBtn) {
+            lockBtn.innerText = '🔒 Lock Card';
+            lockBtn.className = 'btn-sm btn-secondary';
+        }
+        alert('Card Unfrozen!\nCard is active for domestic & international transactions.');
+    }
+}
+
+function calculateInterest() {
+    const p = parseFloat(document.getElementById('calc-principal').value) || 0;
+    const rate = parseFloat(document.getElementById('calc-type').value) || 4.0;
+    const months = parseInt(document.getElementById('calc-months').value) || 12;
+
+    const interest = (p * rate * (months / 12)) / 100;
+    const resEl = document.getElementById('calc-result-val');
+    if (resEl) {
+        resEl.innerText = `₹${interest.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+}
 
 function toggleMobileSidebar() {
     const sidebar = document.querySelector('.sidebar');
@@ -39,13 +145,14 @@ function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
-    document.getElementById(tabId).classList.add('active');
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) targetTab.classList.add('active');
+
     if (event && event.target) {
         const btn = event.target.closest('.nav-btn');
         if (btn) btn.classList.add('active');
     }
 
-    // Auto-close mobile drawer when tab is clicked
     const sidebar = document.querySelector('.sidebar');
     if (sidebar && window.innerWidth <= 768) {
         sidebar.classList.remove('open');
@@ -54,12 +161,14 @@ function showTab(tabId) {
     if (tabId === 'dashboard') loadDashboardData();
     if (tabId === 'accounts') loadAccounts();
     if (tabId === 'transactions') loadTransactions();
+    if (tabId === 'loans') loadLoans();
     if (tabId === 'queues') loadQueues();
     if (tabId === 'audit') loadAuditLogs();
 }
 
 function openModal(id) {
     document.getElementById(id).style.display = 'flex';
+    if (id === 'calc-modal') calculateInterest();
 }
 
 function closeModal(id) {
@@ -138,15 +247,26 @@ async function loadDashboardData() {
 
     if (accounts.length > 0) {
         hideServerWarningBanner();
-        document.getElementById('total-accounts-val').innerText = accounts.length;
-        const totalCap = accounts.reduce((sum, a) => sum + a.balance, 0);
-        document.getElementById('total-capital-val').innerText = `₹${totalCap.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
-
-        updateCreditCardPreview(accounts[0]);
+        
+        if (currentRole === 'admin') {
+            document.getElementById('total-accounts-val').innerText = accounts.length;
+            const totalCap = accounts.reduce((sum, a) => sum + a.balance, 0);
+            document.getElementById('total-capital-val').innerText = `₹${totalCap.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+            updateCreditCardPreview(accounts[0]);
+        } else {
+            const myAcc = accounts.find(a => a.accountNumber === 'ACC1001') || accounts[0];
+            document.getElementById('total-capital-val').innerText = `₹${myAcc.balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+            updateCreditCardPreview(myAcc);
+        }
     }
 
     if (transactions.length > 0) {
-        document.getElementById('total-tx-val').innerText = transactions.length;
+        if (currentRole === 'admin') {
+            document.getElementById('total-tx-val').innerText = transactions.length;
+        } else {
+            const myTxs = transactions.filter(t => t.accNum === 'ACC1001' || t.targetAcc === 'ACC1001');
+            document.getElementById('total-tx-val').innerText = myTxs.length;
+        }
     }
 }
 
@@ -162,6 +282,92 @@ function updateCreditCardPreview(acc) {
     if (cardType) cardType.innerText = acc.type;
 }
 
+async function handleSearchAutocomplete(prefix) {
+    if (!prefix || prefix.trim().length === 0) {
+        const box = document.getElementById('autocomplete-box');
+        if (box) box.style.display = 'none';
+        return searchAccounts();
+    }
+
+    const suggestions = await apiCall(`/autocomplete?q=${encodeURIComponent(prefix)}`);
+    const box = document.getElementById('autocomplete-box');
+    if (box && Array.isArray(suggestions) && suggestions.length > 0) {
+        box.style.display = 'block';
+        box.innerHTML = suggestions.map(name => `<div class="autocomplete-item" onclick="selectAutocomplete('${name}')">👤 ${name} (Trie Suggestion)</div>`).join('');
+    } else if (box) {
+        box.style.display = 'none';
+    }
+    searchAccounts();
+}
+
+function selectAutocomplete(name) {
+    const input = document.getElementById('search-input');
+    if (input) input.value = name;
+    const box = document.getElementById('autocomplete-box');
+    if (box) box.style.display = 'none';
+    searchAccounts();
+}
+
+async function loadLoans() {
+    const loans = await apiCall('/loans/pending');
+    const listEl = document.getElementById('loans-queue-list');
+    if (!listEl) return;
+
+    if (Array.isArray(loans) && loans.length > 0) {
+        listEl.innerHTML = loans.map(l => `
+            <div style="background:rgba(0,0,0,0.5); border:1px solid var(--border-color); padding:12px; border-radius:8px; display:flex; justify-space-between; align-items:center;">
+                <div>
+                    <strong>${l.appId} - ${l.name} (${l.accNum})</strong>
+                    <div class="sub-text">Category: ${l.type} | Amount: ₹${l.amount.toLocaleString('en-IN')}</div>
+                </div>
+                <span class="badge ${l.priority >= 9 ? 'badge-tx badge-withdrawal' : 'badge-tx badge-deposit'}">Prio ${l.priority}</span>
+            </div>
+        `).join('');
+    } else {
+        listEl.innerHTML = '<p class="sub-text">No pending loan applications in Max-Heap Priority Queue.</p>';
+    }
+}
+
+async function handleApplyLoanSubmit(e) {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('loan-name-input').value,
+        accountNumber: document.getElementById('loan-acc-input').value,
+        loanType: document.getElementById('loan-type-select').value,
+        amount: document.getElementById('loan-amount-input').value
+    };
+
+    const res = await apiCall('/loans/apply', 'POST', data);
+    if (res && res.success) {
+        alert(`Loan Application Submitted!\nApp ID: ${res.applicationId}\nMax-Heap Priority Score: ${res.priority}`);
+        loadLoans();
+    }
+}
+
+async function approveHighestLoan() {
+    const res = await apiCall('/loans/approve', 'POST');
+    if (res && res.success) {
+        alert(`Highest Priority Loan Approved!\nApp ID: ${res.applicationId}\nApplicant: ${res.name}\nAmount Credited: ₹${res.amount}`);
+        loadLoans();
+        loadDashboardData();
+    } else if (res) {
+        alert(res.message);
+    }
+}
+
+async function checkFraudCycle() {
+    const acc = prompt('Enter Account Number to run DFS Circular Transfer Fraud Check:', 'ACC1001');
+    if (!acc) return;
+    const res = await apiCall(`/fraud/check?acc=${encodeURIComponent(acc)}`);
+    if (res) {
+        if (res.circularFraudDetected) {
+            alert(`🚨 FRAUD WARNING!\nDFS Graph Cycle Detection found rapid circular transfers involving ${acc}!`);
+        } else {
+            alert(`✅ CLEAN ROUTING!\nNo circular fraud cycles detected for account ${acc}.`);
+        }
+    }
+}
+
 async function loadAccounts() {
     const sortVal = document.getElementById('accounts-sort-select')?.value || 'balance_desc';
     applyAccountSort(sortVal);
@@ -172,7 +378,6 @@ async function applyAccountSort(sortBy = 'balance_desc') {
     if (Array.isArray(sorted) && sorted.length > 0) {
         renderAccountsTable(sorted);
     } else {
-        // Fallback local sorting if offline
         let accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
         if (sortBy === 'balance_desc') {
             accounts.sort((a, b) => b.balance - a.balance);
@@ -237,7 +442,13 @@ async function loadTransactions() {
     } else {
         transactions = JSON.parse(localStorage.getItem(LS_TXS_KEY) || '[]');
     }
-    renderTransactions(transactions.slice().reverse());
+
+    let filtered = transactions;
+    if (currentRole === 'customer') {
+        filtered = transactions.filter(t => t.accNum === 'ACC1001' || t.targetAcc === 'ACC1001');
+    }
+
+    renderTransactions(filtered.slice().reverse());
 }
 
 function renderTransactions(transactions) {
@@ -304,6 +515,10 @@ async function handleCreateAccount(e) {
 
 async function handleDeposit(e) {
     e.preventDefault();
+    if (isCardLocked && currentRole === 'customer') {
+        return alert('Transaction Blocked!\nYour RuPay card is currently locked. Unlock your card to perform transactions.');
+    }
+
     const data = {
         accountNumber: document.getElementById('dep-acc-num').value,
         amount: document.getElementById('dep-amount').value,
@@ -324,6 +539,10 @@ async function handleDeposit(e) {
 
 async function handleWithdraw(e) {
     e.preventDefault();
+    if (isCardLocked && currentRole === 'customer') {
+        return alert('Transaction Blocked!\nYour RuPay card is currently locked. Unlock your card to perform transactions.');
+    }
+
     const data = {
         accountNumber: document.getElementById('w-acc-num').value,
         amount: document.getElementById('w-amount').value,
@@ -344,6 +563,10 @@ async function handleWithdraw(e) {
 
 async function handleTransfer(e) {
     e.preventDefault();
+    if (isCardLocked && currentRole === 'customer') {
+        return alert('Transaction Blocked!\nYour RuPay card is currently locked. Unlock your card to perform transactions.');
+    }
+
     const data = {
         sourceAccount: document.getElementById('t-src-num').value,
         targetAccount: document.getElementById('t-target-num').value,
@@ -375,15 +598,10 @@ async function triggerUndo() {
     }
 }
 
-async function sortAccountsByBalance() {
-    applyAccountSort('balance_desc');
-}
-
 async function searchAccounts() {
     const q = document.getElementById('search-input').value.trim();
     if (!q) return loadAccounts();
 
-    // Auto-switch to accounts tab so search results table is displayed immediately
     const accountsTab = document.getElementById('accounts');
     if (accountsTab && !accountsTab.classList.contains('active')) {
         showTab('accounts');
@@ -393,7 +611,6 @@ async function searchAccounts() {
     if (Array.isArray(results) && results.length > 0) {
         renderAccountsTable(results);
     } else {
-        // Fallback local search on localStorage accounts
         const allAccounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
         const filtered = allAccounts.filter(a =>
             a.accountNumber.toLowerCase().includes(q.toLowerCase()) ||

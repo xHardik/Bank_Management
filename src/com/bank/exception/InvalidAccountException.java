@@ -1,9 +1,6 @@
 package com.bank.exception;
 
-/**
- * Thrown when an account number is not found or invalid.
- */
-public class InvalidAccountException extends Exception {
+public class InvalidAccountException extends RuntimeException {
     public InvalidAccountException(String message) {
         super(message);
     }

@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apex Bank India | Mobile Executive Portal</title>
+    <title>Apex Bank India | Executive & NRI Customer Portal</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="role-admin">
     <div class="bg-glow"></div>
     <div class="bg-grid-overlay"></div>
 
@@ -18,31 +18,54 @@
                 <img src="assets/logo.png" class="brand-logo-img-lg" alt="Apex Bank Emblem">
                 <div class="brand-text">
                     <h2>APEX BANK</h2>
-                    <span>NATIONAL PORTAL</span>
+                    <span id="portal-subtitle-badge">ADMIN EXECUTIVE PORTAL</span>
                 </div>
                 <button class="sidebar-close-btn" onclick="toggleMobileSidebar()">&times;</button>
             </div>
 
+            <!-- Role Switcher Toggle Pill -->
+            <div class="role-switcher-box">
+                <button id="role-btn-admin" class="role-pill-btn active admin" onclick="switchPortalRole('admin')">
+                    👑 Admin
+                </button>
+                <button id="role-btn-customer" class="role-pill-btn customer" onclick="switchPortalRole('customer')">
+                    👤 Customer
+                </button>
+            </div>
+
+            <!-- Sidebar Navigation Menu -->
             <nav class="nav-menu">
                 <button class="nav-btn active" onclick="showTab('dashboard')">
                     <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>
-                    Overview
+                    <span class="admin-only-text">Overview</span>
+                    <span class="customer-only-text" style="display:none;">My Dashboard</span>
                 </button>
-                <button class="nav-btn" onclick="showTab('accounts')">
+
+                <button class="nav-btn admin-nav-item" onclick="showTab('accounts')">
                     <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-                    Accounts
+                    Accounts Ledger
                 </button>
+
                 <button class="nav-btn" onclick="showTab('transactions')">
                     <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                    Transactions
+                    <span class="admin-only-text">Transactions Log</span>
+                    <span class="customer-only-text" style="display:none;">My Passbook</span>
                 </button>
-                <button class="nav-btn" onclick="showTab('queues')">
+
+                <button class="nav-btn" onclick="showTab('loans')">
+                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    <span class="admin-only-text">Loans Priority Queue</span>
+                    <span class="customer-only-text" style="display:none;">Apply Loan</span>
+                </button>
+
+                <button class="nav-btn admin-nav-item" onclick="showTab('queues')">
                     <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                    Concierge Desk
+                    Concierge Support
                 </button>
-                <button class="nav-btn" onclick="showTab('audit')">
+
+                <button class="nav-btn admin-nav-item" onclick="showTab('audit')">
                     <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                    Security Ledger
+                    Security & Fraud Graph
                 </button>
             </nav>
 
@@ -50,8 +73,8 @@
                 <div class="user-card">
                     <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256" alt="User Profile" class="profile-pic">
                     <div class="user-info">
-                        <h4>Hardik Verma</h4>
-                        <span>Executive Client</span>
+                        <h4 id="user-display-name">System Administrator</h4>
+                        <span id="user-display-role">Super Admin Rights</span>
                     </div>
                 </div>
             </div>
@@ -75,19 +98,31 @@
                     </div>
                 </div>
 
-                <div class="search-bar">
+                <!-- Autocomplete Trie Search Bar -->
+                <div class="search-bar admin-nav-item" style="position:relative;">
                     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <input type="text" id="search-input" placeholder="Search account number, customer name or phone..." onkeyup="searchAccounts()">
+                    <input type="text" id="search-input" placeholder="Search customer (Trie Autocomplete enabled)..." onkeyup="handleSearchAutocomplete(this.value)">
+                    <div id="autocomplete-box" class="autocomplete-dropdown" style="display:none;"></div>
                 </div>
 
                 <div class="nav-actions">
-                    <button class="btn btn-secondary" onclick="triggerUndo()">
+                    <button class="btn btn-secondary admin-nav-item" onclick="triggerUndo()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
                         <span>Undo</span>
                     </button>
-                    <button class="btn btn-primary" onclick="openModal('create-account-modal')">
+                    <button class="btn btn-primary admin-nav-item" onclick="openModal('create-account-modal')">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         <span>New Account</span>
+                    </button>
+
+                    <!-- Customer Quick Actions -->
+                    <button class="btn btn-gold customer-quick-action" style="display:none;" onclick="openModal('upi-qr-modal')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                        <span>My UPI QR</span>
+                    </button>
+                    <button class="btn btn-primary customer-quick-action" style="display:none;" onclick="openModal('transfer-modal')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path></svg>
+                        <span>Send Money</span>
                     </button>
                 </div>
             </header>
@@ -96,9 +131,9 @@
             <section id="dashboard" class="tab-content active">
                 <div class="hero-banner">
                     <div class="hero-text">
-                        <span class="hero-tag">Welcome Back</span>
-                        <h1>Apex Executive Banking Portal</h1>
-                        <p>Real-time INR ledgers, instant funds transfers across Indian banks, and priority VIP concierge desk.</p>
+                        <span class="hero-tag" id="portal-hero-tag">System Admin Mode</span>
+                        <h1 id="portal-hero-title">Apex Executive Banking Portal</h1>
+                        <p id="portal-hero-desc">Real-time INR ledgers, instant funds transfers across Indian banks, and priority VIP concierge desk.</p>
                     </div>
                     <div class="hero-badge-group">
                         <div class="hero-stat-pill">
@@ -110,7 +145,7 @@
 
                 <!-- Stats Grid -->
                 <div class="stats-grid">
-                    <div class="stat-card">
+                    <div class="stat-card admin-nav-item">
                         <div class="stat-header">
                             <span>Total Active Accounts</span>
                             <div class="stat-icon-wrapper blue">
@@ -125,7 +160,7 @@
 
                     <div class="stat-card">
                         <div class="stat-header">
-                            <span>Total Managed Capital (INR)</span>
+                            <span id="capital-card-label">Total Managed Capital (INR)</span>
                             <div class="stat-icon-wrapper emerald">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M6 3h12M6 8h12M6 13h8M6 13c5 0 7 8 12 8M6 8a4 4 0 0 0 4 4"></path>
@@ -140,7 +175,7 @@
 
                     <div class="stat-card">
                         <div class="stat-header">
-                            <span>Transactions Processed</span>
+                            <span id="tx-card-label">Transactions Processed</span>
                             <div class="stat-icon-wrapper gold">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
                             </div>
@@ -156,11 +191,16 @@
                 <div class="dashboard-grid">
                     <!-- Left: Virtual Credit Card -->
                     <div class="glass-card">
-                        <div class="card-title-header">
-                            <h3>Primary Platinum RuPay Card</h3>
-                            <span class="sub-text">Active Domestic & International Card</span>
+                        <div class="card-title-header" style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <h3>Primary Platinum RuPay Card</h3>
+                                <span class="sub-text">Active Domestic & International Card</span>
+                            </div>
+                            <button id="card-lock-btn" class="btn-sm btn-secondary" onclick="toggleCardLock()">
+                                🔒 Lock Card
+                            </button>
                         </div>
-                        <div class="credit-card">
+                        <div class="credit-card" id="credit-card-element">
                             <div class="card-top">
                                 <div class="card-brand-logo">
                                     <span class="bank-name">APEX INDIA</span>
@@ -192,8 +232,8 @@
                     <!-- Right: Quick Money Operations -->
                     <div class="glass-card">
                         <div class="card-title-header">
-                            <h3>Quick Money Operations</h3>
-                            <span class="sub-text">Instant settlement actions</span>
+                            <h3>Quick Banking Services</h3>
+                            <span class="sub-text">Instant settlement actions & bill utilities</span>
                         </div>
                         <div class="action-grid">
                             <button class="action-tile" onclick="openModal('deposit-modal')">
@@ -214,7 +254,13 @@
                                 </div>
                                 <span>Transfer Money</span>
                             </button>
-                            <button class="action-tile" onclick="applyAccountSort('balance_desc')">
+                            <button class="action-tile customer-only-inline" style="display:none;" onclick="openModal('calc-modal')">
+                                <div class="tile-icon gold">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line></svg>
+                                </div>
+                                <span>Interest Calc</span>
+                            </button>
+                            <button class="action-tile admin-nav-item" onclick="applyAccountSort('balance_desc')">
                                 <div class="tile-icon gold">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                                 </div>
@@ -225,8 +271,8 @@
                 </div>
             </section>
 
-            <!-- TAB 2: ACCOUNTS OVERVIEW -->
-            <section id="accounts" class="tab-content">
+            <!-- TAB 2: ACCOUNTS OVERVIEW (Admin Portal Only) -->
+            <section id="accounts" class="tab-content admin-nav-item">
                 <div class="section-header">
                     <div>
                         <h2>Customer Account Ledgers</h2>
@@ -264,8 +310,8 @@
             <section id="transactions" class="tab-content">
                 <div class="section-header">
                     <div>
-                        <h2>Transaction Ledger</h2>
-                        <p>Complete historical record of deposits, withdrawals, and inter-bank transfers.</p>
+                        <h2 id="tx-page-title">Transaction Ledger Log</h2>
+                        <p id="tx-page-desc">Complete historical record of deposits, withdrawals, and inter-bank transfers.</p>
                     </div>
                 </div>
 
@@ -289,8 +335,67 @@
                 </div>
             </section>
 
-            <!-- TAB 4: CONCIERGE DESK -->
-            <section id="queues" class="tab-content">
+            <!-- NEW TAB: LOANS PRIORITY QUEUE MODULE -->
+            <section id="loans" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <h2>Loan Applications — Priority Queue Engine</h2>
+                        <p>Applications ranked dynamically using Max-Heap Priority Queue (Emergency & Senior Citizen loans processed first).</p>
+                    </div>
+                    <button class="btn btn-gold" onclick="openModal('apply-loan-modal')">Apply New Loan</button>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="glass-card">
+                        <div class="card-title-header">
+                            <h3>Apply for Bank Loan</h3>
+                            <span class="sub-text">Emergency, Senior Citizen, Education & Personal Loans</span>
+                        </div>
+                        <form onsubmit="handleApplyLoanSubmit(event)">
+                            <div class="form-group">
+                                <label>Applicant Name</label>
+                                <input type="text" id="loan-name-input" required placeholder="Hardik Verma">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Account Number</label>
+                                    <input type="text" id="loan-acc-input" required value="ACC1001">
+                                </div>
+                                <div class="form-group">
+                                    <label>Loan Category</label>
+                                    <select id="loan-type-select">
+                                        <option value="EMERGENCY">Emergency Loan (Priority 10 - HIGH)</option>
+                                        <option value="SENIOR_CITIZEN">Senior Citizen Loan (Priority 9 - HIGH)</option>
+                                        <option value="EDUCATION">Education Loan (Priority 7 - MEDIUM)</option>
+                                        <option value="PERSONAL">Personal Loan (Priority 5 - LOW)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Loan Amount (₹)</label>
+                                <input type="number" id="loan-amount-input" required value="500000.00">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">Submit Loan Application</button>
+                        </form>
+                    </div>
+
+                    <div class="glass-card admin-nav-item">
+                        <div class="card-title-header" style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <h3>Pending Loan Applications Queue</h3>
+                                <span class="sub-text">Max-Heap Binary Priority Queue Order</span>
+                            </div>
+                            <button class="btn btn-success btn-sm" onclick="approveHighestLoan()">Approve Highest Priority</button>
+                        </div>
+                        <div id="loans-queue-list" style="display:flex; flex-direction:column; gap:12px; max-height:320px; overflow-y:auto;">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: CONCIERGE DESK (Admin Portal Only) -->
+            <section id="queues" class="tab-content admin-nav-item">
                 <div class="section-header">
                     <div>
                         <h2>VIP Concierge & Support Service Desk</h2>
@@ -355,22 +460,27 @@
                 </div>
             </section>
 
-            <!-- TAB 5: AUDIT LOGS -->
-            <section id="audit" class="tab-content">
+            <!-- TAB 5: AUDIT LOGS & GRAPH FRAUD CHECK (Admin Portal Only) -->
+            <section id="audit" class="tab-content admin-nav-item">
                 <div class="section-header">
                     <div>
-                        <h2>System Security Audit Ledger</h2>
-                        <p>Continuous audit logging for system compliance and RBI fraud monitoring.</p>
+                        <h2>Security Ledger & Graph Fraud Monitoring</h2>
+                        <p>Continuous audit logging and DFS Graph cycle detection for money laundering / fraud rings.</p>
                     </div>
-                    <button class="btn btn-secondary" onclick="runAutomatedTests()">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
-                        Diagnostics
-                    </button>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-warning" onclick="checkFraudCycle()">
+                            🚨 DFS Fraud Check
+                        </button>
+                        <button class="btn btn-secondary" onclick="runAutomatedTests()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                            Diagnostics
+                        </button>
+                    </div>
                 </div>
 
                 <div class="console-card">
                     <div class="console-header">
-                        <div class="console-title">AUDIT_LOG_CONSOLE</div>
+                        <div class="console-title">AUDIT_LOG_CONSOLE (Circular Buffer Capacity: 50)</div>
                     </div>
                     <div id="log-console" class="console-body">
                         <!-- Populated dynamically -->
@@ -378,6 +488,58 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- CUSTOMER EXTRA MODAL 1: UPI QR CODE -->
+    <div id="upi-qr-modal" class="modal-overlay">
+        <div class="modal-card" style="text-align:center;">
+            <div class="modal-header">
+                <h3>My Instant UPI QR Code</h3>
+                <button class="modal-close" onclick="closeModal('upi-qr-modal')">&times;</button>
+            </div>
+            <div style="padding: 16px 0;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=hardik@apexbank%26pn=Hardik%20Verma%26cu=INR" alt="UPI QR Code" style="border: 4px solid var(--primary); border-radius: 12px; padding: 8px; background: #fff;">
+                <p style="margin-top: 14px; font-weight: 700; color: var(--primary);">VPA: hardik@apexbank</p>
+                <p class="sub-text">Scan using Google Pay, PhonePe, or Paytm for instant credit into Account #ACC1001.</p>
+            </div>
+            <div class="modal-footer" style="justify-content:center;">
+                <button class="btn btn-secondary" onclick="closeModal('upi-qr-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOMER EXTRA MODAL 2: INTEREST CALCULATOR -->
+    <div id="calc-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Interest Earnings Calculator</h3>
+                <button class="modal-close" onclick="closeModal('calc-modal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Deposit Balance (₹)</label>
+                <input type="number" id="calc-principal" value="150450" oninput="calculateInterest()">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Account Type</label>
+                    <select id="calc-type" onchange="calculateInterest()">
+                        <option value="4.0">Savings Account (4.0% APY)</option>
+                        <option value="7.0">Fixed Deposit (7.0% APY)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tenure (Months)</label>
+                    <input type="number" id="calc-months" value="12" min="1" max="60" oninput="calculateInterest()">
+                </div>
+            </div>
+            <div class="hero-stat-pill" style="margin-top:14px; background:rgba(16,185,129,0.1); border-color:var(--primary);">
+                <span class="pill-label">Estimated Interest Earned</span>
+                <span class="pill-value" id="calc-result-val">₹6,018.00</span>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('calc-modal')">Close</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL 1: CREATE ACCOUNT -->

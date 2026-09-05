@@ -6,119 +6,97 @@ import com.bank.server.BankHttpServer;
 import com.bank.service.BankService;
 import com.bank.test.TestRunner;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
-/**
- * Console Application Launcher and Interactive CLI Entry Point for Bank Management System.
- * Supports dual-mode execution: Standalone Console Menu or Web Application Mode via embedded HTTP Server.
- */
 public class Main {
 
-    private static final int PORT = 8080;
-
     public static void main(String[] args) {
+        System.out.println("Initializing Apex Core Banking System...");
         BankService bankService = new BankService();
 
-        // Launch Embedded Web Server in background thread
+        int port = 8080;
         try {
-            BankHttpServer webServer = new BankHttpServer(PORT, bankService);
-            webServer.start();
-        } catch (Exception e) {
-            System.err.println("Warning: Could not start web server on port " + PORT + ": " + e.getMessage());
+            BankHttpServer server = new BankHttpServer(port, bankService);
+            server.start();
+        } catch (IOException e) {
+            System.err.println("Failed to start HTTP server on port " + port + ": " + e.getMessage());
         }
 
-        // Run Interactive Console CLI
         Scanner scanner = new Scanner(System.in);
-        System.out.println("\n=================================================");
-        System.out.println("    APEX BANK MANAGEMENT SYSTEM (CLI)");
-        System.out.println("=================================================");
+        boolean running = true;
 
-        while (true) {
-            System.out.println("\n--- MAIN MENU ---");
-            System.out.println("1. List All Accounts");
-            System.out.println("2. Create New Account");
-            System.out.println("3. Deposit Funds");
-            System.out.println("4. Withdraw Funds");
-            System.out.println("5. Transfer Funds");
-            System.out.println("6. Undo Last Transaction (LIFO Stack)");
+        System.out.println("\n--- APEX BANK INTERACTIVE CLI & SERVER CONSOLE ---");
+        while (running) {
+            System.out.println("\n1. Deposit Funds");
+            System.out.println("2. Withdraw Cash");
+            System.out.println("3. Inter-Account Transfer");
+            System.out.println("4. View All Accounts");
+            System.out.println("5. View Master Transaction Ledger");
+            System.out.println("6. Undo Most Recent Operation (Stack LIFO)");
             System.out.println("7. Sort Accounts by Balance (QuickSort)");
             System.out.println("8. Search Account (Linear / Binary Search)");
             System.out.println("9. Run Automated Diagnostics & Unit Tests");
-            System.out.println("10. Exit");
-            System.out.print("Select an option (1-10): ");
+            System.out.println("10. Exit System");
+            System.out.print("Select Operation (1-10): ");
 
             String input = scanner.nextLine().trim();
-            if ("10".equals(input) || "exit".equalsIgnoreCase(input)) {
-                System.out.println("Thank you for using Apex Bank. Goodbye!");
-                System.exit(0);
-            }
-
             try {
                 int choice = Integer.parseInt(input);
                 switch (choice) {
                     case 1:
-                        List<Account> accs = bankService.getAllAccounts();
-                        System.out.println("\n--- ALL REGISTERED ACCOUNTS ---");
-                        for (Account a : accs) {
-                            System.out.printf("Acc #: %s | Cust ID: %s | Name: %-15s | Type: %-13s | Balance: Rs. %.2f%n",
-                                    a.getAccountNumber(), a.getCustomerId(), a.getHolderName(), a.getAccountType(), a.getBalance());
-                        }
-                        break;
-                    case 2:
-                        System.out.print("Enter Account Type (SAVINGS / CURRENT / FIXED_DEPOSIT): ");
-                        String type = scanner.nextLine().trim();
-                        System.out.print("Enter Customer Full Name: ");
-                        String name = scanner.nextLine().trim();
-                        System.out.print("Enter Email: ");
-                        String email = scanner.nextLine().trim();
-                        System.out.print("Enter Phone: ");
-                        String phone = scanner.nextLine().trim();
-                        System.out.print("Enter Initial Deposit Amount: ");
-                        double initBal = Double.parseDouble(scanner.nextLine().trim());
-                        System.out.print("Set 4-Digit Security PIN: ");
-                        String pin = scanner.nextLine().trim();
-                        System.out.print("Extra Parameter (Overdraft limit / Tenure months or blank): ");
-                        String extra = scanner.nextLine().trim();
-
-                        Account newAcc = bankService.createAccount(type, name, email, phone, "123 Street", initBal, pin, extra);
-                        System.out.println("SUCCESS! Account created: " + newAcc);
-                        break;
-                    case 3:
-                        System.out.print("Enter Account Number: ");
+                        System.out.print("Enter Account Number (e.g. ACC1001): ");
                         String depAcc = scanner.nextLine().trim();
-                        System.out.print("Enter Deposit Amount: ");
+                        System.out.print("Enter Amount (INR): ");
                         double depAmt = Double.parseDouble(scanner.nextLine().trim());
                         System.out.print("Enter 4-Digit Security PIN: ");
                         String depPin = scanner.nextLine().trim();
-                        Transaction depTx = bankService.deposit(depAcc, depAmt, depPin, "CLI Deposit");
-                        System.out.println("SUCCESS! " + depTx);
+                        Transaction depTx = bankService.deposit(depAcc, depAmt, depPin, "CLI Cash Deposit");
+                        System.out.println("Deposit Successful! Tx ID: " + depTx.getTransactionId() + " | New Balance: Rs. " + depTx.getBalanceAfter());
                         break;
-                    case 4:
+                    case 2:
                         System.out.print("Enter Account Number: ");
                         String wAcc = scanner.nextLine().trim();
-                        System.out.print("Enter Withdrawal Amount: ");
+                        System.out.print("Enter Amount (INR): ");
                         double wAmt = Double.parseDouble(scanner.nextLine().trim());
                         System.out.print("Enter 4-Digit Security PIN: ");
                         String wPin = scanner.nextLine().trim();
-                        Transaction wTx = bankService.withdraw(wAcc, wAmt, wPin, "CLI Withdrawal");
-                        System.out.println("SUCCESS! " + wTx);
+                        Transaction wTx = bankService.withdraw(wAcc, wAmt, wPin, "CLI Cash Withdrawal");
+                        System.out.println("Withdrawal Successful! Tx ID: " + wTx.getTransactionId() + " | New Balance: Rs. " + wTx.getBalanceAfter());
                         break;
-                    case 5:
+                    case 3:
                         System.out.print("Enter Source Account Number: ");
                         String srcAcc = scanner.nextLine().trim();
                         System.out.print("Enter Target Account Number: ");
                         String tgtAcc = scanner.nextLine().trim();
-                        System.out.print("Enter Transfer Amount: ");
+                        System.out.print("Enter Amount (INR): ");
                         double tAmt = Double.parseDouble(scanner.nextLine().trim());
-                        System.out.print("Enter Source Account Security PIN: ");
+                        System.out.print("Enter Source Security PIN: ");
                         String tPin = scanner.nextLine().trim();
                         Transaction tTx = bankService.transfer(srcAcc, tgtAcc, tAmt, tPin, "CLI Transfer");
-                        System.out.println("SUCCESS! Transfer completed: " + tTx);
+                        System.out.println("Transfer Successful! Tx ID: " + tTx.getTransactionId() + " | Source New Balance: Rs. " + tTx.getBalanceAfter());
+                        break;
+                    case 4:
+                        System.out.println("\n--- ALL REGISTERED ACCOUNTS ---");
+                        for (Account a : bankService.getAllAccounts()) {
+                            System.out.printf("Acc #: %s | Name: %-15s | Type: %-13s | Balance: Rs. %.2f%n",
+                                    a.getAccountNumber(), a.getHolderName(), a.getAccountType(), a.getBalance());
+                        }
+                        break;
+                    case 5:
+                        System.out.println("\n--- MASTER TRANSACTION LEDGER ---");
+                        for (Transaction t : bankService.getMasterTransactions()) {
+                            System.out.println(t);
+                        }
                         break;
                     case 6:
-                        String undoMsg = bankService.undoLastTransaction();
-                        System.out.println(undoMsg);
+                        boolean ok = bankService.undoLastTransaction();
+                        if (ok) {
+                            System.out.println("Undo Successful! Most recent transaction rolled back.");
+                        } else {
+                            System.out.println("Nothing to undo.");
+                        }
                         break;
                     case 7:
                         List<Account> sorted = bankService.getAccountsSortedByBalance();
@@ -153,12 +131,18 @@ public class Main {
                     case 9:
                         TestRunner.runAllTests(System.out);
                         break;
+                    case 10:
+                        System.out.println("Shutting down Apex Bank System. Goodbye!");
+                        running = false;
+                        break;
                     default:
-                        System.out.println("Invalid selection. Try again.");
+                        System.out.println("Invalid option. Please enter 1-10.");
                 }
             } catch (Exception e) {
                 System.err.println("Error: " + e.getMessage());
             }
         }
+        scanner.close();
+        System.exit(0);
     }
 }
