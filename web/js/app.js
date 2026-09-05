@@ -31,8 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function openCustomerLoginModal() {
+    const adminModal = document.getElementById('admin-auth-modal');
+    if (adminModal) {
+        adminModal.classList.remove('active');
+        adminModal.style.display = 'none';
+    }
     const modal = document.getElementById('customer-login-modal');
     if (modal) {
+        modal.style.display = 'flex';
         modal.classList.add('active');
         populateLoginAccounts();
         const pinInput = document.getElementById('customer-pin-input');
@@ -55,7 +61,10 @@ function verifyCustomerPin(event) {
 
     if (pin === '1234' || (targetAcc.pin && pin === targetAcc.pin)) {
         const modal = document.getElementById('customer-login-modal');
-        if (modal) modal.classList.remove('active');
+        if (modal) {
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+        }
         switchPortalRole('customer');
         loadDashboardData();
         loadTransactions();
@@ -66,12 +75,18 @@ function verifyCustomerPin(event) {
 }
 
 function openAdminAuthModal() {
+    const custModal = document.getElementById('customer-login-modal');
+    if (custModal) {
+        custModal.classList.remove('active');
+        custModal.style.display = 'none';
+    }
     if (isAdminAuthenticated) {
         switchPortalRole('admin');
         return;
     }
     const modal = document.getElementById('admin-auth-modal');
     if (modal) {
+        modal.style.display = 'flex';
         modal.classList.add('active');
         const pwdInput = document.getElementById('admin-passcode-input');
         if (pwdInput) {
@@ -89,7 +104,10 @@ function verifyAdminPasscode(event) {
     if (code === '6767') {
         isAdminAuthenticated = true;
         const modal = document.getElementById('admin-auth-modal');
-        if (modal) modal.classList.remove('active');
+        if (modal) {
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+        }
         window.location.hash = 'admin';
         switchPortalRole('admin');
     } else {
