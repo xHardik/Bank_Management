@@ -850,14 +850,22 @@ body {
 
 .login-input-field.pin-input {
     text-align: center;
-    font-size: 1.8rem;
-    letter-spacing: 12px;
+    font-size: 1.5rem !important;
+    font-family: inherit;
+    letter-spacing: 8px !important;
+    padding: 12px 16px !important;
+    height: 54px !important;
     color: #10b981;
     border-color: #10b981;
     box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
 }
 
 .login-input-field.pin-input.admin-pin {
+    font-size: 1.5rem !important;
+    font-family: inherit;
+    letter-spacing: 8px !important;
+    padding: 12px 16px !important;
+    height: 54px !important;
     color: #8b5cf6;
     border-color: #8b5cf6;
     box-shadow: 0 0 16px rgba(139, 92, 246, 0.3);

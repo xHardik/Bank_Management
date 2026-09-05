@@ -78,9 +78,9 @@ function showAdminLoginPage() {
 
 function verifyCustomerPinPage(event) {
     if (event) event.preventDefault();
-    const select = document.getElementById('login-page-acc-select');
+    const accInput = document.getElementById('customer-page-acc-input') || document.getElementById('login-page-acc-select');
     const pinInput = document.getElementById('customer-page-pin-input');
-    const accNum = select ? select.value : 'ACC1001';
+    const accNum = accInput ? accInput.value.trim().toUpperCase() : 'ACC1001';
     const pin = pinInput ? pinInput.value.trim() : '';
 
     const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
@@ -97,7 +97,7 @@ function verifyCustomerPinPage(event) {
         loadDashboardData();
         loadTransactions();
     } else {
-        alert('Invalid Customer Security PIN! (Default PIN is 1234)');
+        alert('Invalid Customer Security PIN!');
         if (pinInput) pinInput.value = '';
     }
 }
@@ -118,7 +118,7 @@ function verifyAdminPasscodePage(event) {
         window.location.hash = 'admin';
         switchPortalRole('admin');
     } else {
-        alert('Invalid Admin Executive Passcode! (Admin Passcode is 6767)');
+        alert('Invalid Admin Security Passcode!');
         if (input) input.value = '';
     }
 }

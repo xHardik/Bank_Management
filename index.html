@@ -716,14 +716,12 @@
             </div>
             <form id="customer-page-pin-form" onsubmit="verifyCustomerPinPage(event)">
                 <div class="form-group" style="margin-bottom: 18px;">
-                    <label class="login-field-label">Select Account Number</label>
-                    <select id="login-page-acc-select" class="login-input-field">
-                        <option value="ACC1001">ACC1001 - Hardik Verma (Savings)</option>
-                    </select>
+                    <label class="login-field-label">Account Number</label>
+                    <input type="text" id="customer-page-acc-input" required placeholder="Account Number (e.g. ACC1001)" value="ACC1001" autocomplete="off" class="login-input-field">
                 </div>
                 <div class="form-group" style="margin-bottom: 24px;">
-                    <label class="login-field-label">4-Digit Security PIN (Default: 1234)</label>
-                    <input type="password" id="customer-page-pin-input" maxlength="4" required placeholder="•••• (Default: 1234)" autocomplete="off" class="login-input-field pin-input">
+                    <label class="login-field-label">4-Digit Security PIN</label>
+                    <input type="password" id="customer-page-pin-input" maxlength="4" required placeholder="••••" autocomplete="off" class="login-input-field pin-input">
                 </div>
                 <button type="submit" class="login-btn-primary">🔓 Login to Customer Banking</button>
                 <div class="login-footer-links">
@@ -744,8 +742,8 @@
             </div>
             <form id="admin-page-passcode-form" onsubmit="verifyAdminPasscodePage(event)">
                 <div class="form-group" style="margin-bottom: 24px;">
-                    <label class="login-field-label">Admin Security Passcode (Passcode: 6767)</label>
-                    <input type="password" id="admin-page-passcode-input" maxlength="4" required placeholder="•••• (Passcode: 6767)" autocomplete="off" class="login-input-field pin-input admin-pin">
+                    <label class="login-field-label">Admin Security Passcode</label>
+                    <input type="password" id="admin-page-passcode-input" maxlength="4" required placeholder="••••" autocomplete="off" class="login-input-field pin-input admin-pin">
                 </div>
                 <button type="submit" class="login-btn-primary admin-btn">🔓 Unlock Executive Admin Portal</button>
                 <div class="login-footer-links">
