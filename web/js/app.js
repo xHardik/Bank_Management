@@ -21,13 +21,62 @@ let isAdminAuthenticated = false;
 let isCardLocked = false;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // URL Hash Routing (#admin or /admin prompts for passcode 7878)
-    if (window.location.hash === '#admin' || window.location.pathname.endsWith('/admin')) {
+    const cleanPath = window.location.pathname.replace(/\/$/, '');
+    if (cleanPath === '/admin' || window.location.hash === '#admin') {
         requestAdminAccess();
     } else {
         switchPortalRole('customer');
+        promptCustomerPinLogin();
     }
 });
+
+function promptCustomerPinLogin() {
+    const isAuth = sessionStorage.getItem('apex_customer_authed');
+    const modal = document.getElementById('customer-login-modal');
+    if (!isAuth && modal) {
+        modal.classList.add('active');
+        populateLoginAccounts();
+    }
+}
+
+function populateLoginAccounts() {
+    const select = document.getElementById('login-acc-select');
+    if (!select) return;
+    const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+    if (accounts.length > 0) {
+        select.innerHTML = accounts.map(a => `<option value="${a.accountNumber}">${a.accountNumber} - ${a.holderName} (${a.type})</option>`).join('');
+    } else {
+        select.innerHTML = `<option value="ACC1001">ACC1001 - Hardik Verma (Savings)</option>`;
+    }
+}
+
+function verifyCustomerPin(event) {
+    if (event) event.preventDefault();
+    const select = document.getElementById('login-acc-select');
+    const pinInput = document.getElementById('customer-pin-input');
+    const accNum = select ? select.value : 'ACC1001';
+    const pin = pinInput ? pinInput.value.trim() : '';
+
+    const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+    const targetAcc = accounts.find(a => a.accountNumber === accNum) || { accountNumber: 'ACC1001', pin: '1234' };
+
+    if (pin === '1234' || (targetAcc.pin && pin === targetAcc.pin)) {
+        sessionStorage.setItem('apex_customer_authed', accNum);
+        const modal = document.getElementById('customer-login-modal');
+        if (modal) modal.classList.remove('active');
+        loadDashboardData();
+        loadTransactions();
+    } else {
+        alert('Invalid 4-Digit Security PIN! Please enter valid PIN (Default: 1234).');
+        if (pinInput) pinInput.value = '';
+    }
+}
+
+function openNewAccountFromLogin() {
+    const loginModal = document.getElementById('customer-login-modal');
+    if (loginModal) loginModal.classList.remove('active');
+    openModal('create-account-modal');
+}
 
 function requestAdminAccess() {
     if (isAdminAuthenticated) {
@@ -125,10 +174,10 @@ function switchPortalRole(role) {
 
         if (badge) badge.innerText = 'CUSTOMER MOBILE PORTAL';
         if (heroTag) heroTag.innerText = 'Welcome Back, Hardik';
-        if (heroTitle) heroTitle.innerText = 'My NRI Platinum Banking Portal';
+        if (heroTitle) heroTitle.innerText = 'My Platinum Executive Banking Portal';
         if (heroDesc) heroDesc.innerText = 'View personal account balance, send money via instant UPI/NEFT, and check digital passbook history.';
         if (userName) userName.innerText = 'Hardik Verma';
-        if (userRole) userRole.innerText = 'Executive NRI Customer';
+        if (userRole) userRole.innerText = 'Executive Banking Customer';
 
         adminOnlyTexts.forEach(el => el.style.display = 'none');
         custOnlyTexts.forEach(el => el.style.display = 'inline');
@@ -644,8 +693,38 @@ async function triggerUndo() {
         alert(res.message);
         loadDashboardData();
         loadAccounts();
-    } else if (res) {
-        alert('Undo Failed: ' + res.error);
+        loadTransactions();
+    } else {
+        // LocalStorage fallback transaction stack undo
+        let txs = JSON.parse(localStorage.getItem(LS_TXS_KEY) || '[]');
+        if (txs.length > 0) {
+            const undoneTx = txs.pop();
+            localStorage.setItem(LS_TXS_KEY, JSON.stringify(txs));
+
+            let accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+            const srcAcc = accounts.find(a => a.accountNumber === undoneTx.accNum);
+            const targetAcc = accounts.find(a => a.accountNumber === undoneTx.targetAcc);
+
+            if (undoneTx.type === 'DEPOSIT' && srcAcc) {
+                srcAcc.balance = Math.max(0, srcAcc.balance - undoneTx.amount);
+            } else if (undoneTx.type === 'WITHDRAWAL' && srcAcc) {
+                srcAcc.balance += undoneTx.amount;
+            } else if (undoneTx.type === 'TRANSFER') {
+                if (srcAcc) srcAcc.balance += undoneTx.amount;
+                if (targetAcc) targetAcc.balance = Math.max(0, targetAcc.balance - undoneTx.amount);
+            }
+
+            localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
+
+            alert(`Transaction Stack Rollback Successful!\nUndone Tx #${undoneTx.id || 'Latest'} (${undoneTx.type})`);
+            loadDashboardData();
+            loadAccounts();
+            loadTransactions();
+        } else if (res) {
+            alert('Undo Failed: ' + res.error);
+        } else {
+            alert('No recent transactions available in ledger to rollback.');
+        }
     }
 }
 

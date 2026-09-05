@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apex Bank India | Executive & NRI Customer Portal</title>
+    <title>Apex Bank India | Executive & Premium Customer Portal</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -498,9 +498,9 @@
                 <button class="modal-close" onclick="closeModal('upi-qr-modal')">&times;</button>
             </div>
             <div style="padding: 16px 0;">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=hardik@apexbank%26pn=Hardik%20Verma%26cu=INR" alt="UPI QR Code" style="border: 4px solid var(--primary); border-radius: 12px; padding: 8px; background: #fff;">
-                <p style="margin-top: 14px; font-weight: 700; color: var(--primary);">VPA: hardik@apexbank</p>
-                <p class="sub-text">Scan using Google Pay, PhonePe, or Paytm for instant credit into Account #ACC1001.</p>
+                <img src="assets/phonepe_qr.jpg" alt="PhonePe QR Code - Hardik Sanjeev Verma" style="border: 3px solid var(--primary); border-radius: 16px; width: 250px; max-width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.8); background: #000;">
+                <p style="margin-top: 14px; font-weight: 700; color: var(--primary); font-size: 1.1rem; letter-spacing: 0.5px;">HARDIK SANJEEV VERMA</p>
+                <p class="sub-text">Scan & Pay using PhonePe, Google Pay, or Paytm for instant credit into Account #ACC1001.</p>
             </div>
             <div class="modal-footer" style="justify-content:center;">
                 <button class="btn btn-secondary" onclick="closeModal('upi-qr-modal')">Close</button>
@@ -729,6 +729,37 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeAdminAuthModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Unlock Admin Portal</button>
+                </div>
+            </form>
+    <!-- MODAL 7: MANDATORY CUSTOMER PIN LOGIN GATE -->
+    <div id="customer-login-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 440px;">
+            <div class="modal-header" style="text-align: center; display: block; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+                <div style="margin-bottom: 8px;">
+                    <img src="assets/logo.png" style="height: 48px;" alt="Apex Bank Emblem">
+                </div>
+                <h3 style="font-size: 1.3rem;">Customer Portal Login</h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Enter your 4-digit Security PIN to access your account</p>
+            </div>
+            <form id="customer-pin-form" onsubmit="verifyCustomerPin(event)">
+                <div class="modal-body" style="padding-top: 20px;">
+                    <div class="form-group">
+                        <label>Select Account Number</label>
+                        <select id="login-acc-select" class="form-control" style="width:100%; padding:10px; background:var(--bg-slate-grey); color:#fff; border:1px solid var(--border-color); border-radius:8px;">
+                            <option value="ACC1001">ACC1001 - Hardik Verma (Savings)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label>4-Digit Security PIN</label>
+                        <input type="password" id="customer-pin-input" maxlength="4" required placeholder="•••• (Default: 1234)" autocomplete="off" style="text-align:center; font-size:1.4rem; letter-spacing:8px;">
+                    </div>
+                </div>
+                <div class="modal-footer" style="flex-direction: column; gap: 10px; margin-top: 10px;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 700;">🔓 Unlock Account Passbook</button>
+                    <div style="text-align: center; width: 100%; margin-top: 6px;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Don't have an account? </span>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="openNewAccountFromLogin()" style="margin-left: 6px;">➕ Open New Bank Account</button>
+                    </div>
                 </div>
             </form>
         </div>
