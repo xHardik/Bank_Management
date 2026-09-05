@@ -31,9 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function promptCustomerPinLogin() {
-    const isAuth = sessionStorage.getItem('apex_customer_authed');
     const modal = document.getElementById('customer-login-modal');
-    if (!isAuth && modal) {
+    if (modal) {
         modal.classList.add('active');
         populateLoginAccounts();
     }
@@ -348,14 +347,18 @@ async function loadDashboardData() {
     if (accounts.length > 0) {
         hideServerWarningBanner();
         
+        // Total Accounts & Total Capital sum across ALL operating accounts
+        const totalAccsEl = document.getElementById('total-accounts-val');
+        if (totalAccsEl) totalAccsEl.innerText = accounts.length;
+
+        const totalCap = accounts.reduce((sum, a) => sum + (parseFloat(a.balance) || 0), 0);
+        const totalCapEl = document.getElementById('total-capital-val');
+        if (totalCapEl) totalCapEl.innerText = `₹${totalCap.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+
         if (currentRole === 'admin') {
-            document.getElementById('total-accounts-val').innerText = accounts.length;
-            const totalCap = accounts.reduce((sum, a) => sum + a.balance, 0);
-            document.getElementById('total-capital-val').innerText = `₹${totalCap.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
             updateCreditCardPreview(accounts[0]);
         } else {
             const myAcc = accounts.find(a => a.accountNumber === 'ACC1001') || accounts[0];
-            document.getElementById('total-capital-val').innerText = `₹${myAcc.balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
             updateCreditCardPreview(myAcc);
         }
     }
