@@ -242,6 +242,7 @@ function switchPortalRole(role) {
 
     loadDashboardData();
     loadTransactions();
+    loadLoans();
 }
 
 function toggleCardLock() {
