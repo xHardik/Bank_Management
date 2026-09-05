@@ -706,45 +706,59 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('test-modal')">Close</button>
             </div>
-    <!-- MODAL 6: ADMIN AUTHENTICATION GATE -->
-    <!-- MANDATORY REFRESH AUTHENTICATION GATE MODAL -->
-    <div id="portal-auth-modal" class="modal-overlay active" style="display: flex !important; z-index: 999999 !important; background: rgba(0,0,0,0.95); backdrop-filter: blur(16px);">
-        <div class="modal-card" style="max-width: 440px; border: 1px solid var(--border-color); box-shadow: 0 12px 40px rgba(0,0,0,0.9);">
+    <!-- MANDATORY REFRESH CUSTOMER PIN LOGIN MODAL -->
+    <div id="customer-login-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 440px;">
             <div class="modal-header" style="text-align: center; display: block; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
                 <div style="margin-bottom: 8px;">
                     <img src="assets/logo.png" style="height: 48px;" alt="Apex Bank Emblem">
                 </div>
-                <h3 style="font-size: 1.3rem; color: #fff;">Apex Portal PIN Verification</h3>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Session refreshed. Please enter PIN to access your portal.</p>
+                <h3 style="font-size: 1.3rem;">Customer Portal Authentication</h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Session refreshed. Please enter 4-digit Security PIN (1234) to proceed.</p>
             </div>
-            <form id="portal-auth-form" onsubmit="handlePortalPinAuth(event)">
+            <form id="customer-pin-form" onsubmit="verifyCustomerPin(event)">
                 <div class="modal-body" style="padding-top: 20px;">
-                    <div class="form-group" style="margin-bottom: 16px;">
-                        <label style="display:block; margin-bottom:8px;">Portal Mode</label>
-                        <select id="auth-portal-type" class="form-control" onchange="onAuthTypeChange()" style="width:100%; padding:10px; background:var(--bg-slate-grey); color:#fff; border:1px solid var(--border-color); border-radius:8px; font-weight: 600;">
-                            <option value="customer">👤 Customer Portal (PIN: 1234)</option>
-                            <option value="admin">👑 Executive Admin Portal (PIN: 6767)</option>
-                        </select>
-                    </div>
-
-                    <div id="customer-acc-select-group" class="form-group" style="margin-bottom: 16px;">
-                        <label style="display:block; margin-bottom:8px;">Select Customer Account</label>
+                    <div class="form-group">
+                        <label>Select Account Number</label>
                         <select id="login-acc-select" class="form-control" style="width:100%; padding:10px; background:var(--bg-slate-grey); color:#fff; border:1px solid var(--border-color); border-radius:8px;">
                             <option value="ACC1001">ACC1001 - Hardik Verma (Savings)</option>
                         </select>
                     </div>
-
-                    <div class="form-group">
-                        <label id="pin-label-text" style="display:block; margin-bottom:8px;">Customer Security PIN (1234)</label>
-                        <input type="password" id="portal-pin-input" maxlength="4" required placeholder="•••• (e.g. 1234)" autocomplete="off" style="text-align:center; font-size:1.5rem; letter-spacing:8px; width:100%; padding:12px; background:#000; color:#10b981; border:1px solid var(--primary); border-radius:8px;">
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label>4-Digit Customer PIN</label>
+                        <input type="password" id="customer-pin-input" maxlength="4" required placeholder="•••• (Default: 1234)" autocomplete="off" style="text-align:center; font-size:1.5rem; letter-spacing:8px; width:100%; padding:12px; background:#000; color:#10b981; border:1px solid var(--primary); border-radius:8px;">
                     </div>
                 </div>
                 <div class="modal-footer" style="flex-direction: column; gap: 10px; margin-top: 14px;">
-                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 700; font-size: 1rem;">🔓 Authenticate & Access Portal</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 700;">🔓 Unlock Customer Passbook</button>
                     <div style="text-align: center; width: 100%; margin-top: 6px;">
-                        <span style="color: var(--text-muted); font-size: 0.85rem;">New customer? </span>
-                        <button type="button" class="btn btn-sm btn-secondary" onclick="openNewAccountFromLogin()" style="margin-left: 6px;">➕ Open New Account</button>
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Don't have an account? </span>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="openNewAccountFromLogin()" style="margin-left: 6px;">➕ Open New Bank Account</button>
                     </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MANDATORY REFRESH ADMIN PASSCODE MODAL -->
+    <div id="admin-auth-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 440px;">
+            <div class="modal-header" style="text-align: center; display: block; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+                <div style="margin-bottom: 8px;">
+                    <img src="assets/logo.png" style="height: 48px;" alt="Apex Bank Emblem">
+                </div>
+                <h3 style="font-size: 1.3rem; color: #8b5cf6;">👑 Executive Admin Verification</h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Restricted Area. Enter Executive Admin Passcode (6767) to unlock Admin Portal.</p>
+            </div>
+            <form id="admin-auth-form" onsubmit="verifyAdminPasscode(event)">
+                <div class="modal-body" style="padding-top: 20px;">
+                    <div class="form-group">
+                        <label>Admin Security Passcode</label>
+                        <input type="password" id="admin-passcode-input" maxlength="4" required placeholder="•••• (Passcode: 6767)" autocomplete="off" style="text-align:center; font-size:1.5rem; letter-spacing:8px; width:100%; padding:12px; background:#000; color:#8b5cf6; border:1px solid #8b5cf6; border-radius:8px;">
+                    </div>
+                </div>
+                <div class="modal-footer" style="flex-direction: column; gap: 10px; margin-top: 14px;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 700; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border:none;">🔓 Unlock Admin Portal</button>
                 </div>
             </form>
         </div>

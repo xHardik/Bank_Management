@@ -704,7 +704,8 @@ body {
 .console-body { padding: 20px; max-height: 450px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; }
 .log-line { color: #10b981; margin-bottom: 8px; }
 
-.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(12px); z-index: 1000; align-items: center; justify-content: center; }
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(16px); z-index: 1000; align-items: center; justify-content: center; }
+.modal-overlay.active { display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; z-index: 999999 !important; }
 .modal-card { background: #090c12; border: 1px solid var(--border-color); border-radius: var(--radius-lg); width: 480px; max-width: 92vw; padding: 28px; }
 .modal-lg { width: 700px; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }

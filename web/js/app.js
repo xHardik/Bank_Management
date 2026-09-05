@@ -23,24 +23,19 @@ let isCardLocked = false;
 document.addEventListener('DOMContentLoaded', () => {
     const cleanPath = window.location.pathname.replace(/\/$/, '');
     if (cleanPath.endsWith('/admin') || window.location.hash === '#admin') {
-        showPortalAuthModal('admin');
+        openAdminAuthModal();
     } else {
-        showPortalAuthModal('customer');
+        switchPortalRole('customer');
+        openCustomerLoginModal();
     }
 });
 
-function showPortalAuthModal(preselectRole = 'customer') {
-    const modal = document.getElementById('portal-auth-modal');
+function openCustomerLoginModal() {
+    const modal = document.getElementById('customer-login-modal');
     if (modal) {
-        modal.style.display = 'flex';
         modal.classList.add('active');
-        const select = document.getElementById('auth-portal-type');
-        if (select) {
-            select.value = preselectRole;
-            onAuthTypeChange();
-        }
         populateLoginAccounts();
-        const pinInput = document.getElementById('portal-pin-input');
+        const pinInput = document.getElementById('customer-pin-input');
         if (pinInput) {
             pinInput.value = '';
             setTimeout(() => pinInput.focus(), 150);
@@ -48,35 +43,60 @@ function showPortalAuthModal(preselectRole = 'customer') {
     }
 }
 
-function hidePortalAuthModal() {
-    const modal = document.getElementById('portal-auth-modal');
-    if (modal) {
-        modal.style.display = 'none';
-        modal.classList.remove('active');
+function verifyCustomerPin(event) {
+    if (event) event.preventDefault();
+    const select = document.getElementById('login-acc-select');
+    const pinInput = document.getElementById('customer-pin-input');
+    const accNum = select ? select.value : 'ACC1001';
+    const pin = pinInput ? pinInput.value.trim() : '';
+
+    const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+    const targetAcc = accounts.find(a => a.accountNumber === accNum) || { accountNumber: 'ACC1001', pin: '1234' };
+
+    if (pin === '1234' || (targetAcc.pin && pin === targetAcc.pin)) {
+        const modal = document.getElementById('customer-login-modal');
+        if (modal) modal.classList.remove('active');
+        switchPortalRole('customer');
+        loadDashboardData();
+        loadTransactions();
+    } else {
+        alert('Invalid Customer Security PIN! (Customer PIN is 1234)');
+        if (pinInput) pinInput.value = '';
     }
 }
 
-function onAuthTypeChange() {
-    const select = document.getElementById('auth-portal-type');
-    const portalType = select ? select.value : 'customer';
-    const accGroup = document.getElementById('customer-acc-select-group');
-    const pinLabel = document.getElementById('pin-label-text');
-    const pinInput = document.getElementById('portal-pin-input');
+function openAdminAuthModal() {
+    if (isAdminAuthenticated) {
+        switchPortalRole('admin');
+        return;
+    }
+    const modal = document.getElementById('admin-auth-modal');
+    if (modal) {
+        modal.classList.add('active');
+        const pwdInput = document.getElementById('admin-passcode-input');
+        if (pwdInput) {
+            pwdInput.value = '';
+            setTimeout(() => pwdInput.focus(), 150);
+        }
+    }
+}
 
-    if (portalType === 'admin') {
-        if (accGroup) accGroup.style.display = 'none';
-        if (pinLabel) pinLabel.innerText = 'Admin Security Passcode (6767)';
-        if (pinInput) {
-            pinInput.placeholder = '•••• (6767)';
-            pinInput.value = '';
-        }
+function verifyAdminPasscode(event) {
+    if (event) event.preventDefault();
+    const input = document.getElementById('admin-passcode-input');
+    const code = input ? input.value.trim() : '';
+
+    if (code === '6767') {
+        isAdminAuthenticated = true;
+        const modal = document.getElementById('admin-auth-modal');
+        if (modal) modal.classList.remove('active');
+        window.location.hash = 'admin';
+        switchPortalRole('admin');
     } else {
-        if (accGroup) accGroup.style.display = 'block';
-        if (pinLabel) pinLabel.innerText = 'Customer Security PIN (1234)';
-        if (pinInput) {
-            pinInput.placeholder = '•••• (1234)';
-            pinInput.value = '';
-        }
+        alert('Invalid Admin Passcode! (Admin Passcode is 6767)');
+        if (input) input.value = '';
+        switchPortalRole('customer');
+        openCustomerLoginModal();
     }
 }
 
@@ -91,48 +111,14 @@ function populateLoginAccounts() {
     }
 }
 
-function handlePortalPinAuth(event) {
-    if (event) event.preventDefault();
-    const select = document.getElementById('auth-portal-type');
-    const portalType = select ? select.value : 'customer';
-    const pinInput = document.getElementById('portal-pin-input');
-    const pin = pinInput ? pinInput.value.trim() : '';
-
-    if (portalType === 'admin') {
-        if (pin === '6767') {
-            isAdminAuthenticated = true;
-            hidePortalAuthModal();
-            window.location.hash = 'admin';
-            switchPortalRole('admin');
-        } else {
-            alert('Invalid Admin Security PIN! (Admin PIN is 6767)');
-            if (pinInput) pinInput.value = '';
-        }
-    } else {
-        const accSelect = document.getElementById('login-acc-select');
-        const accNum = accSelect ? accSelect.value : 'ACC1001';
-        const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
-        const targetAcc = accounts.find(a => a.accountNumber === accNum) || { accountNumber: 'ACC1001', pin: '1234' };
-
-        if (pin === '1234' || (targetAcc.pin && pin === targetAcc.pin)) {
-            hidePortalAuthModal();
-            switchPortalRole('customer');
-            loadDashboardData();
-            loadTransactions();
-        } else {
-            alert('Invalid Customer Security PIN! (Customer PIN is 1234)');
-            if (pinInput) pinInput.value = '';
-        }
-    }
-}
-
 function openNewAccountFromLogin() {
-    hidePortalAuthModal();
+    const loginModal = document.getElementById('customer-login-modal');
+    if (loginModal) loginModal.classList.remove('active');
     openModal('create-account-modal');
 }
 
 function requestAdminAccess() {
-    showPortalAuthModal('admin');
+    openAdminAuthModal();
 }
 
 function switchPortalRole(role) {
