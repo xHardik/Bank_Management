@@ -23,36 +23,45 @@ let isCardLocked = false;
 document.addEventListener('DOMContentLoaded', () => {
     const cleanPath = window.location.pathname.replace(/\/$/, '');
     if (cleanPath.endsWith('/admin') || window.location.hash === '#admin') {
-        openAdminAuthModal();
+        showAdminLoginPage();
     } else {
-        switchPortalRole('customer');
-        openCustomerLoginModal();
+        showCustomerLoginPage();
     }
 });
 
-function openCustomerLoginModal() {
-    const adminModal = document.getElementById('admin-auth-modal');
-    if (adminModal) {
-        adminModal.classList.remove('active');
-        adminModal.style.cssText = 'display: none !important;';
-    }
-    const modal = document.getElementById('customer-login-modal');
-    if (modal) {
-        modal.classList.add('active');
-        modal.style.cssText = 'display: flex !important; z-index: 999999 !important; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5, 7, 15, 0.95); backdrop-filter: blur(24px);';
-        populateLoginAccounts();
-        const pinInput = document.getElementById('customer-pin-input');
-        if (pinInput) {
-            pinInput.value = '';
-            setTimeout(() => pinInput.focus(), 150);
-        }
+function showCustomerLoginPage() {
+    const adminPage = document.getElementById('admin-login-page-screen');
+    if (adminPage) adminPage.classList.add('hidden');
+
+    const custPage = document.getElementById('customer-login-page-screen');
+    if (custPage) custPage.classList.remove('hidden');
+
+    populateLoginPageAccounts();
+    const pinInput = document.getElementById('customer-page-pin-input');
+    if (pinInput) {
+        pinInput.value = '';
+        setTimeout(() => pinInput.focus(), 150);
     }
 }
 
-function verifyCustomerPin(event) {
+function showAdminLoginPage() {
+    const custPage = document.getElementById('customer-login-page-screen');
+    if (custPage) custPage.classList.add('hidden');
+
+    const adminPage = document.getElementById('admin-login-page-screen');
+    if (adminPage) adminPage.classList.remove('hidden');
+
+    const passcodeInput = document.getElementById('admin-page-passcode-input');
+    if (passcodeInput) {
+        passcodeInput.value = '';
+        setTimeout(() => passcodeInput.focus(), 150);
+    }
+}
+
+function verifyCustomerPinPage(event) {
     if (event) event.preventDefault();
-    const select = document.getElementById('login-acc-select');
-    const pinInput = document.getElementById('customer-pin-input');
+    const select = document.getElementById('login-page-acc-select');
+    const pinInput = document.getElementById('customer-page-pin-input');
     const accNum = select ? select.value : 'ACC1001';
     const pin = pinInput ? pinInput.value.trim() : '';
 
@@ -60,66 +69,50 @@ function verifyCustomerPin(event) {
     const targetAcc = accounts.find(a => a.accountNumber === accNum) || { accountNumber: 'ACC1001', pin: '1234' };
 
     if (pin === '1234' || (targetAcc.pin && pin === targetAcc.pin)) {
-        const modal = document.getElementById('customer-login-modal');
-        if (modal) {
-            modal.classList.remove('active');
-            modal.style.cssText = 'display: none !important;';
-        }
+        const custPage = document.getElementById('customer-login-page-screen');
+        if (custPage) custPage.classList.add('hidden');
+
         switchPortalRole('customer');
         loadDashboardData();
         loadTransactions();
     } else {
-        alert('Invalid Customer Security PIN! (Customer PIN is 1234)');
+        alert('Invalid Customer Security PIN! (Default PIN is 1234)');
         if (pinInput) pinInput.value = '';
     }
 }
 
-function openAdminAuthModal() {
-    const custModal = document.getElementById('customer-login-modal');
-    if (custModal) {
-        custModal.classList.remove('active');
-        custModal.style.cssText = 'display: none !important;';
-    }
-    if (isAdminAuthenticated) {
-        switchPortalRole('admin');
-        return;
-    }
-    const modal = document.getElementById('admin-auth-modal');
-    if (modal) {
-        modal.classList.add('active');
-        modal.style.cssText = 'display: flex !important; z-index: 999999 !important; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5, 7, 15, 0.95); backdrop-filter: blur(24px);';
-        const pwdInput = document.getElementById('admin-passcode-input');
-        if (pwdInput) {
-            pwdInput.value = '';
-            setTimeout(() => pwdInput.focus(), 150);
-        }
-    }
-}
-
-function verifyAdminPasscode(event) {
+function verifyAdminPasscodePage(event) {
     if (event) event.preventDefault();
-    const input = document.getElementById('admin-passcode-input');
+    const input = document.getElementById('admin-page-passcode-input');
     const code = input ? input.value.trim() : '';
 
     if (code === '6767') {
         isAdminAuthenticated = true;
-        const modal = document.getElementById('admin-auth-modal');
-        if (modal) {
-            modal.classList.remove('active');
-            modal.style.cssText = 'display: none !important;';
-        }
+        const adminPage = document.getElementById('admin-login-page-screen');
+        if (adminPage) adminPage.classList.add('hidden');
+
         window.location.hash = 'admin';
         switchPortalRole('admin');
     } else {
-        alert('Invalid Admin Passcode! (Admin Passcode is 6767)');
+        alert('Invalid Admin Executive Passcode! (Admin Passcode is 6767)');
         if (input) input.value = '';
-        switchPortalRole('customer');
-        openCustomerLoginModal();
     }
 }
 
-function populateLoginAccounts() {
-    const select = document.getElementById('login-acc-select');
+function navigateToAdminLogin(e) {
+    if (e) e.preventDefault();
+    window.location.hash = 'admin';
+    showAdminLoginPage();
+}
+
+function navigateToCustomerLogin(e) {
+    if (e) e.preventDefault();
+    window.location.hash = 'customer';
+    showCustomerLoginPage();
+}
+
+function populateLoginPageAccounts() {
+    const select = document.getElementById('login-page-acc-select');
     if (!select) return;
     const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
     if (accounts.length > 0) {
@@ -129,14 +122,14 @@ function populateLoginAccounts() {
     }
 }
 
-function openNewAccountFromLogin() {
-    const loginModal = document.getElementById('customer-login-modal');
-    if (loginModal) loginModal.classList.remove('active');
+function openNewAccountFromLoginPage() {
+    const custPage = document.getElementById('customer-login-page-screen');
+    if (custPage) custPage.classList.add('hidden');
     openModal('create-account-modal');
 }
 
 function requestAdminAccess() {
-    openAdminAuthModal();
+    showAdminLoginPage();
 }
 
 function switchPortalRole(role) {
