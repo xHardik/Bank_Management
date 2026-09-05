@@ -101,7 +101,7 @@
                 <!-- Autocomplete Trie Search Bar -->
                 <div class="search-bar admin-nav-item" style="position:relative;">
                     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <input type="text" id="search-input" placeholder="Search customer (Trie Autocomplete enabled)..." onkeyup="handleSearchAutocomplete(this.value)">
+                    <input type="text" id="search-input" placeholder="Search customer " onkeyup="handleSearchAutocomplete(this.value)">
                     <div id="autocomplete-box" class="autocomplete-dropdown" style="display:none;"></div>
                 </div>
 
@@ -707,7 +707,7 @@
                 <button class="btn btn-secondary" onclick="closeModal('test-modal')">Close</button>
             </div>
     <!-- DEDICATED FULL PAGE CUSTOMER LOGIN SCREEN -->
-    <div id="customer-login-page-screen" class="full-page-login-screen">
+    <div id="customer-login-page-screen" class="full-page-login-screen" style="display: flex; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; z-index: 9999999; background: #05070f; align-items: center; justify-content: center;">
         <div class="login-card-container">
             <div class="login-card-header">
                 <img src="assets/logo.png" style="height: 54px;" alt="Apex Bank Emblem">
@@ -735,7 +735,7 @@
     </div>
 
     <!-- DEDICATED FULL PAGE ADMIN LOGIN SCREEN -->
-    <div id="admin-login-page-screen" class="full-page-login-screen hidden">
+    <div id="admin-login-page-screen" class="full-page-login-screen hidden" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; z-index: 9999999; background: #05070f; align-items: center; justify-content: center;">
         <div class="login-card-container admin-border">
             <div class="login-card-header">
                 <img src="assets/logo.png" style="height: 54px;" alt="Apex Bank Emblem">
