@@ -35,37 +35,99 @@ async function syncAccountToFirebase(account) {
 async function syncTransactionToFirebase(txn) {
   if (!db || !txn) return;
   try {
-    await db.collection("transactions").add(txn);
-    console.log("🔥 Transaction synced to Firestore");
+    const txDocId = String(txn.txId || 'TXN' + Date.now());
+    await db.collection("transactions").doc(txDocId).set(txn, { merge: true });
+    console.log(`🔥 Transaction ${txDocId} synced to Firestore`);
   } catch (err) {
     console.warn("Firebase Transaction Sync Error:", err);
   }
 }
 
 async function syncLoanToFirebase(loan) {
-  if (!db || !loan || !loan.id) return;
+  if (!db || !loan) return;
+  const loanId = String(loan.appId || loan.applicationId || loan.id || 'LOAN' + Date.now());
   try {
-    await db.collection("pending_loans").doc(String(loan.id)).set(loan, { merge: true });
-    console.log(`🔥 Loan application ${loan.id} synced to Firestore`);
+    await db.collection("pending_loans").doc(loanId).set({ ...loan, appId: loanId }, { merge: true });
+    console.log(`🔥 Loan application ${loanId} synced to Firestore`);
   } catch (err) {
     console.warn("Firebase Loan Sync Error:", err);
   }
 }
 
 async function syncApprovedLoanToFirebase(loan) {
-  if (!db || !loan || !loan.id) return;
+  if (!db || !loan) return;
+  const loanId = String(loan.appId || loan.applicationId || loan.id || 'LOAN' + Date.now());
   try {
-    await db.collection("approved_loans").doc(String(loan.id)).set(loan, { merge: true });
-    await db.collection("pending_loans").doc(String(loan.id)).delete();
-    console.log(`🔥 Loan ${loan.id} moved to approved_loans in Firestore`);
+    await db.collection("approved_loans").doc(loanId).set({ ...loan, appId: loanId }, { merge: true });
+    try {
+      await db.collection("pending_loans").doc(loanId).delete();
+    } catch (e) {}
+    console.log(`🔥 Loan ${loanId} moved to approved_loans in Firestore`);
   } catch (err) {
     console.warn("Firebase Approved Loan Sync Error:", err);
+  }
+}
+
+// One-time initial seed/sync to ensure Firestore gets data immediately
+async function syncAllLocalToFirebase() {
+  if (!db) return;
+  try {
+    let accounts = JSON.parse(localStorage.getItem('apex_bank_accounts') || '[]');
+    if (accounts.length === 0) {
+      accounts = [{
+        accountNumber: 'ACC1001',
+        holderName: 'Hardik Verma',
+        type: 'SAVINGS',
+        balance: 150450.00,
+        pin: '1234',
+        customerId: 'CUST101'
+      }];
+      localStorage.setItem('apex_bank_accounts', JSON.stringify(accounts));
+    }
+    for (const acc of accounts) {
+      await syncAccountToFirebase(acc);
+    }
+
+    let pending = JSON.parse(localStorage.getItem('apex_bank_pending_loans') || '[]');
+    for (const loan of pending) {
+      await syncLoanToFirebase(loan);
+    }
+
+    let approved = JSON.parse(localStorage.getItem('apex_bank_approved_loans') || '[]');
+    for (const loan of approved) {
+      await syncApprovedLoanToFirebase(loan);
+    }
+
+    let txs = JSON.parse(localStorage.getItem('apex_bank_transactions') || '[]');
+    if (txs.length === 0) {
+      const sampleTx = {
+        txId: 'TXN100001',
+        timestamp: new Date().toLocaleString(),
+        accNum: 'ACC1001',
+        type: 'DEPOSIT',
+        amount: 150450.00,
+        balanceAfter: 150450.00,
+        remarks: 'Opening Balance Deposit',
+        targetAcc: 'N/A'
+      };
+      txs.push(sampleTx);
+      localStorage.setItem('apex_bank_transactions', JSON.stringify(txs));
+    }
+    for (const txn of txs) {
+      await syncTransactionToFirebase(txn);
+    }
+    console.log("🚀 Sync All Local Storage to Firebase Completed!");
+  } catch (e) {
+    console.warn("Error in syncAllLocalToFirebase:", e);
   }
 }
 
 // Realtime Listener to populate and keep LocalStorage updated
 function initFirebaseRealtimeListeners(onAccountsUpdated, onLoansUpdated) {
   if (!db) return;
+
+  // Run seed sync immediately
+  syncAllLocalToFirebase();
 
   // Accounts Listener
   db.collection("accounts").onSnapshot((snapshot) => {

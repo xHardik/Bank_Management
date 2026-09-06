@@ -1314,3 +1314,62 @@ async function handleUtilityPaymentSubmit(e) {
     loadDashboardData();
     loadTransactions();
 }
+
+async function handleInvestSubmit(e) {
+    e.preventDefault();
+
+    const asset = document.getElementById('invest-asset-select').value;
+    const amount = parseFloat(document.getElementById('invest-amount-input').value) || 0;
+    const pin = document.getElementById('invest-pin-input').value.trim();
+
+    if (amount <= 0) return alert('Enter a valid investment amount.');
+    if (pin !== '1234') return alert('Invalid Security PIN! Investment cancelled.');
+
+    const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+    const myAcc = accounts.find(a => a.accountNumber === 'ACC1001') || accounts[0];
+
+    if (myAcc.balance < amount) {
+        return alert(`Insufficient Funds!\nRequired: ₹${amount.toFixed(2)}\nAvailable Balance: ₹${myAcc.balance.toFixed(2)}`);
+    }
+
+    myAcc.balance -= amount;
+    localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
+
+    const transactions = JSON.parse(localStorage.getItem(LS_TXS_KEY) || '[]');
+    const txId = 'TXN' + Math.floor(100000 + Math.random() * 900000);
+    const newTx = {
+        txId: txId,
+        timestamp: new Date().toLocaleString(),
+        accNum: myAcc.accountNumber,
+        type: 'WITHDRAWAL',
+        amount: amount,
+        balanceAfter: myAcc.balance,
+        remarks: `Demat Stock/MF Purchase: ${asset}`,
+        targetAcc: 'N/A'
+    };
+    transactions.push(newTx);
+    localStorage.setItem(LS_TXS_KEY, JSON.stringify(transactions));
+
+    if (typeof syncAccountToFirebase === 'function') syncAccountToFirebase(myAcc);
+    if (typeof syncTransactionToFirebase === 'function') syncTransactionToFirebase(newTx);
+
+    closeModal('invest-modal');
+    alert(`📈 Investment Successful!\nAsset: ${asset}\nAmount Invested: ₹${amount.toLocaleString('en-IN')}\nRemaining Balance: ₹${myAcc.balance.toLocaleString('en-IN')}`);
+
+    loadDashboardData();
+    loadTransactions();
+    const dematBalEl = document.getElementById('demat-avail-bal');
+    if (dematBalEl) dematBalEl.innerText = `₹${myAcc.balance.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+}
+
+function handleRequestCallbackSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('contact-name-input').value;
+    const phone = document.getElementById('contact-phone-input').value;
+    const time = document.getElementById('contact-time-select').value;
+    const subject = document.getElementById('contact-subject-input').value || 'General Executive Banking Inquiry';
+
+    alert(`📞 Priority Callback Request Scheduled!\nName: ${name}\nPhone: ${phone}\nTime Slot: ${time}\nSubject: ${subject}\n\nAn Apex Senior Wealth Executive will call you shortly.`);
+    document.getElementById('contact-subject-input').value = '';
+}
+
