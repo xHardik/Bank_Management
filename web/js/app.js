@@ -1327,11 +1327,6 @@ async function handleUtilityPaymentSubmit(e) {
     loadTransactions();
 }
 
-\nPhone: ${phone}\nTime Slot: ${time}\nSubject: ${subject}\n\nAn Apex Senior Wealth Executive will call you shortly.`);
-    document.getElementById('contact-subject-input').value = '';
-}
-
-
 // DECOY STOCKS & MUTUAL FUNDS CATALOG FOR DEMAT TRADING SIMULATION
 const DECOY_STOCKS = {
     'NIFTY50': { symbol: 'NIFTY50', name: 'Nifty 50 Index Fund', category: 'Mutual Fund SIP', badgeClass: 'badge-savings', ltp: 245.50, buyPrice: 210.00, unitLabel: 'Units' },
@@ -1347,6 +1342,14 @@ const DECOY_STOCKS = {
 
 const LS_HOLDINGS_KEY = 'apex_bank_demat_holdings';
 const LS_ENQUIRIES_KEY = 'apex_bank_enquiries';
+
+function getActiveAccountNumber() {
+    const selectedAccount = sessionStorage.getItem('apex_customer_authed');
+    if (selectedAccount) return selectedAccount;
+
+    const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+    return accounts[0]?.accountNumber || 'ACC1001';
+}
 
 function getDematHoldings() {
     let holdings = JSON.parse(localStorage.getItem(LS_HOLDINGS_KEY) || '[]');
@@ -1468,7 +1471,8 @@ async function handleSellSubmit(e) {
 
     // Credit payout to customer bank account
     const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
-    const myAcc = accounts.find(a => a.accountNumber === 'ACC1001') || accounts[0];
+    const myAcc = accounts.find(a => a.accountNumber === getActiveAccountNumber()) || accounts[0];
+    if (!myAcc) return alert('No bank account is available for this transaction.');
     myAcc.balance += payoutAmount;
     localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
 
@@ -1519,7 +1523,8 @@ async function handleInvestSubmit(e) {
     const unitsBought = parseFloat((amount / assetInfo.ltp).toFixed(2));
 
     const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
-    const myAcc = accounts.find(a => a.accountNumber === 'ACC1001') || accounts[0];
+    const myAcc = accounts.find(a => a.accountNumber === getActiveAccountNumber()) || accounts[0];
+    if (!myAcc) return alert('No bank account is available for this transaction.');
 
     if (myAcc.balance < amount) {
         return alert(`Insufficient Balance! Required: ₹${amount.toFixed(2)} | Available: ₹${myAcc.balance.toFixed(2)}`);
