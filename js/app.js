@@ -1,3 +1,29 @@
+// Smart API Base Auto-detection for Vercel + Render Hybrid Architecture
+const RENDER_BACKEND_URL = 'https://bank-management-7uwe.onrender.com';
+
+function getApiBaseUrl() {
+    if (window.location.hostname.includes('render.com') || window.location.port === '8080') {
+        return '/api';
+    }
+    if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:8080/api';
+    }
+    return RENDER_BACKEND_URL.replace(/\/$/, '') + '/api';
+}
+
+const API_BASE = getApiBaseUrl();
+
+// LocalStorage Persistence Keys
+const LS_ACCOUNTS_KEY = 'apex_bank_accounts';
+const LS_TXS_KEY = 'apex_bank_transactions';
+const LS_PENDING_LOANS = 'apex_bank_pending_loans';
+const LS_APPROVED_LOANS = 'apex_bank_approved_loans';
+const LS_HOLDINGS_KEY = 'apex_bank_demat_holdings';
+const LS_ENQUIRIES_KEY = 'apex_bank_enquiries';
+
+let currentRole = 'customer';
+let isAdminAuthenticated = false;
+let isCardLocked = false;
 
 function switchLoginTab(tab) {
     const custBtn = document.getElementById('tab-btn-customer');
@@ -136,26 +162,10 @@ function logoutUser() {
 }
 
 // Smart API Base Auto-detection for Vercel + Render Hybrid Architecture
-const RENDER_BACKEND_URL = 'https://bank-management-7uwe.onrender.com';
 
-function getApiBaseUrl() {
-    if (window.location.hostname.includes('render.com') || window.location.port === '8080') {
-        return '/api';
-    }
-    if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return 'http://localhost:8080/api';
-    }
-    return RENDER_BACKEND_URL.replace(/\/$/, '') + '/api';
-}
 
-const API_BASE = getApiBaseUrl();
 
 // LocalStorage Persistence Keys
-const LS_ACCOUNTS_KEY = 'apex_bank_accounts';
-const LS_TXS_KEY = 'apex_bank_transactions';
-let currentRole = 'customer';
-let isAdminAuthenticated = false;
-let isCardLocked = false;
 
 
 
@@ -506,8 +516,6 @@ function selectAutocomplete(name) {
     searchAccounts();
 }
 
-const LS_PENDING_LOANS = 'apex_bank_pending_loans';
-const LS_APPROVED_LOANS = 'apex_bank_approved_loans';
 
 async function loadLoans() {
     let pendingLoans = await apiCall('/loans/pending');
@@ -1361,10 +1369,6 @@ async function handleUtilityPaymentSubmit(e) {
     loadTransactions();
 }
 
-\nPhone: ${phone}\nTime Slot: ${time}\nSubject: ${subject}\n\nAn Apex Senior Wealth Executive will call you shortly.`);
-    document.getElementById('contact-subject-input').value = '';
-}
-
 
 // DECOY STOCKS & MUTUAL FUNDS CATALOG FOR DEMAT TRADING SIMULATION
 const DECOY_STOCKS = {
@@ -1378,9 +1382,6 @@ const DECOY_STOCKS = {
     'APEXTECH': { symbol: 'APEXTECH', name: 'Apex Tech & AI Innovation Fund', category: 'Mutual Fund SIP', badgeClass: 'badge-savings', ltp: 120.00, buyPrice: 105.00, unitLabel: 'Units' },
     'ZOMATO': { symbol: 'ZOMATO', name: 'Zomato Ltd Growth Share', category: 'Equity Stock', badgeClass: 'badge-current', ltp: 230.00, buyPrice: 195.00, unitLabel: 'Shares' }
 };
-
-const LS_HOLDINGS_KEY = 'apex_bank_demat_holdings';
-const LS_ENQUIRIES_KEY = 'apex_bank_enquiries';
 
 function getDematHoldings() {
     let holdings = JSON.parse(localStorage.getItem(LS_HOLDINGS_KEY) || '[]');
