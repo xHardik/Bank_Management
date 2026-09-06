@@ -32,18 +32,25 @@ function switchLoginTab(tab) {
     const admForm = document.getElementById('admin-login-form');
     const desc = document.getElementById('login-subtitle-desc');
 
+    const pinInput = document.getElementById('customer-page-pin-input');
+    const passcodeInput = document.getElementById('admin-page-passcode-input');
+    if (pinInput) pinInput.value = '';
+    if (passcodeInput) passcodeInput.value = '';
+
     if (tab === 'admin') {
         if (custBtn) custBtn.className = 'login-tab-btn cust';
         if (admBtn) admBtn.className = 'login-tab-btn active adm';
         if (custForm) custForm.style.display = 'none';
         if (admForm) admForm.style.display = 'block';
         if (desc) desc.innerText = 'Restricted Executive Security Access';
+        if (passcodeInput) setTimeout(() => passcodeInput.focus(), 100);
     } else {
         if (custBtn) custBtn.className = 'login-tab-btn active cust';
         if (admBtn) admBtn.className = 'login-tab-btn adm';
         if (custForm) custForm.style.display = 'block';
         if (admForm) admForm.style.display = 'none';
         if (desc) desc.innerText = 'Executive & Premium Customer Gateway';
+        if (pinInput) setTimeout(() => pinInput.focus(), 100);
     }
 }
 
@@ -199,8 +206,11 @@ function navigateToCustomerLogin(e) {
 
 function openNewAccountFromLoginPage(e) {
     if (e) e.preventDefault();
-    closeModal('customer-login-modal');
-    openModal('create-account-modal');
+    const modal = document.getElementById('create-account-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.style.zIndex = '1000000';
+    }
 }
 
 function requestAdminAccess() {
