@@ -6,12 +6,177 @@
     <title>Apex Bank India | Executive & Premium Customer Portal</title>
     <link rel="stylesheet" href="css/style.css?v=7.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Standalone Dedicated Login Screen Styles */
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            background: #0b0f19;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .login-card-container {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 32px 28px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+        }
+        .login-brand-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .login-brand-header img {
+            height: 54px;
+            margin-bottom: 10px;
+        }
+        .login-brand-header h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+        .login-brand-header p {
+            color: #9ca3af;
+            font-size: 0.88rem;
+            margin-top: 4px;
+        }
+        .login-tab-switcher {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 24px;
+        }
+        .login-tab-btn {
+            flex: 1;
+            padding: 10px 14px;
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .login-tab-btn.active.cust {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .login-tab-btn.active.adm {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+        .login-form-group {
+            margin-bottom: 20px;
+        }
+        .login-form-group label {
+            display: block;
+            font-size: 0.82rem;
+            color: #9ca3af;
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .login-form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .login-form-group input:focus {
+            border-color: #10b981;
+        }
+        .login-submit-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .login-submit-btn:active {
+            transform: scale(0.98);
+        }
+        .login-submit-btn.cust-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+        }
+        .login-submit-btn.adm-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: #fff;
+        }
+    </style>
 </head>
 <body class="role-customer">
     <div class="bg-glow"></div>
     <div class="bg-grid-overlay"></div>
 
-    <div class="app-container">
+    <!-- DEDICATED NEW LOGIN SCREEN VIEW -->
+    <div id="login-screen">
+        <div class="login-card-container">
+            <div class="login-brand-header">
+                <img src="assets/logo.png" alt="Apex Bank Logo">
+                <h2>APEX BANK INDIA</h2>
+                <p id="login-subtitle-desc">Executive & Premium Banking Gateway</p>
+            </div>
+
+            <div class="login-tab-switcher">
+                <button type="button" id="tab-btn-customer" class="login-tab-btn active cust" onclick="switchLoginTab('customer')">Customer Banking</button>
+                <button type="button" id="tab-btn-admin" class="login-tab-btn adm" onclick="switchLoginTab('admin')">Executive Admin</button>
+            </div>
+
+            <!-- Customer Login Form -->
+            <form id="customer-login-form" onsubmit="processCustomerLogin(event)">
+                <div class="login-form-group">
+                    <label>Account Number</label>
+                    <input type="text" id="customer-page-acc-input" required placeholder="Account Number (e.g. ACC1001)" value="ACC1001" autocomplete="off">
+                </div>
+                <div class="login-form-group">
+                    <label>4-Digit Security PIN</label>
+                    <input type="password" id="customer-page-pin-input" maxlength="4" required placeholder="••••" value="1234" autocomplete="off" style="text-align:center; font-size:1.5rem; letter-spacing:8px; color:#10b981;">
+                </div>
+                <button type="submit" class="login-submit-btn cust-btn">Login to Customer Banking</button>
+                <div style="text-align:center; margin-top:16px;">
+                    <button type="button" onclick="openNewAccountFromLoginPage()" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.88rem;">Open New Bank Account</button>
+                </div>
+            </form>
+
+            <!-- Admin Login Form -->
+            <form id="admin-login-form" onsubmit="processAdminLogin(event)" style="display:none;">
+                <div class="login-form-group">
+                    <label>Executive Security Passcode</label>
+                    <input type="password" id="admin-page-passcode-input" maxlength="4" required placeholder="••••" value="1234" autocomplete="off" style="text-align:center; font-size:1.5rem; letter-spacing:8px; color:#8b5cf6; border-color:rgba(139,92,246,0.4);">
+                </div>
+                <button type="submit" class="login-submit-btn adm-btn">Unlock Executive Admin Portal</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN BANKING PORTAL APP CONTAINER -->
+    <div class="app-container" style="display:none;">
         <!-- Sidebar Navigation (Drawer on Mobile) -->
         <aside class="sidebar">
             <div class="brand">
@@ -1012,65 +1177,6 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('test-modal')">Close</button>
             </div>
-        </div>
-    </div>
-
-    <!-- MODAL: CUSTOMER LOGIN GATEWAY -->
-    <div id="customer-login-modal" class="modal-overlay" style="display: flex; z-index: 100000;">
-        <div class="modal-card" style="max-width: 440px;">
-            <div class="modal-header" style="text-align: center; display: block; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 16px;">
-                <div style="margin-bottom: 10px;">
-                    <img src="assets/logo.png" style="height: 52px;" alt="Apex Bank Emblem">
-                </div>
-                <h3 style="font-size: 1.35rem; font-weight: 800; color: #fff;">Apex Customer Login</h3>
-                <p style="color: #9ca3af; font-size: 0.85rem; margin-top: 4px;">Enter 4-Digit Security PIN to Access Account</p>
-            </div>
-            <form id="customer-pin-form" onsubmit="verifyCustomerPinPage(event)">
-                <div class="modal-body" style="padding-top: 14px;">
-                    <div class="form-group" style="margin-bottom: 18px;">
-                        <label class="login-field-label">Account Number</label>
-                        <input type="text" id="customer-page-acc-input" required placeholder="Account Number (e.g. ACC1001)" value="ACC1001" autocomplete="off" class="login-input-field" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; font-size: 1rem; font-weight: 600;">
-                    </div>
-                    <div class="form-group" style="margin-bottom: 20px;">
-                        <label class="login-field-label">4-Digit Security PIN</label>
-                        <input type="password" id="customer-page-pin-input" maxlength="4" required placeholder="••••" autocomplete="off" class="login-input-field pin-input" style="text-align:center; font-size:1.5rem; letter-spacing:8px; width:100%; height:48px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#10b981;">
-                    </div>
-                </div>
-                <div class="modal-footer" style="flex-direction: column; gap: 12px; border-top: none; padding-top: 0;">
-                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem; font-weight: 700; border-radius: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">Login to Customer Banking</button>
-                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 6px; font-size: 0.85rem;">
-                        <button type="button" class="btn-text-action" onclick="openNewAccountFromLoginPage()" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600;">Open New Bank Account</button>
-                        <a href="/#admin" onclick="navigateToAdminLogin(event)" class="admin-login-link" style="color:#8b5cf6; font-weight:600; text-decoration:none;">Executive Admin Login &rarr;</a>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: EXECUTIVE ADMIN LOGIN GATEWAY -->
-    <div id="admin-login-modal" class="modal-overlay" style="display: none; z-index: 100000;">
-        <div class="modal-card admin-border" style="max-width: 440px;">
-            <div class="modal-header" style="text-align: center; display: block; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 16px;">
-                <div style="margin-bottom: 10px;">
-                    <img src="assets/logo.png" style="height: 52px;" alt="Apex Bank Emblem">
-                </div>
-                <h3 style="font-size: 1.35rem; font-weight: 800; color: #8b5cf6;">Executive Admin Login</h3>
-                <p style="color: #9ca3af; font-size: 0.85rem; margin-top: 4px;">Restricted Area. Enter Executive Security Passcode</p>
-            </div>
-            <form id="admin-passcode-form" onsubmit="verifyAdminPasscodePage(event)">
-                <div class="modal-body" style="padding-top: 14px;">
-                    <div class="form-group" style="margin-bottom: 24px;">
-                        <label class="login-field-label">Admin Security Passcode</label>
-                        <input type="password" id="admin-page-passcode-input" maxlength="4" required placeholder="••••" autocomplete="off" class="login-input-field pin-input admin-pin" style="text-align:center; font-size:1.5rem; letter-spacing:8px; width:100%; height:48px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(139,92,246,0.4); color:#8b5cf6;">
-                    </div>
-                </div>
-                <div class="modal-footer" style="flex-direction: column; gap: 12px; border-top: none; padding-top: 0;">
-                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem; font-weight: 700; border-radius: 12px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">Unlock Executive Admin Portal</button>
-                    <div style="text-align: center; width: 100%; margin-top: 6px;">
-                        <a href="/" onclick="navigateToCustomerLogin(event)" class="admin-login-link" style="color:#9ca3af; font-weight:600; text-decoration:none;">&larr; Back to Customer Portal</a>
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
 
