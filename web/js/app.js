@@ -269,6 +269,7 @@ function switchPortalRole(role) {
         document.getElementById('tx-card-label').innerText = 'Transactions Processed';
         document.getElementById('tx-page-title').innerText = 'Transaction Ledger Log';
         document.getElementById('tx-page-desc').innerText = 'Complete historical record of deposits, withdrawals, and inter-bank transfers.';
+        renderChequeRequestsTable();
     } else {
         body.classList.remove('role-admin');
         body.classList.add('role-customer');
@@ -378,7 +379,7 @@ function showTab(tabId) {
     if (tabId === 'queues') loadQueues();
     if (tabId === 'audit') loadAuditLogs();
     if (tabId === 'demat') renderDematHoldingsTable();
-    if (tabId === 'enquiries') renderEnquiriesTable();
+    if (tabId === 'enquiries') renderEnquiriesTable(); renderChequeRequestsTable();
 }
 
 function openModal(id) {
@@ -1685,7 +1686,7 @@ function markEnquiryResolved(id) {
         target.status = 'RESOLVED';
         localStorage.setItem(LS_ENQUIRIES_KEY, JSON.stringify(enquiries));
         if (typeof syncEnquiryToFirebase === 'function') syncEnquiryToFirebase(target);
-        renderEnquiriesTable();
+        renderEnquiriesTable(); renderChequeRequestsTable();
         alert(`Enquiry #${id} marked as RESOLVED! Customer has been contacted.`);
     }
 }
@@ -1716,7 +1717,7 @@ function handleRequestCallbackSubmit(e) {
     alert(`Priority Callback Request Scheduled! Ref ID: ${newEnquiry.id}. An Apex Senior Wealth Executive will call you shortly.`);
     document.getElementById('contact-subject-input').value = '';
 
-    renderEnquiriesTable();
+    renderEnquiriesTable(); renderChequeRequestsTable();
 }
 function toggleChequeCustomAddress() {
     const select = document.getElementById('cheque-address-select');
