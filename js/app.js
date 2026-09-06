@@ -1804,10 +1804,10 @@ function renderChequeRequestsTable() {
     requests.forEach(req => {
         const isPending = req.status === 'PENDING';
         const badge = isPending 
-            ? '<span class="badge" style="background:rgba(245,158,11,0.2); color:#f59e0b; border:1px solid #f59e0b;">PENDING</span>'
+            ? '<span class="badge" style="background:rgba(245,158,11,0.18); color:#f59e0b; border:1px solid rgba(245,158,11,0.4); white-space:nowrap; display:inline-block; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">PENDING</span>'
             : (req.status === 'APPROVED' 
-                ? '<span class="badge" style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid #10b981;">APPROVED & DISPATCHED</span>'
-                : '<span class="badge" style="background:rgba(239,68,68,0.2); color:#ef4444; border:1px solid #ef4444;">REJECTED</span>');
+                ? '<span class="badge" style="background:rgba(16,185,129,0.18); color:#10b981; border:1px solid rgba(16,185,129,0.4); white-space:nowrap; display:inline-block; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">APPROVED &amp; DISPATCHED</span>'
+                : '<span class="badge" style="background:rgba(239,68,68,0.18); color:#ef4444; border:1px solid rgba(239,68,68,0.4); white-space:nowrap; display:inline-block; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">REJECTED</span>');
 
         const actionBtn = isPending
             ? `<div style="display:flex; gap:6px;">
