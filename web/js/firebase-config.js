@@ -68,6 +68,18 @@ async function syncApprovedLoanToFirebase(loan) {
   }
 }
 
+
+async function syncEnquiryToFirebase(enquiry) {
+  if (!db || !enquiry) return;
+  const enqId = String(enquiry.id || 'ENQ' + Date.now());
+  try {
+    await db.collection("enquiries").doc(enqId).set({ ...enquiry, id: enqId }, { merge: true });
+    console.log(`[Firebase] Enquiry ${enqId} synced to Firestore`);
+  } catch (err) {
+    console.warn("Firebase Enquiry Sync Error:", err);
+  }
+}
+
 // One-time initial seed/sync to ensure Firestore gets data immediately
 async function syncAllLocalToFirebase() {
   if (!db) return;
@@ -169,4 +181,16 @@ function initFirebaseRealtimeListeners(onAccountsUpdated, onLoansUpdated) {
       if (typeof onLoansUpdated === 'function') onLoansUpdated();
     }
   }, err => console.warn("Firebase approved loans snapshot error:", err));
+
+  // Enquiries Listener
+  db.collection("enquiries").onSnapshot((snapshot) => {
+    let enquiries = [];
+    snapshot.forEach((doc) => {
+      enquiries.push(doc.data());
+    });
+    if (enquiries.length > 0) {
+      localStorage.setItem('apex_bank_enquiries', JSON.stringify(enquiries));
+      if (typeof renderEnquiriesTable === 'function') renderEnquiriesTable();
+    }
+  }, err => console.warn("Firebase enquiries snapshot error:", err));
 }

@@ -59,15 +59,48 @@ function showAdminLoginPage() {
     }
 }
 
-function verifyCustomerPinPage(event) {
-    if (event) event.preventDefault();
-    const accSelect = document.getElementById('login-page-acc-select');
+function showCustomerLoginPage() {
+    closeModal('admin-login-modal');
+    openModal('customer-login-modal');
+    const accInput = document.getElementById('customer-page-acc-input');
     const pinInput = document.getElementById('customer-page-pin-input');
-    const accNum = accSelect ? accSelect.value : 'ACC1001';
+    if (accInput && !accInput.value) {
+        accInput.value = 'ACC1001';
+    }
+    if (pinInput) {
+        pinInput.value = '';
+        setTimeout(() => pinInput.focus(), 150);
+    }
+}
+
+function verifyCustomerPinPage(event) {
+    if (event) {
+        event.preventDefault();
+        if (event.stopPropagation) event.stopPropagation();
+    }
+    const accInput = document.getElementById('customer-page-acc-input') || document.getElementById('login-page-acc-select');
+    const pinInput = document.getElementById('customer-page-pin-input');
+    const accNum = accInput ? accInput.value.trim().toUpperCase() : 'ACC1001';
     const pin = pinInput ? pinInput.value.trim() : '';
 
+    if (!accNum) {
+        alert('Please enter your Account Number (e.g. ACC1001).');
+        return false;
+    }
+
+    if (!pin) {
+        alert('Please enter your 4-Digit Security PIN.');
+        return false;
+    }
+
     const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
-    const targetAcc = accounts.find(a => a.accountNumber === accNum) || { accountNumber: 'ACC1001', pin: '1234' };
+    let targetAcc = accounts.find(a => a.accountNumber === accNum);
+
+    if (!targetAcc) {
+        targetAcc = { accountNumber: accNum, holderName: 'Hardik Verma', type: 'SAVINGS', balance: 150450.00, pin: '1234', customerId: 'CUST101' };
+        accounts.push(targetAcc);
+        localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
+    }
 
     if (pin === '1234' || (targetAcc.pin && pin === targetAcc.pin)) {
         sessionStorage.setItem('apex_customer_authed', accNum);
@@ -75,9 +108,11 @@ function verifyCustomerPinPage(event) {
         switchPortalRole('customer');
         loadDashboardData();
         loadTransactions();
+        return false;
     } else {
         alert('Invalid Customer Security PIN! Hint: Default PIN is 1234');
         if (pinInput) pinInput.value = '';
+        return false;
     }
 }
 
@@ -299,6 +334,8 @@ function showTab(tabId) {
     if (tabId === 'loans') loadLoans();
     if (tabId === 'queues') loadQueues();
     if (tabId === 'audit') loadAuditLogs();
+    if (tabId === 'demat') renderDematHoldingsTable();
+    if (tabId === 'enquiries') renderEnquiriesTable();
 }
 
 function openModal(id) {
@@ -1302,26 +1339,225 @@ async function handleUtilityPaymentSubmit(e) {
     loadTransactions();
 }
 
+\nPhone: ${phone}\nTime Slot: ${time}\nSubject: ${subject}\n\nAn Apex Senior Wealth Executive will call you shortly.`);
+    document.getElementById('contact-subject-input').value = '';
+}
+
+
+// DECOY STOCKS & MUTUAL FUNDS CATALOG FOR DEMAT TRADING SIMULATION
+const DECOY_STOCKS = {
+    'NIFTY50': { symbol: 'NIFTY50', name: 'Nifty 50 Index Fund', category: 'Mutual Fund SIP', badgeClass: 'badge-savings', ltp: 245.50, buyPrice: 210.00, unitLabel: 'Units' },
+    'APEXBLUE': { symbol: 'APEXBLUE', name: 'Apex Top 30 Bluechip Equity Fund', category: 'Mutual Fund SIP', badgeClass: 'badge-savings', ltp: 520.00, buyPrice: 480.00, unitLabel: 'Units' },
+    'RELIANCE': { symbol: 'RELIANCE', name: 'Reliance Industries Ltd', category: 'Equity Stock', badgeClass: 'badge-current', ltp: 2980.00, buyPrice: 2800.00, unitLabel: 'Shares' },
+    'TATAMOTORS': { symbol: 'TATAMOTORS', name: 'Tata Motors Ltd', category: 'Equity Stock', badgeClass: 'badge-current', ltp: 985.00, buyPrice: 910.00, unitLabel: 'Shares' },
+    'INFY': { symbol: 'INFY', name: 'Infosys Ltd Tech Share', category: 'Equity Stock', badgeClass: 'badge-current', ltp: 1620.00, buyPrice: 1540.00, unitLabel: 'Shares' },
+    'HDFCBANK': { symbol: 'HDFCBANK', name: 'HDFC Bank Ltd Share', category: 'Equity Stock', badgeClass: 'badge-current', ltp: 1450.00, buyPrice: 1390.00, unitLabel: 'Shares' },
+    'SGB2026': { symbol: 'SGB2026', name: 'Sovereign Gold Bond 8yr', category: 'Gold Bond', badgeClass: 'badge-fd', ltp: 6645.00, buyPrice: 6645.00, unitLabel: 'Grams' },
+    'APEXTECH': { symbol: 'APEXTECH', name: 'Apex Tech & AI Innovation Fund', category: 'Mutual Fund SIP', badgeClass: 'badge-savings', ltp: 120.00, buyPrice: 105.00, unitLabel: 'Units' },
+    'ZOMATO': { symbol: 'ZOMATO', name: 'Zomato Ltd Growth Share', category: 'Equity Stock', badgeClass: 'badge-current', ltp: 230.00, buyPrice: 195.00, unitLabel: 'Shares' }
+};
+
+const LS_HOLDINGS_KEY = 'apex_bank_demat_holdings';
+const LS_ENQUIRIES_KEY = 'apex_bank_enquiries';
+
+function getDematHoldings() {
+    let holdings = JSON.parse(localStorage.getItem(LS_HOLDINGS_KEY) || '[]');
+    if (holdings.length === 0) {
+        holdings = [
+            { symbol: 'NIFTY50', units: 450.00, buyPrice: 210.00 },
+            { symbol: 'RELIANCE', units: 25.00, buyPrice: 2800.00 },
+            { symbol: 'SGB2026', units: 6.00, buyPrice: 6645.00 }
+        ];
+        localStorage.setItem(LS_HOLDINGS_KEY, JSON.stringify(holdings));
+    }
+    return holdings;
+}
+
+function renderDematHoldingsTable() {
+    const tbody = document.getElementById('demat-holdings-tbody');
+    if (!tbody) return;
+
+    const holdings = getDematHoldings();
+    let totalPortfolioVal = 0;
+    let totalInvestedVal = 0;
+    let rowsHtml = '';
+
+    holdings.forEach(h => {
+        const info = DECOY_STOCKS[h.symbol] || { symbol: h.symbol, name: h.symbol, category: 'Equity Stock', badgeClass: 'badge-current', ltp: h.buyPrice, unitLabel: 'Units' };
+        const ltp = info.ltp;
+        const currentVal = h.units * ltp;
+        const investedVal = h.units * h.buyPrice;
+        const diff = currentVal - investedVal;
+        const pct = investedVal > 0 ? ((diff / investedVal) * 100).toFixed(1) : '0.0';
+
+        totalPortfolioVal += currentVal;
+        totalInvestedVal += investedVal;
+
+        const pnlText = diff >= 0 
+            ? `<strong class="text-green">+₹${diff.toLocaleString('en-IN', {minimumFractionDigits:2})} (+${pct}%)</strong>`
+            : `<strong style="color:#ef4444;">-₹${Math.abs(diff).toLocaleString('en-IN', {minimumFractionDigits:2})} (${pct}%)</strong>`;
+
+        rowsHtml += `
+            <tr>
+                <td><strong>${info.symbol} • ${info.name}</strong></td>
+                <td><span class="badge ${info.badgeClass}">${info.category}</span></td>
+                <td>${h.units.toFixed(2)} ${info.unitLabel}</td>
+                <td>₹${h.buyPrice.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+                <td>₹${ltp.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+                <td><strong>₹${currentVal.toLocaleString('en-IN', {minimumFractionDigits:2})}</strong></td>
+                <td>${pnlText}</td>
+                <td><button class="btn btn-sm btn-secondary" onclick="openSellModal('${h.symbol}')" style="color:#ef4444; border-color:rgba(239,68,68,0.4);">Sell / Redeem</button></td>
+            </tr>
+        `;
+    });
+
+    tbody.innerHTML = rowsHtml;
+
+    const totalUnrealizedGain = totalPortfolioVal - totalInvestedVal;
+    const gainPct = totalInvestedVal > 0 ? ((totalUnrealizedGain / totalInvestedVal) * 100).toFixed(2) : '0.00';
+
+    const portEl = document.getElementById('demat-portfolio-val');
+    const invEl = document.getElementById('demat-invested-val');
+    const gainEl = document.getElementById('demat-unrealized-gain');
+
+    if (portEl) portEl.innerText = `₹${totalPortfolioVal.toLocaleString('en-IN', {minimumFractionDigits:2})}`;
+    if (invEl) invEl.innerText = `↑ Invested: ₹${totalInvestedVal.toLocaleString('en-IN', {minimumFractionDigits:2})}`;
+    if (gainEl) gainEl.innerText = `${totalUnrealizedGain >= 0 ? '+' : ''}₹${totalUnrealizedGain.toLocaleString('en-IN', {minimumFractionDigits:2})} (${gainPct}%)`;
+}
+
+function openSellModal(symbol) {
+    const holdings = getDematHoldings();
+    const holding = holdings.find(h => h.symbol === symbol);
+    if (!holding) return alert('No active holdings found for this asset.');
+
+    const info = DECOY_STOCKS[symbol] || { name: symbol, ltp: holding.buyPrice, unitLabel: 'Units' };
+    
+    const symInput = document.getElementById('sell-symbol-input');
+    const nameDisp = document.getElementById('sell-asset-name-display');
+    const unitsLbl = document.getElementById('sell-units-label');
+    const unitsInput = document.getElementById('sell-units-input');
+    const ltpDisp = document.getElementById('sell-ltp-display');
+
+    if (symInput) symInput.value = symbol;
+    if (nameDisp) nameDisp.value = `${info.symbol} • ${info.name}`;
+    if (unitsLbl) unitsLbl.innerText = `Units to Sell (Max Available: ${holding.units.toFixed(2)} ${info.unitLabel})`;
+    if (unitsInput) {
+        unitsInput.max = holding.units;
+        unitsInput.value = holding.units;
+    }
+    if (ltpDisp) ltpDisp.value = `₹${info.ltp.toLocaleString('en-IN', {minimumFractionDigits:2})} per ${info.unitLabel}`;
+
+    openModal('sell-modal');
+}
+
+async function handleSellSubmit(e) {
+    e.preventDefault();
+
+    const symbol = document.getElementById('sell-symbol-input').value;
+    const unitsToSell = parseFloat(document.getElementById('sell-units-input').value) || 0;
+    const pin = document.getElementById('sell-pin-input').value.trim();
+
+    if (unitsToSell <= 0) return alert('Enter valid quantity of units to sell.');
+    if (pin !== '1234') return alert('Invalid Security PIN! Redemption cancelled.');
+
+    let holdings = getDematHoldings();
+    const holdingIdx = holdings.findIndex(h => h.symbol === symbol);
+    if (holdingIdx === -1) return alert('Asset holding not found.');
+
+    const holding = holdings[holdingIdx];
+    if (unitsToSell > holding.units) return alert(`Cannot sell more than available quantity (${holding.units.toFixed(2)} units).`);
+
+    const info = DECOY_STOCKS[symbol] || { name: symbol, ltp: holding.buyPrice, unitLabel: 'Units' };
+    const payoutAmount = parseFloat((unitsToSell * info.ltp).toFixed(2));
+
+    // Update holding quantity
+    if (unitsToSell >= holding.units) {
+        holdings.splice(holdingIdx, 1);
+    } else {
+        holding.units = parseFloat((holding.units - unitsToSell).toFixed(2));
+    }
+    localStorage.setItem(LS_HOLDINGS_KEY, JSON.stringify(holdings));
+
+    // Credit payout to customer bank account
+    const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
+    const myAcc = accounts.find(a => a.accountNumber === 'ACC1001') || accounts[0];
+    myAcc.balance += payoutAmount;
+    localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
+
+    // Record Passbook transaction
+    const transactions = JSON.parse(localStorage.getItem(LS_TXS_KEY) || '[]');
+    const txId = 'TXN' + Math.floor(100000 + Math.random() * 900000);
+    const newTx = {
+        txId: txId,
+        timestamp: new Date().toLocaleString(),
+        accNum: myAcc.accountNumber,
+        type: 'DEPOSIT',
+        amount: payoutAmount,
+        balanceAfter: myAcc.balance,
+        remarks: `Demat Sale Payout: ${info.name} (${unitsToSell} ${info.unitLabel} @ ₹${info.ltp})`,
+        targetAcc: 'N/A'
+    };
+    transactions.push(newTx);
+    localStorage.setItem(LS_TXS_KEY, JSON.stringify(transactions));
+
+    if (typeof syncAccountToFirebase === 'function') syncAccountToFirebase(myAcc);
+    if (typeof syncTransactionToFirebase === 'function') syncTransactionToFirebase(newTx);
+
+    closeModal('sell-modal');
+    alert(`Redemption Sale Successful!
+Sold: ${unitsToSell} ${info.unitLabel} of ${info.name}
+Payout Credited: ₹${payoutAmount.toLocaleString('en-IN')}
+New Balance: ₹${myAcc.balance.toLocaleString('en-IN')}`);
+
+    loadDashboardData();
+    loadTransactions();
+    renderDematHoldingsTable();
+
+    const dematBalEl = document.getElementById('demat-avail-bal');
+    if (dematBalEl) dematBalEl.innerText = `₹${myAcc.balance.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+}
+
 async function handleInvestSubmit(e) {
     e.preventDefault();
 
-    const asset = document.getElementById('invest-asset-select').value;
+    const assetKey = document.getElementById('invest-asset-select').value;
     const amount = parseFloat(document.getElementById('invest-amount-input').value) || 0;
     const pin = document.getElementById('invest-pin-input').value.trim();
 
     if (amount <= 0) return alert('Enter a valid investment amount.');
     if (pin !== '1234') return alert('Invalid Security PIN! Investment cancelled.');
 
+    const assetInfo = DECOY_STOCKS[assetKey] || { symbol: assetKey, name: assetKey, ltp: 1000, buyPrice: 1000, unitLabel: 'Units' };
+    const unitsBought = parseFloat((amount / assetInfo.ltp).toFixed(2));
+
     const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
     const myAcc = accounts.find(a => a.accountNumber === 'ACC1001') || accounts[0];
 
     if (myAcc.balance < amount) {
-        return alert(`Insufficient Funds!\nRequired: ₹${amount.toFixed(2)}\nAvailable Balance: ₹${myAcc.balance.toFixed(2)}`);
+        return alert(`Insufficient Balance! Required: ₹${amount.toFixed(2)} | Available: ₹${myAcc.balance.toFixed(2)}`);
     }
 
+    // Deduct amount from account
     myAcc.balance -= amount;
     localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
 
+    // Add or update holding
+    let holdings = getDematHoldings();
+    const existing = holdings.find(h => h.symbol === assetKey);
+    if (existing) {
+        const totalUnits = existing.units + unitsBought;
+        existing.buyPrice = parseFloat(((existing.units * existing.buyPrice + amount) / totalUnits).toFixed(2));
+        existing.units = parseFloat(totalUnits.toFixed(2));
+    } else {
+        holdings.push({
+            symbol: assetKey,
+            units: unitsBought,
+            buyPrice: assetInfo.ltp
+        });
+    }
+    localStorage.setItem(LS_HOLDINGS_KEY, JSON.stringify(holdings));
+
+    // Record Passbook transaction
     const transactions = JSON.parse(localStorage.getItem(LS_TXS_KEY) || '[]');
     const txId = 'TXN' + Math.floor(100000 + Math.random() * 900000);
     const newTx = {
@@ -1331,7 +1567,7 @@ async function handleInvestSubmit(e) {
         type: 'WITHDRAWAL',
         amount: amount,
         balanceAfter: myAcc.balance,
-        remarks: `Demat Stock/MF Purchase: ${asset}`,
+        remarks: `Demat Purchase: ${assetInfo.name} (${unitsBought} ${assetInfo.unitLabel} @ ₹${assetInfo.ltp})`,
         targetAcc: 'N/A'
     };
     transactions.push(newTx);
@@ -1341,22 +1577,110 @@ async function handleInvestSubmit(e) {
     if (typeof syncTransactionToFirebase === 'function') syncTransactionToFirebase(newTx);
 
     closeModal('invest-modal');
-    alert(`Investment Successful!\nAsset: ${asset}\nAmount Invested: ₹${amount.toLocaleString('en-IN')}\nRemaining Balance: ₹${myAcc.balance.toLocaleString('en-IN')}`);
+    alert(`Investment Successful! Purchased ${unitsBought} ${assetInfo.unitLabel} of ${assetInfo.name} for ₹${amount.toLocaleString('en-IN')}`);
 
     loadDashboardData();
     loadTransactions();
+    renderDematHoldingsTable();
+
     const dematBalEl = document.getElementById('demat-avail-bal');
     if (dematBalEl) dematBalEl.innerText = `₹${myAcc.balance.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
 }
 
-function handleRequestCallbackSubmit(e) {
-    e.preventDefault();
-    const name = document.getElementById('contact-name-input').value;
-    const phone = document.getElementById('contact-phone-input').value;
-    const time = document.getElementById('contact-time-select').value;
-    const subject = document.getElementById('contact-subject-input').value || 'General Executive Banking Inquiry';
-
-    alert(`Priority Callback Request Scheduled!\nName: ${name}\nPhone: ${phone}\nTime Slot: ${time}\nSubject: ${subject}\n\nAn Apex Senior Wealth Executive will call you shortly.`);
-    document.getElementById('contact-subject-input').value = '';
+function getCustomerEnquiries() {
+    let enquiries = JSON.parse(localStorage.getItem(LS_ENQUIRIES_KEY) || '[]');
+    if (enquiries.length === 0) {
+        enquiries = [
+            {
+                id: 'ENQ1001',
+                timestamp: new Date().toLocaleString(),
+                name: 'Hardik Verma',
+                phone: '+91 98765 43210',
+                timeSlot: 'Immediate (Within 15 mins)',
+                subject: 'Demat Account Upgrade & Portfolio Advisory',
+                status: 'PENDING'
+            }
+        ];
+        localStorage.setItem(LS_ENQUIRIES_KEY, JSON.stringify(enquiries));
+    }
+    return enquiries;
 }
 
+function renderEnquiriesTable() {
+    const tbody = document.getElementById('enquiries-tbody');
+    if (!tbody) return;
+
+    const enquiries = getCustomerEnquiries();
+    if (enquiries.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#9ca3af; padding:20px;">No customer support enquiries submitted yet.</td></tr>';
+        return;
+    }
+
+    let rowsHtml = '';
+    enquiries.forEach(enq => {
+        const isPending = enq.status === 'PENDING';
+        const badge = isPending 
+            ? '<span class="badge" style="background:rgba(245,158,11,0.2); color:#f59e0b; border:1px solid #f59e0b;">PENDING</span>'
+            : '<span class="badge" style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid #10b981;">RESOLVED</span>';
+
+        const actionBtn = isPending
+            ? `<button class="btn btn-sm btn-primary" onclick="markEnquiryResolved('${enq.id}')">Mark Resolved</button>`
+            : `<span style="color:#9ca3af; font-size:0.8rem;">Contacted</span>`;
+
+        rowsHtml += `
+            <tr>
+                <td><strong>${enq.id}</strong></td>
+                <td style="font-size:0.8rem; color:#9ca3af;">${enq.timestamp}</td>
+                <td><strong>${enq.name}</strong></td>
+                <td>${enq.phone}</td>
+                <td><span style="font-size:0.8rem; color:#3b82f6;">${enq.timeSlot}</span></td>
+                <td>${enq.subject}</td>
+                <td>${badge}</td>
+                <td>${actionBtn}</td>
+            </tr>
+        `;
+    });
+
+    tbody.innerHTML = rowsHtml;
+}
+
+function markEnquiryResolved(id) {
+    let enquiries = JSON.parse(localStorage.getItem(LS_ENQUIRIES_KEY) || '[]');
+    const target = enquiries.find(e => e.id === id);
+    if (target) {
+        target.status = 'RESOLVED';
+        localStorage.setItem(LS_ENQUIRIES_KEY, JSON.stringify(enquiries));
+        if (typeof syncEnquiryToFirebase === 'function') syncEnquiryToFirebase(target);
+        renderEnquiriesTable();
+        alert(`Enquiry #${id} marked as RESOLVED! Customer has been contacted.`);
+    }
+}
+
+function handleRequestCallbackSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('contact-name-input').value.trim();
+    const phone = document.getElementById('contact-phone-input').value.trim();
+    const time = document.getElementById('contact-time-select').value;
+    const subject = document.getElementById('contact-subject-input').value.trim() || 'General Executive Banking Inquiry';
+
+    const newEnquiry = {
+        id: 'ENQ' + Math.floor(100000 + Math.random() * 900000),
+        timestamp: new Date().toLocaleString(),
+        name: name,
+        phone: phone,
+        timeSlot: time,
+        subject: subject,
+        status: 'PENDING'
+    };
+
+    let enquiries = JSON.parse(localStorage.getItem(LS_ENQUIRIES_KEY) || '[]');
+    enquiries.unshift(newEnquiry);
+    localStorage.setItem(LS_ENQUIRIES_KEY, JSON.stringify(enquiries));
+
+    if (typeof syncEnquiryToFirebase === 'function') syncEnquiryToFirebase(newEnquiry);
+
+    alert(`Priority Callback Request Scheduled! Ref ID: ${newEnquiry.id}. An Apex Senior Wealth Executive will call you shortly.`);
+    document.getElementById('contact-subject-input').value = '';
+
+    renderEnquiriesTable();
+}
