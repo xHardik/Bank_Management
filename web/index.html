@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apex Bank India | Executive & Premium Customer Portal</title>
-    <link rel="stylesheet" href="css/style.css?v=8.0">
+    <link rel="stylesheet" href="css/style.css?v=7.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="role-customer">
@@ -103,7 +103,7 @@
                 <!-- Autocomplete Trie Search Bar -->
                 <div class="search-bar admin-nav-item" style="position:relative;">
                     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <input type="text" id="search-input" placeholder="Search customer" onkeyup="handleSearchAutocomplete(this.value)">
+                    <input type="text" id="search-input" placeholder="Search customer " onkeyup="handleSearchAutocomplete(this.value)">
                     <div id="autocomplete-box" class="autocomplete-dropdown" style="display:none;"></div>
                 </div>
 
@@ -199,7 +199,7 @@
                                 <span class="sub-text">Active Domestic & International Card</span>
                             </div>
                             <button id="card-lock-btn" class="btn-sm btn-secondary customer-only-inline" onclick="toggleCardLock()">
-                                🔒 Lock Card
+                                 Lock Card
                             </button>
                         </div>
                         <div class="credit-card" id="credit-card-element">
@@ -288,10 +288,10 @@
                     </div>
                     <div class="sort-controls">
                         <select id="accounts-sort-select" class="sort-dropdown" onchange="applyAccountSort(this.value)">
-                            <option value="balance_desc">💰 Balance (Highest First)</option>
-                            <option value="balance_asc">💰 Balance (Lowest First)</option>
-                            <option value="name_asc">👤 Name (A to Z)</option>
-                            <option value="name_desc">👤 Name (Z to A)</option>
+                            <option value="balance_desc"> Balance (Highest First)</option>
+                            <option value="balance_asc"> Balance (Lowest First)</option>
+                            <option value="name_asc"> Name (A to Z)</option>
+                            <option value="name_desc"> Name (Z to A)</option>
                         </select>
                     </div>
                 </div>
@@ -322,8 +322,8 @@
                         <p id="tx-page-desc">Complete historical record of deposits, withdrawals, and inter-bank transfers.</p>
                     </div>
                     <div class="button-group customer-only-inline" style="margin-top:0; display:none;">
-                        <button class="btn btn-secondary btn-sm" onclick="exportPassbookCSV()">📥 Export CSV</button>
-                        <button class="btn btn-primary btn-sm" onclick="printPassbookPDF()">📄 Print Statement (PDF)</button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportPassbookCSV()"> Export CSV</button>
+                        <button class="btn btn-primary btn-sm" onclick="printPassbookPDF()"> Print Statement (PDF)</button>
                     </div>
                 </div>
 
@@ -352,7 +352,7 @@
                 <div class="section-header">
                     <div>
                         <h2>Loan Applications </h2>
-                        <p>Applications for Priority Queue (Emergency & Senior Citizen loans processed first).</p>
+                        <p>Applications (Emergency & Senior Citizen loans processed first).</p>
                     </div>
                 </div>
 
@@ -400,7 +400,7 @@
                     <!-- ADMIN LEFT CARD: History of Accepted / Approved Loans -->
                     <div class="glass-card admin-only-block" style="display:none;">
                         <div class="card-title-header">
-                            <h3 style="color:#8b5cf6;">👑 Accepted Loans History</h3>
+                            <h3 style="color:#8b5cf6;"> Accepted Loans History</h3>
                             <span class="sub-text">Complete Record of Executive Approved & Disbursed Loans</span>
                         </div>
                         <div id="admin-accepted-loans-list" style="display:flex; flex-direction:column; gap:12px; max-height:340px; overflow-y:auto;">
@@ -424,7 +424,7 @@
                         <div class="card-title-header" style="display:flex; justify-content:space-between; align-items:center;">
                             <div>
                                 <h3>Pending Loan Applications Queue</h3>
-                                <span class="sub-text"> Priority Queue Order</span>
+                                <span class="sub-text">Priority Queue Order</span>
                             </div>
                             <button class="btn btn-success btn-sm" onclick="approveHighestLoan()">Approve Highest Priority</button>
                         </div>
@@ -510,7 +510,7 @@
                     </div>
                     <div style="display:flex; gap:10px;">
                         <button class="btn btn-warning" onclick="checkFraudCycle()">
-                            🚨 DFS Fraud Check
+                             DFS Fraud Check
                         </button>
                         <button class="btn btn-secondary" onclick="runAutomatedTests()">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
@@ -530,7 +530,7 @@
             </section>
 
             <!-- TAB 6: SPENDINGS GRAPH & CATEGORY ANALYTICS (Customer Portal) -->
-            <section id="spendings" class="tab-content customer-only-block" style="display:none;">
+            <section id="spendings" class="tab-content" style="display:none;">
                 <div class="section-header">
                     <div>
                         <h2>Spendings Graph & Financial Health</h2>
@@ -548,7 +548,7 @@
                         <div style="display:flex; flex-direction:column; gap:16px; margin-top:14px;">
                             <div>
                                 <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.88rem;">
-                                    <span>⚡ Utility Bills & Mobile Recharge</span>
+                                    <span>Utility Bills & Mobile Recharge</span>
                                     <strong style="color:#f59e0b;">₹3,450.00 (35%)</strong>
                                 </div>
                                 <div style="background:rgba(255,255,255,0.08); height:10px; border-radius:6px; overflow:hidden;">
@@ -558,7 +558,7 @@
 
                             <div>
                                 <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.88rem;">
-                                    <span>⇄ UPI & Inter-bank Transfers</span>
+                                    <span>UPI & Inter-bank Transfers</span>
                                     <strong style="color:#3b82f6;">₹4,200.00 (42%)</strong>
                                 </div>
                                 <div style="background:rgba(255,255,255,0.08); height:10px; border-radius:6px; overflow:hidden;">
@@ -568,7 +568,7 @@
 
                             <div>
                                 <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.88rem;">
-                                    <span>🏧 Cash Withdrawals & POS</span>
+                                    <span>Cash Withdrawals & POS</span>
                                     <strong style="color:#ef4444;">₹1,500.00 (15%)</strong>
                                 </div>
                                 <div style="background:rgba(255,255,255,0.08); height:10px; border-radius:6px; overflow:hidden;">
@@ -578,7 +578,7 @@
 
                             <div>
                                 <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.88rem;">
-                                    <span>📈 Stock & Mutual Fund Investments</span>
+                                    <span> Stock & Mutual Fund Investments</span>
                                     <strong style="color:#10b981;">₹800.00 (8%)</strong>
                                 </div>
                                 <div style="background:rgba(255,255,255,0.08); height:10px; border-radius:6px; overflow:hidden;">
@@ -602,7 +602,7 @@
                             <h4 style="color:#fff; margin-bottom:6px;">Smart Financial Status</h4>
                             <p style="font-size:0.82rem; color:#9ca3af; max-width:280px; margin:0 auto 16px;">Your monthly savings rate is <strong>+64.5%</strong>. Spending velocity is well controlled with zero overdraft risk.</p>
                             <div style="display:flex; justify-content:center; gap:10px;">
-                                <button class="btn btn-secondary btn-sm" onclick="exportPassbookCSV()">📥 Export Report</button>
+                                <button class="btn btn-secondary btn-sm" onclick="exportPassbookCSV()">Export Report</button>
                                 <button class="btn btn-primary btn-sm" onclick="showTab('transactions')">View Passbook</button>
                             </div>
                         </div>
@@ -611,7 +611,7 @@
             </section>
 
             <!-- TAB 7: DEMAT & WEALTH INVESTMENTS (Customer Portal) -->
-            <section id="demat" class="tab-content customer-only-block" style="display:none;">
+            <section id="demat" class="tab-content" style="display:none;">
                 <div class="section-header">
                     <div>
                         <h2>Apex Demat & Wealth Investments</h2>
@@ -651,7 +651,7 @@
                 <div class="table-card">
                     <div style="padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
                         <h3 style="margin:0; font-size:1.1rem; color:#fff;">Active Investment Holdings</h3>
-                        <button class="btn btn-primary btn-sm" onclick="openModal('invest-modal')">➕ Buy New Mutual Fund / Stock</button>
+                        <button class="btn btn-primary btn-sm" onclick="openModal('invest-modal')">Buy New Mutual Fund / Stock</button>
                     </div>
                     <table class="data-table">
                         <thead>
@@ -699,7 +699,7 @@
             </section>
 
             <!-- TAB 8: HELP & 24x7 CONTACT US (Customer Portal) -->
-            <section id="contact" class="tab-content customer-only-block" style="display:none;">
+            <section id="contact" class="tab-content" style="display:none;">
                 <div class="section-header">
                     <div>
                         <h2>Apex Executive 24x7 Concierge & Contact Desk</h2>
@@ -716,7 +716,7 @@
                         </div>
                         <div style="display:flex; flex-direction:column; gap:14px; margin-top:14px;">
                             <div style="background:rgba(255,255,255,0.04); border:1px solid var(--border-color); padding:14px; border-radius:12px; display:flex; gap:14px; align-items:center;">
-                                <div style="width:44px; height:44px; background:rgba(16,185,129,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#10b981; font-size:20px;">📞</div>
+                                <div style="width:44px; height:44px; background:rgba(16,185,129,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#10b981; font-size:20px;"></div>
                                 <div>
                                     <span style="font-size:0.75rem; color:#9ca3af; text-transform:uppercase; font-weight:700;">24x7 Toll-Free Support</span>
                                     <div style="font-size:1.1rem; font-weight:800; color:#fff;">1800-200-APEX (2739)</div>
@@ -724,7 +724,7 @@
                             </div>
 
                             <div style="background:rgba(255,255,255,0.04); border:1px solid var(--border-color); padding:14px; border-radius:12px; display:flex; gap:14px; align-items:center;">
-                                <div style="width:44px; height:44px; background:rgba(59,130,246,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#3b82f6; font-size:20px;">✉️</div>
+                                <div style="width:44px; height:44px; background:rgba(59,130,246,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#3b82f6; font-size:20px;"></div>
                                 <div>
                                     <span style="font-size:0.75rem; color:#9ca3af; text-transform:uppercase; font-weight:700;">Executive Support Desk</span>
                                     <div style="font-size:1rem; font-weight:800; color:#fff;">support@apexbank.in</div>
@@ -732,7 +732,7 @@
                             </div>
 
                             <div style="background:rgba(255,255,255,0.04); border:1px solid var(--border-color); padding:14px; border-radius:12px; display:flex; gap:14px; align-items:center;">
-                                <div style="width:44px; height:44px; background:rgba(245,158,11,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#f59e0b; font-size:20px;">🏢</div>
+                                <div style="width:44px; height:44px; background:rgba(245,158,11,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#f59e0b; font-size:20px;"></div>
                                 <div>
                                     <span style="font-size:0.75rem; color:#9ca3af; text-transform:uppercase; font-weight:700;">Registered Corporate Head Office</span>
                                     <div style="font-size:0.9rem; font-weight:700; color:#fff;">Apex Towers, Bandra Kurla Complex (BKC), Mumbai - 400051</div>
@@ -770,7 +770,7 @@
                                 <label>Subject / Topic of Query</label>
                                 <input type="text" id="contact-subject-input" placeholder="e.g. Demat Account Upgrade / Home Loan Rate Inquiry">
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width:100%;">📞 Request Instant Callback</button>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">Request Instant Callback</button>
                         </form>
                     </div>
                 </div>
@@ -994,51 +994,62 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('test-modal')">Close</button>
             </div>
-        </div>
-    </div>
-
-    <!-- DEDICATED FULL PAGE CUSTOMER LOGIN SCREEN -->
-    <div id="customer-login-page-screen" class="full-page-login-screen" style="display: flex; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; z-index: 9999999; background: #05070f; align-items: center; justify-content: center;">
-        <div class="login-card-container">
-            <div class="login-card-header">
-                <img src="assets/logo.png" style="height: 54px;" alt="Apex Bank Emblem">
-                <h2>Apex Customer Portal</h2>
-                <p>Secure Banking Account Authentication</p>
+        <!-- MODAL: CUSTOMER LOGIN GATEWAY -->
+    <div id="customer-login-modal" class="modal-overlay" style="display: flex; z-index: 100000;">
+        <div class="modal-card" style="max-width: 440px;">
+            <div class="modal-header" style="text-align: center; display: block; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 16px;">
+                <div style="margin-bottom: 10px;">
+                    <img src="assets/logo.png" style="height: 52px;" alt="Apex Bank Emblem">
+                </div>
+                <h3 style="font-size: 1.35rem; font-weight: 800; color: #fff;">Apex Customer Login</h3>
+                <p style="color: #9ca3af; font-size: 0.85rem; margin-top: 4px;">Enter 4-Digit Security PIN to Access Account</p>
             </div>
-            <form id="customer-page-pin-form" onsubmit="verifyCustomerPinPage(event)">
-                <div class="form-group" style="margin-bottom: 18px;">
-                    <label class="login-field-label">Account Number</label>
-                    <input type="text" id="customer-page-acc-input" required placeholder="Account Number (e.g. ACC1001)" value="ACC1001" autocomplete="off" class="login-input-field">
+            <form id="customer-pin-form" onsubmit="verifyCustomerPinPage(event)">
+                <div class="modal-body" style="padding-top: 14px;">
+                    <div class="form-group" style="margin-bottom: 18px;">
+                        <label class="login-field-label">Select Account Number</label>
+                        <select id="login-page-acc-select" class="form-control" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; font-size: 0.95rem; font-weight: 600;">
+                            <option value="ACC1001">ACC1001 - Hardik Verma (Savings)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label class="login-field-label">4-Digit Security PIN</label>
+                        <input type="password" id="customer-page-pin-input" maxlength="4" required placeholder="••••" autocomplete="off" class="login-input-field pin-input" style="text-align:center; font-size:1.5rem; letter-spacing:8px; width:100%; height:48px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#10b981;">
+                    </div>
                 </div>
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <label class="login-field-label">4-Digit Security PIN</label>
-                    <input type="password" id="customer-page-pin-input" maxlength="4" required placeholder="••••" autocomplete="off" class="login-input-field pin-input">
-                </div>
-                <button type="submit" class="login-btn-primary">🔓 Login to Customer Banking</button>
-                <div class="login-footer-links">
-                    <button type="button" class="btn-text-action" onclick="openNewAccountFromLoginPage()">➕ Open New Bank Account</button>
-                    <a href="/#admin" onclick="navigateToAdminLogin(event)" class="admin-login-link">👑 Executive Admin Login →</a>
+                <div class="modal-footer" style="flex-direction: column; gap: 12px; border-top: none; padding-top: 0;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem; font-weight: 700; border-radius: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">Login to Customer Banking</button>
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 6px; font-size: 0.85rem;">
+                        <button type="button" class="btn-text-action" onclick="openNewAccountFromLoginPage()" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600;">Open New Bank Account</button>
+                        <a href="/#admin" onclick="navigateToAdminLogin(event)" class="admin-login-link" style="color:#8b5cf6; font-weight:600; text-decoration:none;">Executive Admin Login &rarr;</a>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- DEDICATED FULL PAGE ADMIN LOGIN SCREEN -->
-    <div id="admin-login-page-screen" class="full-page-login-screen hidden" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; z-index: 9999999; background: #05070f; align-items: center; justify-content: center;">
-        <div class="login-card-container admin-border">
-            <div class="login-card-header">
-                <img src="assets/logo.png" style="height: 54px;" alt="Apex Bank Emblem">
-                <h2 style="color: #8b5cf6;">👑 Executive Admin Login</h2>
-                <p>Restricted Area. Executive Passcode Required.</p>
-            </div>
-            <form id="admin-page-passcode-form" onsubmit="verifyAdminPasscodePage(event)">
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <label class="login-field-label">Admin Security Passcode</label>
-                    <input type="password" id="admin-page-passcode-input" maxlength="4" required placeholder="••••" autocomplete="off" class="login-input-field pin-input admin-pin">
+    <!-- MODAL: EXECUTIVE ADMIN LOGIN GATEWAY -->
+    <div id="admin-login-modal" class="modal-overlay" style="display: none; z-index: 100000;">
+        <div class="modal-card admin-border" style="max-width: 440px;">
+            <div class="modal-header" style="text-align: center; display: block; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 16px;">
+                <div style="margin-bottom: 10px;">
+                    <img src="assets/logo.png" style="height: 52px;" alt="Apex Bank Emblem">
                 </div>
-                <button type="submit" class="login-btn-primary admin-btn">🔓 Unlock Executive Admin Portal</button>
-                <div class="login-footer-links">
-                    <a href="/" onclick="navigateToCustomerLogin(event)" class="admin-login-link">← Back to Customer Portal</a>
+                <h3 style="font-size: 1.35rem; font-weight: 800; color: #8b5cf6;">Executive Admin Login</h3>
+                <p style="color: #9ca3af; font-size: 0.85rem; margin-top: 4px;">Restricted Area. Enter Executive Security Passcode</p>
+            </div>
+            <form id="admin-passcode-form" onsubmit="verifyAdminPasscodePage(event)">
+                <div class="modal-body" style="padding-top: 14px;">
+                    <div class="form-group" style="margin-bottom: 24px;">
+                        <label class="login-field-label">Admin Security Passcode</label>
+                        <input type="password" id="admin-page-passcode-input" maxlength="4" required placeholder="••••" autocomplete="off" class="login-input-field pin-input admin-pin" style="text-align:center; font-size:1.5rem; letter-spacing:8px; width:100%; height:48px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(139,92,246,0.4); color:#8b5cf6;">
+                    </div>
+                </div>
+                <div class="modal-footer" style="flex-direction: column; gap: 12px; border-top: none; padding-top: 0;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem; font-weight: 700; border-radius: 12px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">Unlock Executive Admin Portal</button>
+                    <div style="text-align: center; width: 100%; margin-top: 6px;">
+                        <a href="/" onclick="navigateToCustomerLogin(event)" class="admin-login-link" style="color:#9ca3af; font-weight:600; text-decoration:none;">&larr; Back to Customer Portal</a>
+                    </div>
                 </div>
             </form>
         </div>
@@ -1048,17 +1059,17 @@
     <div id="utility-bill-modal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
-                <h3>⚡ Utility Bills & Mobile Recharge Desk</h3>
+                <h3>Utility Bills & Mobile Recharge Desk</h3>
                 <button class="modal-close" onclick="closeModal('utility-bill-modal')">&times;</button>
             </div>
             <form onsubmit="handleUtilityPaymentSubmit(event)">
                 <div class="form-group">
                     <label>Biller / Service Category</label>
                     <select id="util-category-select" onchange="updateUtilityProviders()">
-                        <option value="Electricity Bill"> Electricity Bill Payment</option>
-                        <option value="Mobile Prepaid / Postpaid"> Mobile Recharge (Jio / Airtel / Vi)</option>
-                        <option value="Broadband & Fiber"> Broadband & Landline</option>
-                        <option value="FASTag Recharge"> FASTag Toll Recharge</option>
+                        <option value="Electricity Bill">Electricity Bill Payment</option>
+                        <option value="Mobile Prepaid / Postpaid">Mobile Recharge (Jio / Airtel / Vi)</option>
+                        <option value="Broadband & Fiber">Broadband & Landline</option>
+                        <option value="FASTag Recharge">FASTag Toll Recharge</option>
                         <option value="DTH Cable TV">DTH Television Recharge</option>
                     </select>
                 </div>
@@ -1087,7 +1098,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('utility-bill-modal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">⚡ Pay Utility Bill</button>
+                    <button type="submit" class="btn btn-primary">Pay Utility Bill</button>
                 </div>
             </form>
         </div>
@@ -1105,14 +1116,14 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('receipt-modal')">Close</button>
-                <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Print Receipt</button>
+                <button type="button" class="btn btn-primary" onclick="window.print()">Print Receipt</button>
             </div>
         </div>
     <!-- MODAL: DEMAT MUTUAL FUND / STOCK INVESTMENT -->
     <div id="invest-modal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
-                <h3>📈 Apex Demat Wealth Investment</h3>
+                <h3>Apex Demat Wealth Investment</h3>
                 <button class="modal-close" onclick="closeModal('invest-modal')">&times;</button>
             </div>
             <form onsubmit="handleInvestSubmit(event)">
@@ -1137,7 +1148,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('invest-modal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">📈 Confirm Investment</button>
+                    <button type="submit" class="btn btn-primary">Confirm Investment</button>
                 </div>
             </form>
         </div>

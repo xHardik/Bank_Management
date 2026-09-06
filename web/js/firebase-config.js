@@ -16,9 +16,9 @@ if (typeof firebase !== 'undefined') {
     firebase.initializeApp(firebaseConfig);
   }
   db = firebase.firestore();
-  console.log("🔥 Firebase Firestore Initialized for Apex Bank!");
+  console.log("[Firebase] Firebase Firestore Initialized for Apex Bank!");
 } else {
-  console.warn("⚠️ Firebase SDK not loaded, falling back to LocalStorage.");
+  console.warn("[Firebase] Warning: Firebase SDK not loaded, falling back to LocalStorage.");
 }
 
 // Global Firebase Helper Functions
@@ -26,7 +26,7 @@ async function syncAccountToFirebase(account) {
   if (!db || !account || !account.accountNumber) return;
   try {
     await db.collection("accounts").doc(account.accountNumber).set(account, { merge: true });
-    console.log(`🔥 Account ${account.accountNumber} synced to Firestore`);
+    console.log(`[Firebase] Account ${account.accountNumber} synced to Firestore`);
   } catch (err) {
     console.warn("Firebase Account Sync Error:", err);
   }
@@ -37,7 +37,7 @@ async function syncTransactionToFirebase(txn) {
   try {
     const txDocId = String(txn.txId || 'TXN' + Date.now());
     await db.collection("transactions").doc(txDocId).set(txn, { merge: true });
-    console.log(`🔥 Transaction ${txDocId} synced to Firestore`);
+    console.log(`[Firebase] Transaction ${txDocId} synced to Firestore`);
   } catch (err) {
     console.warn("Firebase Transaction Sync Error:", err);
   }
@@ -48,7 +48,7 @@ async function syncLoanToFirebase(loan) {
   const loanId = String(loan.appId || loan.applicationId || loan.id || 'LOAN' + Date.now());
   try {
     await db.collection("pending_loans").doc(loanId).set({ ...loan, appId: loanId }, { merge: true });
-    console.log(`🔥 Loan application ${loanId} synced to Firestore`);
+    console.log(`[Firebase] Loan application ${loanId} synced to Firestore`);
   } catch (err) {
     console.warn("Firebase Loan Sync Error:", err);
   }
@@ -62,7 +62,7 @@ async function syncApprovedLoanToFirebase(loan) {
     try {
       await db.collection("pending_loans").doc(loanId).delete();
     } catch (e) {}
-    console.log(`🔥 Loan ${loanId} moved to approved_loans in Firestore`);
+    console.log(`[Firebase] Loan ${loanId} moved to approved_loans in Firestore`);
   } catch (err) {
     console.warn("Firebase Approved Loan Sync Error:", err);
   }
@@ -116,7 +116,7 @@ async function syncAllLocalToFirebase() {
     for (const txn of txs) {
       await syncTransactionToFirebase(txn);
     }
-    console.log("🚀 Sync All Local Storage to Firebase Completed!");
+    console.log("[Firebase] Sync All Local Storage to Firebase Completed!");
   } catch (e) {
     console.warn("Error in syncAllLocalToFirebase:", e);
   }

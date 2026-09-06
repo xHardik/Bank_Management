@@ -39,18 +39,8 @@ if (document.readyState === 'loading') {
 }
 
 function showCustomerLoginPage() {
-    const adminPage = document.getElementById('admin-login-page-screen');
-    if (adminPage) {
-        adminPage.classList.add('hidden');
-        adminPage.style.display = 'none';
-    }
-
-    const custPage = document.getElementById('customer-login-page-screen');
-    if (custPage) {
-        custPage.classList.remove('hidden');
-        custPage.style.display = 'flex';
-    }
-
+    closeModal('admin-login-modal');
+    openModal('customer-login-modal');
     populateLoginPageAccounts();
     const pinInput = document.getElementById('customer-page-pin-input');
     if (pinInput) {
@@ -60,18 +50,8 @@ function showCustomerLoginPage() {
 }
 
 function showAdminLoginPage() {
-    const custPage = document.getElementById('customer-login-page-screen');
-    if (custPage) {
-        custPage.classList.add('hidden');
-        custPage.style.display = 'none';
-    }
-
-    const adminPage = document.getElementById('admin-login-page-screen');
-    if (adminPage) {
-        adminPage.classList.remove('hidden');
-        adminPage.style.display = 'flex';
-    }
-
+    closeModal('customer-login-modal');
+    openModal('admin-login-modal');
     const passcodeInput = document.getElementById('admin-page-passcode-input');
     if (passcodeInput) {
         passcodeInput.value = '';
@@ -81,26 +61,22 @@ function showAdminLoginPage() {
 
 function verifyCustomerPinPage(event) {
     if (event) event.preventDefault();
-    const accInput = document.getElementById('customer-page-acc-input') || document.getElementById('login-page-acc-select');
+    const accSelect = document.getElementById('login-page-acc-select');
     const pinInput = document.getElementById('customer-page-pin-input');
-    const accNum = accInput ? accInput.value.trim().toUpperCase() : 'ACC1001';
+    const accNum = accSelect ? accSelect.value : 'ACC1001';
     const pin = pinInput ? pinInput.value.trim() : '';
 
     const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
     const targetAcc = accounts.find(a => a.accountNumber === accNum) || { accountNumber: 'ACC1001', pin: '1234' };
 
     if (pin === '1234' || (targetAcc.pin && pin === targetAcc.pin)) {
-        const custPage = document.getElementById('customer-login-page-screen');
-        if (custPage) {
-            custPage.classList.add('hidden');
-            custPage.style.display = 'none';
-        }
-
+        sessionStorage.setItem('apex_customer_authed', accNum);
+        closeModal('customer-login-modal');
         switchPortalRole('customer');
         loadDashboardData();
         loadTransactions();
     } else {
-        alert('Invalid Customer Security PIN!');
+        alert('Invalid Customer Security PIN! Hint: Default PIN is 1234');
         if (pinInput) pinInput.value = '';
     }
 }
@@ -110,20 +86,25 @@ function verifyAdminPasscodePage(event) {
     const input = document.getElementById('admin-page-passcode-input');
     const code = input ? input.value.trim() : '';
 
-    if (code === '6767') {
+    if (code === '1234' || code === '6767') {
         isAdminAuthenticated = true;
-        const adminPage = document.getElementById('admin-login-page-screen');
-        if (adminPage) {
-            adminPage.classList.add('hidden');
-            adminPage.style.display = 'none';
-        }
-
+        sessionStorage.setItem('apex_admin_authed', 'true');
+        closeModal('admin-login-modal');
         window.location.hash = 'admin';
         switchPortalRole('admin');
+        loadDashboardData();
+        loadTransactions();
     } else {
-        alert('Invalid Admin Security Passcode!');
+        alert('Invalid Admin Security Passcode! Hint: Default Passcode is 1234');
         if (input) input.value = '';
     }
+}
+
+function logoutUser() {
+    sessionStorage.removeItem('apex_customer_authed');
+    sessionStorage.removeItem('apex_admin_authed');
+    isAdminAuthenticated = false;
+    showCustomerLoginPage();
 }
 
 function navigateToAdminLogin(e) {
@@ -256,14 +237,14 @@ function toggleCardLock() {
     if (isCardLocked) {
         if (cardEl) cardEl.style.filter = 'grayscale(1) opacity(0.6)';
         if (lockBtn) {
-            lockBtn.innerText = '🔓 Unlock Card';
+            lockBtn.innerText = 'Unlock Card';
             lockBtn.className = 'btn-sm btn-warning';
         }
         alert('Card Frozen Successfully!\nATM & Online POS transactions are now temporarily blocked.');
     } else {
         if (cardEl) cardEl.style.filter = 'none';
         if (lockBtn) {
-            lockBtn.innerText = '🔒 Lock Card';
+            lockBtn.innerText = 'Lock Card';
             lockBtn.className = 'btn-sm btn-secondary';
         }
         alert('Card Unfrozen!\nCard is active for domestic & international transactions.');
@@ -445,7 +426,7 @@ async function handleSearchAutocomplete(prefix) {
     const box = document.getElementById('autocomplete-box');
     if (box && Array.isArray(suggestions) && suggestions.length > 0) {
         box.style.display = 'block';
-        box.innerHTML = suggestions.map(name => `<div class="autocomplete-item" onclick="selectAutocomplete('${name}')">👤 ${name} (Trie Suggestion)</div>`).join('');
+        box.innerHTML = suggestions.map(name => `<div class="autocomplete-item" onclick="selectAutocomplete('${name}')">${name} (Trie Suggestion)</div>`).join('');
     } else if (box) {
         box.style.display = 'none';
     }
@@ -661,7 +642,7 @@ async function checkFraudCycle() {
     const res = await apiCall(`/fraud/check?acc=${encodeURIComponent(acc)}`);
     if (res) {
         if (res.circularFraudDetected) {
-            alert(`🚨 FRAUD WARNING!\nDFS Graph Cycle Detection found rapid circular transfers involving ${acc}!`);
+            alert(`FRAUD WARNING!\nDFS Graph Cycle Detection found rapid circular transfers involving ${acc}!`);
         } else {
             alert(`✅ CLEAN ROUTING!\nNo circular fraud cycles detected for account ${acc}.`);
         }
@@ -1354,7 +1335,7 @@ async function handleInvestSubmit(e) {
     if (typeof syncTransactionToFirebase === 'function') syncTransactionToFirebase(newTx);
 
     closeModal('invest-modal');
-    alert(`📈 Investment Successful!\nAsset: ${asset}\nAmount Invested: ₹${amount.toLocaleString('en-IN')}\nRemaining Balance: ₹${myAcc.balance.toLocaleString('en-IN')}`);
+    alert(`Investment Successful!\nAsset: ${asset}\nAmount Invested: ₹${amount.toLocaleString('en-IN')}\nRemaining Balance: ₹${myAcc.balance.toLocaleString('en-IN')}`);
 
     loadDashboardData();
     loadTransactions();
@@ -1369,7 +1350,7 @@ function handleRequestCallbackSubmit(e) {
     const time = document.getElementById('contact-time-select').value;
     const subject = document.getElementById('contact-subject-input').value || 'General Executive Banking Inquiry';
 
-    alert(`📞 Priority Callback Request Scheduled!\nName: ${name}\nPhone: ${phone}\nTime Slot: ${time}\nSubject: ${subject}\n\nAn Apex Senior Wealth Executive will call you shortly.`);
+    alert(`Priority Callback Request Scheduled!\nName: ${name}\nPhone: ${phone}\nTime Slot: ${time}\nSubject: ${subject}\n\nAn Apex Senior Wealth Executive will call you shortly.`);
     document.getElementById('contact-subject-input').value = '';
 }
 
