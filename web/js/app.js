@@ -21,12 +21,27 @@ let isAdminAuthenticated = false;
 let isCardLocked = false;
 
 function initLoginPage() {
-    const cleanPath = window.location.pathname.replace(/\/$/, '');
-    if (cleanPath.endsWith('/admin') || window.location.hash === '#admin') {
-        showAdminLoginPage();
+    const isCustAuthed = sessionStorage.getItem('apex_customer_authed');
+    const isAdminAuthed = sessionStorage.getItem('apex_admin_authed') === 'true';
+
+    if (isAdminAuthed) {
+        isAdminAuthenticated = true;
+        closeModal('customer-login-modal');
+        closeModal('admin-login-modal');
+        switchPortalRole('admin');
+    } else if (isCustAuthed) {
+        closeModal('customer-login-modal');
+        closeModal('admin-login-modal');
+        switchPortalRole('customer');
     } else {
-        showCustomerLoginPage();
+        const cleanPath = window.location.pathname.replace(/\/$/, '');
+        if (cleanPath.endsWith('/admin') || window.location.hash === '#admin') {
+            showAdminLoginPage();
+        } else {
+            showCustomerLoginPage();
+        }
     }
+
     if (typeof initFirebaseRealtimeListeners === 'function') {
         initFirebaseRealtimeListeners(loadDashboardData, loadLoans);
     }

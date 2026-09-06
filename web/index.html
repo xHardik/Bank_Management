@@ -101,6 +101,10 @@
                         <img src="assets/logo.png" class="brand-logo-img" alt="Apex Bank Logo">
                         <span class="top-brand-title">APEX BANK INDIA</span>
                     </div>
+                    <div class="role-switcher-box" style="display:flex; align-items:center; background:rgba(255,255,255,0.05); padding:3px; border-radius:20px; border:1px solid rgba(255,255,255,0.1); margin-left:16px;">
+                        <button id="role-btn-customer" class="role-pill-btn active customer" onclick="switchPortalRole('customer')">Customer Portal</button>
+                        <button id="role-btn-admin" class="role-pill-btn admin" onclick="switchPortalRole('admin')">Executive Admin</button>
+                    </div>
                 </div>
 
                 <!-- Autocomplete Trie Search Bar -->
@@ -111,6 +115,10 @@
                 </div>
 
                 <div class="nav-actions">
+                    <button class="btn btn-secondary" onclick="logoutUser()" style="display:flex; align-items:center; gap:6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                        <span>Logout</span>
+                    </button>
                     <button class="btn btn-secondary admin-nav-item" onclick="triggerUndo()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
                         <span>Undo</span>
@@ -1032,7 +1040,7 @@
                     <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem; font-weight: 700; border-radius: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">Login to Customer Banking</button>
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 6px; font-size: 0.85rem;">
                         <button type="button" class="btn-text-action" onclick="openNewAccountFromLoginPage()" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600;">Open New Bank Account</button>
-                        <a href="/#admin" onclick="navigateToAdminLogin(event)" class="admin-login-link" style="color:#8b5cf6; font-weight:600; text-decoration:none;">Executive Admin Login &rarr;</a>
+                        <a href="javascript:void(0)" onclick="navigateToAdminLogin(event)" class="admin-login-link" style="color:#8b5cf6; font-weight:600; text-decoration:none;">Executive Admin Login &rarr;</a>
                     </div>
                 </div>
             </form>
@@ -1059,7 +1067,7 @@
                 <div class="modal-footer" style="flex-direction: column; gap: 12px; border-top: none; padding-top: 0;">
                     <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem; font-weight: 700; border-radius: 12px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">Unlock Executive Admin Portal</button>
                     <div style="text-align: center; width: 100%; margin-top: 6px;">
-                        <a href="/" onclick="navigateToCustomerLogin(event)" class="admin-login-link" style="color:#9ca3af; font-weight:600; text-decoration:none;">&larr; Back to Customer Portal</a>
+                        <a href="javascript:void(0)" onclick="navigateToCustomerLogin(event)" class="admin-login-link" style="color:#9ca3af; font-weight:600; text-decoration:none;">&larr; Back to Customer Portal</a>
                     </div>
                 </div>
             </form>
