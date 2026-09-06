@@ -20,6 +20,7 @@ const LS_PENDING_LOANS = 'apex_bank_pending_loans';
 const LS_APPROVED_LOANS = 'apex_bank_approved_loans';
 const LS_HOLDINGS_KEY = 'apex_bank_demat_holdings';
 const LS_ENQUIRIES_KEY = 'apex_bank_enquiries';
+const LS_CHEQUE_REQUESTS_KEY = 'apex_bank_cheque_requests';
 
 let currentRole = 'customer';
 let isAdminAuthenticated = false;
@@ -1716,4 +1717,140 @@ function handleRequestCallbackSubmit(e) {
     document.getElementById('contact-subject-input').value = '';
 
     renderEnquiriesTable();
+}
+function toggleChequeCustomAddress() {
+    const select = document.getElementById('cheque-address-select');
+    const customGroup = document.getElementById('cheque-custom-address-group');
+    if (select && customGroup) {
+        customGroup.style.display = select.value === 'CUSTOM' ? 'block' : 'none';
+    }
+}
+
+function handleChequeBookSubmit(e) {
+    if (e) e.preventDefault();
+    const accNum = document.getElementById('cheque-acc-num').value.trim() || 'ACC1001';
+    const name = document.getElementById('cheque-name-input').value.trim() || 'Hardik Verma';
+    const leaves = document.getElementById('cheque-leaves-select').value;
+    const addressSelect = document.getElementById('cheque-address-select').value;
+    const customAddress = document.getElementById('cheque-custom-address-input').value.trim();
+    const pin = document.getElementById('cheque-pin-input').value.trim();
+
+    if (pin !== '1234') {
+        return alert('Invalid Security PIN! Cheque book request cancelled.');
+    }
+
+    let finalAddress = addressSelect;
+    if (addressSelect === 'CUSTOM') {
+        if (!customAddress) return alert('Please enter your custom delivery address.');
+        finalAddress = customAddress;
+    }
+
+    const newRequest = {
+        reqId: 'REQ-CHQ-' + Math.floor(1000 + Math.random() * 9000),
+        timestamp: new Date().toLocaleString(),
+        accNum: accNum,
+        name: name,
+        leaves: leaves,
+        address: finalAddress,
+        status: 'PENDING'
+    };
+
+    let requests = JSON.parse(localStorage.getItem(LS_CHEQUE_REQUESTS_KEY) || '[]');
+    requests.unshift(newRequest);
+    localStorage.setItem(LS_CHEQUE_REQUESTS_KEY, JSON.stringify(requests));
+
+    if (typeof syncChequeRequestToFirebase === 'function') {
+        syncChequeRequestToFirebase(newRequest);
+    }
+
+    closeModal('cheque-modal');
+    document.getElementById('cheque-pin-input').value = '';
+    alert(`Cheque Book Request Submitted Successfully!\nRef ID: ${newRequest.reqId}\nLeaves: ${leaves}\nDelivery Address: ${finalAddress}\nStatus: PENDING ADMIN APPROVAL`);
+
+    renderChequeRequestsTable();
+}
+
+function getChequeRequests() {
+    let requests = JSON.parse(localStorage.getItem(LS_CHEQUE_REQUESTS_KEY) || '[]');
+    if (requests.length === 0) {
+        requests = [
+            {
+                reqId: 'REQ-CHQ-1001',
+                timestamp: new Date().toLocaleString(),
+                accNum: 'ACC1001',
+                name: 'Hardik Verma',
+                leaves: '25 Leaves (Standard Personal)',
+                address: 'Home: Apex Towers, BKC, Mumbai - 400051',
+                status: 'PENDING'
+            }
+        ];
+        localStorage.setItem(LS_CHEQUE_REQUESTS_KEY, JSON.stringify(requests));
+    }
+    return requests;
+}
+
+function renderChequeRequestsTable() {
+    const tbody = document.getElementById('cheque-requests-tbody');
+    if (!tbody) return;
+
+    const requests = getChequeRequests();
+    if (requests.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:20px;">No cheque book requests submitted yet.</td></tr>';
+        return;
+    }
+
+    let rowsHtml = '';
+    requests.forEach(req => {
+        const isPending = req.status === 'PENDING';
+        const badge = isPending 
+            ? '<span class="badge" style="background:rgba(245,158,11,0.2); color:#f59e0b; border:1px solid #f59e0b;">PENDING</span>'
+            : (req.status === 'APPROVED' 
+                ? '<span class="badge" style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid #10b981;">APPROVED & DISPATCHED</span>'
+                : '<span class="badge" style="background:rgba(239,68,68,0.2); color:#ef4444; border:1px solid #ef4444;">REJECTED</span>');
+
+        const actionBtn = isPending
+            ? `<div style="display:flex; gap:6px;">
+                <button class="btn btn-sm btn-success" onclick="approveChequeRequest('${req.reqId}')">Approve</button>
+                <button class="btn btn-sm btn-secondary" onclick="rejectChequeRequest('${req.reqId}')">Reject</button>
+               </div>`
+            : `<span style="color:#9ca3af; font-size:0.8rem;">Processed</span>`;
+
+        rowsHtml += `
+            <tr>
+                <td><strong>${req.reqId}</strong></td>
+                <td style="font-size:0.8rem; color:#9ca3af;">${req.timestamp}</td>
+                <td><strong>${req.accNum}</strong> - ${req.name}</td>
+                <td><span style="font-size:0.85rem; color:#3b82f6;">${req.leaves}</span></td>
+                <td style="font-size:0.85rem; color:#d1d5db;">${req.address}</td>
+                <td>${badge}</td>
+                <td>${actionBtn}</td>
+            </tr>
+        `;
+    });
+
+    tbody.innerHTML = rowsHtml;
+}
+
+function approveChequeRequest(reqId) {
+    let requests = JSON.parse(localStorage.getItem(LS_CHEQUE_REQUESTS_KEY) || '[]');
+    const req = requests.find(r => r.reqId === reqId);
+    if (req) {
+        req.status = 'APPROVED';
+        localStorage.setItem(LS_CHEQUE_REQUESTS_KEY, JSON.stringify(requests));
+        if (typeof syncChequeRequestToFirebase === 'function') syncChequeRequestToFirebase(req);
+        renderChequeRequestsTable();
+        alert(`Cheque Request #${reqId} APPROVED! Speed Post Tracking ID generated and dispatch initiated.`);
+    }
+}
+
+function rejectChequeRequest(reqId) {
+    let requests = JSON.parse(localStorage.getItem(LS_CHEQUE_REQUESTS_KEY) || '[]');
+    const req = requests.find(r => r.reqId === reqId);
+    if (req) {
+        req.status = 'REJECTED';
+        localStorage.setItem(LS_CHEQUE_REQUESTS_KEY, JSON.stringify(requests));
+        if (typeof syncChequeRequestToFirebase === 'function') syncChequeRequestToFirebase(req);
+        renderChequeRequestsTable();
+        alert(`Cheque Request #${reqId} REJECTED.`);
+    }
 }
