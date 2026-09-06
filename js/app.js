@@ -271,14 +271,20 @@ function toggleMobileSidebar() {
 }
 
 function showTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+        tab.style.display = 'none';
+    });
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
     const targetTab = document.getElementById(tabId);
-    if (targetTab) targetTab.classList.add('active');
+    if (targetTab) {
+        targetTab.classList.add('active');
+        targetTab.style.display = 'block';
+    }
 
-    if (event && event.target) {
-        const btn = event.target.closest('.nav-btn');
+    if (window.event && window.event.target) {
+        const btn = window.event.target.closest('.nav-btn');
         if (btn) btn.classList.add('active');
     }
 
