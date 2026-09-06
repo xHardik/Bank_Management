@@ -21,27 +21,12 @@ let isAdminAuthenticated = false;
 let isCardLocked = false;
 
 function initLoginPage() {
-    const isCustAuthed = sessionStorage.getItem('apex_customer_authed');
-    const isAdminAuthed = sessionStorage.getItem('apex_admin_authed') === 'true';
-
-    if (isAdminAuthed) {
-        isAdminAuthenticated = true;
-        closeModal('customer-login-modal');
-        closeModal('admin-login-modal');
-        switchPortalRole('admin');
-    } else if (isCustAuthed) {
-        closeModal('customer-login-modal');
-        closeModal('admin-login-modal');
-        switchPortalRole('customer');
+    const cleanPath = window.location.pathname.replace(/\/$/, '');
+    if (cleanPath.endsWith('/admin') || window.location.hash === '#admin') {
+        showAdminLoginPage();
     } else {
-        const cleanPath = window.location.pathname.replace(/\/$/, '');
-        if (cleanPath.endsWith('/admin') || window.location.hash === '#admin') {
-            showAdminLoginPage();
-        } else {
-            showCustomerLoginPage();
-        }
+        showCustomerLoginPage();
     }
-
     if (typeof initFirebaseRealtimeListeners === 'function') {
         initFirebaseRealtimeListeners(loadDashboardData, loadLoans);
     }
@@ -78,10 +63,7 @@ function showAdminLoginPage() {
 }
 
 function verifyCustomerPinPage(event) {
-    if (event) {
-        event.preventDefault();
-        if (event.stopPropagation) event.stopPropagation();
-    }
+    if (event) event.preventDefault();
     const accInput = document.getElementById('customer-page-acc-input');
     const pinInput = document.getElementById('customer-page-pin-input');
     const accNum = accInput ? accInput.value.trim().toUpperCase() : 'ACC1001';
@@ -89,12 +71,12 @@ function verifyCustomerPinPage(event) {
 
     if (!accNum) {
         alert('Please enter your Account Number (e.g. ACC1001).');
-        return false;
+        return;
     }
 
     if (!pin) {
         alert('Please enter your 4-Digit Security PIN.');
-        return false;
+        return;
     }
 
     const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
@@ -109,43 +91,38 @@ function verifyCustomerPinPage(event) {
     if (pin === '1234' || (targetAcc.pin && pin === targetAcc.pin)) {
         sessionStorage.setItem('apex_customer_authed', accNum);
         closeModal('customer-login-modal');
+        closeModal('admin-login-modal');
         switchPortalRole('customer');
         loadDashboardData();
         loadTransactions();
-        return false;
     } else {
         alert('Invalid Customer Security PIN! Hint: Default PIN is 1234');
         if (pinInput) pinInput.value = '';
-        return false;
     }
 }
 
 function verifyAdminPasscodePage(event) {
-    if (event) {
-        event.preventDefault();
-        if (event.stopPropagation) event.stopPropagation();
-    }
+    if (event) event.preventDefault();
     const input = document.getElementById('admin-page-passcode-input');
     const code = input ? input.value.trim() : '';
 
     if (!code) {
         alert('Please enter the Admin Security Passcode.');
-        return false;
+        return;
     }
 
     if (code === '1234' || code === '6767') {
         isAdminAuthenticated = true;
         sessionStorage.setItem('apex_admin_authed', 'true');
         closeModal('admin-login-modal');
+        closeModal('customer-login-modal');
         window.location.hash = 'admin';
         switchPortalRole('admin');
         loadDashboardData();
         loadTransactions();
-        return false;
     } else {
         alert('Invalid Admin Security Passcode! Hint: Default Passcode is 1234');
         if (input) input.value = '';
-        return false;
     }
 }
 
