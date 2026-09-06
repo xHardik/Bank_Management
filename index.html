@@ -23,8 +23,6 @@
                 <button class="sidebar-close-btn" onclick="toggleMobileSidebar()">&times;</button>
             </div>
 
-
-
             <!-- Sidebar Navigation Menu -->
             <nav class="nav-menu">
                 <button class="nav-btn active" onclick="showTab('dashboard')">
@@ -108,7 +106,7 @@
                 <!-- Autocomplete Trie Search Bar -->
                 <div class="search-bar admin-nav-item" style="position:relative;">
                     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <input type="text" id="search-input" placeholder="Search customer " onkeyup="handleSearchAutocomplete(this.value)">
+                    <input type="text" id="search-input" placeholder="Search customer" onkeyup="handleSearchAutocomplete(this.value)">
                     <div id="autocomplete-box" class="autocomplete-dropdown" style="display:none;"></div>
                 </div>
 
@@ -161,7 +159,7 @@
                         </div>
                         <h2 id="total-accounts-val">0</h2>
                         <div class="stat-footer positive">
-                            <span>↑ 100% Core Capacity</span>
+                            <span>Total Core Capacity</span>
                         </div>
                     </div>
 
@@ -176,7 +174,7 @@
                         </div>
                         <h2 id="total-capital-val">₹0.00</h2>
                         <div class="stat-footer positive">
-                            <span>↑ RBI Verified Asset Ledger</span>
+                            <span>RBI Verified Asset Ledger</span>
                         </div>
                     </div>
 
@@ -204,7 +202,7 @@
                                 <span class="sub-text">Active Domestic & International Card</span>
                             </div>
                             <button id="card-lock-btn" class="btn-sm btn-secondary customer-only-inline" onclick="toggleCardLock()">
-                                 Lock Card
+                                Lock Card
                             </button>
                         </div>
                         <div class="credit-card" id="credit-card-element">
@@ -305,6 +303,364 @@
                     <table class="data-table">
                         <thead>
                             <tr>
+                                <th>Account & Customer</th>
+                                <th>Holder Name</th>
+                                <th>Category</th>
+                                <th>Balance (INR)</th>
+                                <th>Operations</th>
+                            </tr>
+                        </thead>
+                        <tbody id="accounts-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 3: TRANSACTIONS HISTORY -->
+            <section id="transactions" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <h2 id="tx-page-title">My Digital Passbook</h2>
+                        <p id="tx-page-desc">Personal transaction ledger statement for Account #ACC1001.</p>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-secondary btn-sm" onclick="exportPassbookCSV()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction Ref</th>
+                                <th>Timestamp</th>
+                                <th>Account</th>
+                                <th>Type</th>
+                                <th>Amount (INR)</th>
+                                <th>Balance After</th>
+                                <th>Remarks & Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 4: LOANS & PRIORITY QUEUE -->
+            <section id="loans" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <h2>Loan Applications</h2>
+                        <p>Applications (Emergency & Senior Citizen loans processed first).</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- CUSTOMER LEFT CARD: Apply for Bank Loan (1 Bid Limit) -->
+                    <div class="glass-card customer-only-block">
+                        <div class="card-title-header">
+                            <h3>Apply for Bank Loan</h3>
+                            <span class="sub-text">Emergency, Senior Citizen, Education & Personal Loans (1 Bid Limit)</span>
+                        </div>
+                        <div id="customer-loan-bid-form-container">
+                            <form onsubmit="handleApplyLoanSubmit(event)">
+                                <div class="form-group">
+                                    <label>Applicant Name</label>
+                                    <input type="text" id="loan-name-input" required value="Hardik Verma" readonly style="background:rgba(255,255,255,0.05); color:#10b981; font-weight:700; cursor:not-allowed;">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Account Number</label>
+                                        <input type="text" id="loan-acc-input" required value="ACC1001" readonly style="background:rgba(255,255,255,0.05); color:#10b981; font-weight:700; cursor:not-allowed;">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Loan Category</label>
+                                        <select id="loan-type-select">
+                                            <option value="EMERGENCY">Emergency Loan (Priority 10 - HIGH)</option>
+                                            <option value="SENIOR_CITIZEN">Senior Citizen Loan (Priority 9 - HIGH)</option>
+                                            <option value="EDUCATION">Education Loan (Priority 7 - MEDIUM)</option>
+                                            <option value="PERSONAL">Personal Loan (Priority 5 - LOW)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Loan Amount (₹)</label>
+                                    <input type="number" id="loan-amount-input" required value="500000.00">
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width:100%;">Submit Loan Bid</button>
+                            </form>
+                        </div>
+                        <div id="customer-loan-bid-active-notice" style="display:none; padding:20px; background:rgba(16,185,129,0.08); border:1px solid #10b981; border-radius:14px;">
+                            <h4 style="color:#10b981; margin-bottom:6px; font-size:1rem; font-weight:800;">Active Loan Application Registered</h4>
+                            <p style="font-size:0.85rem; color:#9ca3af; margin:0;">You have already submitted a loan application. Bidding is restricted to <strong>1 active application</strong> at a time per customer account. Please await Executive Admin review.</p>
+                        </div>
+                    </div>
+
+                    <!-- ADMIN LEFT CARD: History of Accepted / Approved Loans -->
+                    <div class="glass-card admin-only-block" style="display:none;">
+                        <div class="card-title-header">
+                            <h3 style="color:#8b5cf6;">Accepted Loans History</h3>
+                            <span class="sub-text">Complete Record of Executive Approved & Disbursed Loans</span>
+                        </div>
+                        <div id="admin-accepted-loans-list" style="display:flex; flex-direction:column; gap:12px; max-height:340px; overflow-y:auto;">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- CUSTOMER RIGHT CARD: My Pending Loan Application -->
+                    <div class="glass-card customer-only-block">
+                        <div class="card-title-header">
+                            <h3>My Pending Application</h3>
+                            <span class="sub-text">Live Priority Queue Ranking & Review Status</span>
+                        </div>
+                        <div id="customer-pending-loan-display" style="display:flex; flex-direction:column; gap:12px;">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- ADMIN RIGHT CARD: Pending Loan Applications Queue -->
+                    <div class="glass-card admin-only-block" style="display:none;">
+                        <div class="card-title-header" style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <h3>Pending Loan Applications Queue</h3>
+                                <span class="sub-text">Priority Queue Order</span>
+                            </div>
+                            <button class="btn btn-success btn-sm" onclick="approveHighestLoan()">Approve Highest Priority</button>
+                        </div>
+                        <div id="loans-queue-list" style="display:flex; flex-direction:column; gap:12px; max-height:320px; overflow-y:auto;">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: CONCIERGE DESK (Admin Portal Only) -->
+            <section id="queues" class="tab-content admin-nav-item">
+                <div class="section-header">
+                    <div>
+                        <h2>VIP Concierge & Support Service Desk</h2>
+                        <p>Manage customer service queues and priority VIP client requests.</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Standard Service Queue -->
+                    <div class="glass-card">
+                        <div class="card-icon-header">
+                            <div class="header-icon-box blue">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                            </div>
+                            <h3>Standard Service Desk</h3>
+                        </div>
+                        <p class="section-desc">First-Come, First-Served customer support handling.</p>
+
+                        <div class="form-group">
+                            <label>Customer Inquiry Details</label>
+                            <input type="text" id="teller-inquiry-input" placeholder="e.g. Passbook update / Card re-issue">
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="enqueueTeller()">Submit Inquiry</button>
+                            <button class="btn btn-secondary" onclick="dequeueTeller()">Process Next</button>
+                        </div>
+                    </div>
+
+                    <!-- VIP Priority Queue -->
+                    <div class="glass-card vip-border">
+                        <div class="card-icon-header">
+                            <div class="header-icon-box gold">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                            </div>
+                            <h3>VIP Priority Service Desk</h3>
+                        </div>
+                        <p class="section-desc">Priority score-based handling for executive high-net-worth clients.</p>
+
+                        <div class="form-group">
+                            <label>VIP Client Name</label>
+                            <input type="text" id="vip-name-input" placeholder="e.g. Sarah Jenkins">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Service Category</label>
+                                <select id="vip-type-select">
+                                    <option value="Wealth Management">Wealth Management</option>
+                                    <option value="Corporate Credit">Corporate Credit</option>
+                                    <option value="International Wire">International Wire</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Priority Score (1-10)</label>
+                                <input type="number" id="vip-prio-input" min="1" max="10" value="9">
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn btn-gold" onclick="enqueueVip()">Add VIP</button>
+                            <button class="btn btn-secondary" onclick="dequeueVip()">Serve Highest</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 6: AUDIT LOGS & GRAPH FRAUD CHECK (Admin Portal Only) -->
+            <section id="audit" class="tab-content admin-nav-item">
+                <div class="section-header">
+                    <div>
+                        <h2>Security Ledger & Graph Fraud Monitoring</h2>
+                        <p>Continuous audit logging and DFS Graph cycle detection for money laundering / fraud rings.</p>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-warning" onclick="checkFraudCycle()">
+                            DFS Fraud Check
+                        </button>
+                        <button class="btn btn-secondary" onclick="runAutomatedTests()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                            Diagnostics
+                        </button>
+                    </div>
+                </div>
+
+                <div class="console-card">
+                    <div class="console-header">
+                        <div class="console-title">AUDIT_LOG_CONSOLE (Circular Buffer Capacity: 50)</div>
+                    </div>
+                    <div id="log-console" class="console-body">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 7: SPENDINGS GRAPH & CATEGORY ANALYTICS (Customer Portal) -->
+            <section id="spendings" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <h2>Spendings Graph & Financial Health</h2>
+                        <p>Visual monthly expense breakdown, budget health score, and category distribution.</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Left: Category Visual Progress Bars -->
+                    <div class="glass-card">
+                        <div class="card-title-header">
+                            <h3>Monthly Expense Distribution</h3>
+                            <span class="sub-text">Category breakdown for Account #ACC1001</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:16px; margin-top:14px;">
+                            <div>
+                                <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.88rem;">
+                                    <span>Utility Bills & Mobile Recharge</span>
+                                    <strong style="color:#f59e0b;">₹3,450.00 (35%)</strong>
+                                </div>
+                                <div style="background:rgba(255,255,255,0.08); height:10px; border-radius:6px; overflow:hidden;">
+                                    <div style="width:35%; height:100%; background:linear-gradient(90deg, #f59e0b, #d97706); border-radius:6px;"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.88rem;">
+                                    <span>UPI & Inter-bank Transfers</span>
+                                    <strong style="color:#3b82f6;">₹4,200.00 (42%)</strong>
+                                </div>
+                                <div style="background:rgba(255,255,255,0.08); height:10px; border-radius:6px; overflow:hidden;">
+                                    <div style="width:42%; height:100%; background:linear-gradient(90deg, #3b82f6, #1d4ed8); border-radius:6px;"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.88rem;">
+                                    <span>Cash Withdrawals & POS</span>
+                                    <strong style="color:#ef4444;">₹1,500.00 (15%)</strong>
+                                </div>
+                                <div style="background:rgba(255,255,255,0.08); height:10px; border-radius:6px; overflow:hidden;">
+                                    <div style="width:15%; height:100%; background:linear-gradient(90deg, #ef4444, #b91c1c); border-radius:6px;"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.88rem;">
+                                    <span>Stock & Mutual Fund Investments</span>
+                                    <strong style="color:#10b981;">₹800.00 (8%)</strong>
+                                </div>
+                                <div style="background:rgba(255,255,255,0.08); height:10px; border-radius:6px; overflow:hidden;">
+                                    <div style="width:8%; height:100%; background:linear-gradient(90deg, #10b981, #059669); border-radius:6px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Financial Health & Budgeting Overview -->
+                    <div class="glass-card">
+                        <div class="card-title-header">
+                            <h3>Budget Health Score</h3>
+                            <span class="sub-text">AI Powered Spending & Savings Rate Analyzer</span>
+                        </div>
+                        <div style="text-align:center; padding:15px 0;">
+                            <div style="width:110px; height:110px; border-radius:50%; background:radial-gradient(circle, rgba(16,185,129,0.15) 0%, rgba(0,0,0,0.8) 100%); border:4px solid #10b981; display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 14px; box-shadow: 0 0 20px rgba(16,185,129,0.3);">
+                                <span style="font-size:2rem; font-weight:800; color:#10b981;">88</span>
+                                <span style="font-size:0.65rem; color:#9ca3af; text-transform:uppercase;">EXCELLENT</span>
+                            </div>
+                            <h4 style="color:#fff; margin-bottom:6px;">Smart Financial Status</h4>
+                            <p style="font-size:0.82rem; color:#9ca3af; max-width:280px; margin:0 auto 16px;">Your monthly savings rate is <strong>+64.5%</strong>. Spending velocity is well controlled with zero overdraft risk.</p>
+                            <div style="display:flex; justify-content:center; gap:10px;">
+                                <button class="btn btn-secondary btn-sm" onclick="exportPassbookCSV()">Export Report</button>
+                                <button class="btn btn-primary btn-sm" onclick="showTab('transactions')">View Passbook</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 8: DEMAT & WEALTH INVESTMENTS (Customer Portal) -->
+            <section id="demat" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <h2>Apex Demat & Wealth Investments</h2>
+                        <p>Invest directly in Indian Equities, Nifty 50 Index Funds, and Sovereign Gold Bonds.</p>
+                    </div>
+                    <div style="background:rgba(16,185,129,0.1); border:1px solid #10b981; padding:8px 16px; border-radius:10px;">
+                        <span style="font-size:0.75rem; color:#9ca3af; display:block;">DEMAT ACCOUNT NO</span>
+                        <strong style="color:#10b981; font-size:0.95rem;">IN300129-881920</strong>
+                    </div>
+                </div>
+
+                <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:20px;">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span>Total Portfolio Value</span>
+                        </div>
+                        <h2 id="demat-portfolio-val" style="color:#fff;">₹2,24,850.00</h2>
+                        <div id="demat-invested-val" class="stat-footer positive">↑ Invested: ₹2,00,000.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span>Unrealized Gain / P&L</span>
+                        </div>
+                        <h2 id="demat-unrealized-gain" style="color:#10b981;">+₹24,850.00 (+12.42%)</h2>
+                        <div class="stat-footer positive">Total Return</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span>Available Cash for Trading</span>
+                        </div>
+                        <h2 id="demat-avail-bal" style="color:#3b82f6;">₹1,50,450.00</h2>
+                        <div class="stat-footer neutral">Linked to Account ACC1001</div>
+                    </div>
+                </div>
+
+                <!-- Investment Assets List -->
+                <div class="table-card">
+                    <div style="padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="margin:0; font-size:1.1rem; color:#fff;">Active Investment Holdings</h3>
+                        <button class="btn btn-primary btn-sm" onclick="openModal('invest-modal')">Buy New Mutual Fund / Stock</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
                                 <th>Asset Symbol & Name</th>
                                 <th>Category</th>
                                 <th>Quantity / Units</th>
@@ -322,7 +678,7 @@
                 </div>
             </section>
 
-            <!-- TAB 8: HELP & 24x7 CONTACT US (Customer Portal) -->
+            <!-- TAB 9: HELP & 24x7 CONTACT US (Customer Portal) -->
             <section id="contact" class="tab-content">
                 <div class="section-header">
                     <div>
@@ -397,6 +753,36 @@
                             <button type="submit" class="btn btn-primary" style="width:100%;">Request Instant Callback</button>
                         </form>
                     </div>
+                </div>
+            </section>
+
+            <!-- TAB 10: CUSTOMER SUPPORT ENQUIRIES (Admin Portal Only) -->
+            <section id="enquiries" class="tab-content admin-nav-item">
+                <div class="section-header">
+                    <div>
+                        <h2>Customer Support Enquiries & Callbacks</h2>
+                        <p>Real-time list of priority advisor callback requests submitted by customers.</p>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Enquiry Ref ID</th>
+                                <th>Date & Time</th>
+                                <th>Customer Name</th>
+                                <th>Mobile Number</th>
+                                <th>Preferred Time Slot</th>
+                                <th>Subject / Query</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="enquiries-tbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
                 </div>
             </section>
         </main>
@@ -744,6 +1130,8 @@
                 <button type="button" class="btn btn-primary" onclick="window.print()">Print Receipt</button>
             </div>
         </div>
+    </div>
+
     <!-- MODAL: DEMAT MUTUAL FUND / STOCK INVESTMENT -->
     <div id="invest-modal" class="modal-overlay">
         <div class="modal-card">
@@ -784,7 +1172,6 @@
         </div>
     </div>
 
-    
     <!-- MODAL: DEMAT REDEMPTION / SELL ASSET -->
     <div id="sell-modal" class="modal-overlay">
         <div class="modal-card">

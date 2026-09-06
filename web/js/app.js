@@ -373,7 +373,7 @@ function showServerWarningBanner(msg) {
     
     if (window.location.hostname === 'localhost' || window.location.protocol === 'file:') {
         banner.innerHTML = `
-            ⚡ <strong>Local Java Backend Offline:</strong> Run <code>java -cp bin com.bank.Main</code> in your terminal.<br>
+             <strong>Local Java Backend Offline:</strong> Run <code>java -cp bin com.bank.Main</code> in your terminal.<br>
             <span style="font-size: 0.8rem; opacity: 0.8;">Target API: ${API_BASE} | Details: ${msg}</span>
         `;
     } else {
@@ -675,7 +675,7 @@ async function checkFraudCycle() {
         if (res.circularFraudDetected) {
             alert(`FRAUD WARNING!\nDFS Graph Cycle Detection found rapid circular transfers involving ${acc}!`);
         } else {
-            alert(`✅ CLEAN ROUTING!\nNo circular fraud cycles detected for account ${acc}.`);
+            alert(` CLEAN ROUTING!\nNo circular fraud cycles detected for account ${acc}.`);
         }
     }
 }
@@ -1030,7 +1030,7 @@ async function loadAuditLogs() {
     if (Array.isArray(logs)) {
         const consoleEl = document.getElementById('log-console');
         if (consoleEl) {
-            consoleEl.innerHTML = logs.map(l => `<div class="log-line">⚡ ${l}</div>`).join('');
+            consoleEl.innerHTML = logs.map(l => `<div class="log-line"> ${l}</div>`).join('');
             consoleEl.scrollTop = consoleEl.scrollHeight;
         }
     }
@@ -1179,7 +1179,7 @@ function printPassbookPDF() {
                     <p>This is a computer-generated bank statement and does not require a physical signature.</p>
                     <p>Apex Bank India • Registered RBI Digital Banking Portal</p>
                 </div>
-                <div class="stamp">✓ VERIFIED OFFICIAL BANK DOCUMENT</div>
+                <div class="stamp"> VERIFIED OFFICIAL BANK DOCUMENT</div>
             </div>
 
             <script>
@@ -1293,7 +1293,7 @@ async function handleUtilityPaymentSubmit(e) {
     if (receiptContainer) {
         receiptContainer.innerHTML = `
             <div style="text-align:center; margin-bottom:20px;">
-                <div style="width:60px; height:60px; background:rgba(16,185,129,0.15); border:2px solid #10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:#10b981; font-size:28px;">✓</div>
+                <div style="width:60px; height:60px; background:rgba(16,185,129,0.15); border:2px solid #10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:#10b981; font-size:28px;"></div>
                 <h3 style="color:#10b981; font-weight:800; margin:0;">PAYMENT SUCCESSFUL</h3>
                 <p style="color:#9ca3af; font-size:0.85rem; margin-top:4px;">Transaction Ref: ${txId}</p>
             </div>
@@ -1327,6 +1327,11 @@ async function handleUtilityPaymentSubmit(e) {
     loadTransactions();
 }
 
+\nPhone: ${phone}\nTime Slot: ${time}\nSubject: ${subject}\n\nAn Apex Senior Wealth Executive will call you shortly.`);
+    document.getElementById('contact-subject-input').value = '';
+}
+
+
 // DECOY STOCKS & MUTUAL FUNDS CATALOG FOR DEMAT TRADING SIMULATION
 const DECOY_STOCKS = {
     'NIFTY50': { symbol: 'NIFTY50', name: 'Nifty 50 Index Fund', category: 'Mutual Fund SIP', badgeClass: 'badge-savings', ltp: 245.50, buyPrice: 210.00, unitLabel: 'Units' },
@@ -1342,14 +1347,6 @@ const DECOY_STOCKS = {
 
 const LS_HOLDINGS_KEY = 'apex_bank_demat_holdings';
 const LS_ENQUIRIES_KEY = 'apex_bank_enquiries';
-
-function getActiveAccountNumber() {
-    const selectedAccount = sessionStorage.getItem('apex_customer_authed');
-    if (selectedAccount) return selectedAccount;
-
-    const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
-    return accounts[0]?.accountNumber || 'ACC1001';
-}
 
 function getDematHoldings() {
     let holdings = JSON.parse(localStorage.getItem(LS_HOLDINGS_KEY) || '[]');
@@ -1471,8 +1468,7 @@ async function handleSellSubmit(e) {
 
     // Credit payout to customer bank account
     const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
-    const myAcc = accounts.find(a => a.accountNumber === getActiveAccountNumber()) || accounts[0];
-    if (!myAcc) return alert('No bank account is available for this transaction.');
+    const myAcc = accounts.find(a => a.accountNumber === 'ACC1001') || accounts[0];
     myAcc.balance += payoutAmount;
     localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
 
@@ -1523,8 +1519,7 @@ async function handleInvestSubmit(e) {
     const unitsBought = parseFloat((amount / assetInfo.ltp).toFixed(2));
 
     const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
-    const myAcc = accounts.find(a => a.accountNumber === getActiveAccountNumber()) || accounts[0];
-    if (!myAcc) return alert('No bank account is available for this transaction.');
+    const myAcc = accounts.find(a => a.accountNumber === 'ACC1001') || accounts[0];
 
     if (myAcc.balance < amount) {
         return alert(`Insufficient Balance! Required: ₹${amount.toFixed(2)} | Available: ₹${myAcc.balance.toFixed(2)}`);

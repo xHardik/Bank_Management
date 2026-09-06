@@ -373,7 +373,7 @@ function showServerWarningBanner(msg) {
     
     if (window.location.hostname === 'localhost' || window.location.protocol === 'file:') {
         banner.innerHTML = `
-            ⚡ <strong>Local Java Backend Offline:</strong> Run <code>java -cp bin com.bank.Main</code> in your terminal.<br>
+             <strong>Local Java Backend Offline:</strong> Run <code>java -cp bin com.bank.Main</code> in your terminal.<br>
             <span style="font-size: 0.8rem; opacity: 0.8;">Target API: ${API_BASE} | Details: ${msg}</span>
         `;
     } else {
@@ -675,7 +675,7 @@ async function checkFraudCycle() {
         if (res.circularFraudDetected) {
             alert(`FRAUD WARNING!\nDFS Graph Cycle Detection found rapid circular transfers involving ${acc}!`);
         } else {
-            alert(`✅ CLEAN ROUTING!\nNo circular fraud cycles detected for account ${acc}.`);
+            alert(` CLEAN ROUTING!\nNo circular fraud cycles detected for account ${acc}.`);
         }
     }
 }
@@ -1030,7 +1030,7 @@ async function loadAuditLogs() {
     if (Array.isArray(logs)) {
         const consoleEl = document.getElementById('log-console');
         if (consoleEl) {
-            consoleEl.innerHTML = logs.map(l => `<div class="log-line">⚡ ${l}</div>`).join('');
+            consoleEl.innerHTML = logs.map(l => `<div class="log-line"> ${l}</div>`).join('');
             consoleEl.scrollTop = consoleEl.scrollHeight;
         }
     }
@@ -1179,7 +1179,7 @@ function printPassbookPDF() {
                     <p>This is a computer-generated bank statement and does not require a physical signature.</p>
                     <p>Apex Bank India • Registered RBI Digital Banking Portal</p>
                 </div>
-                <div class="stamp">✓ VERIFIED OFFICIAL BANK DOCUMENT</div>
+                <div class="stamp"> VERIFIED OFFICIAL BANK DOCUMENT</div>
             </div>
 
             <script>
@@ -1293,7 +1293,7 @@ async function handleUtilityPaymentSubmit(e) {
     if (receiptContainer) {
         receiptContainer.innerHTML = `
             <div style="text-align:center; margin-bottom:20px;">
-                <div style="width:60px; height:60px; background:rgba(16,185,129,0.15); border:2px solid #10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:#10b981; font-size:28px;">✓</div>
+                <div style="width:60px; height:60px; background:rgba(16,185,129,0.15); border:2px solid #10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:#10b981; font-size:28px;"></div>
                 <h3 style="color:#10b981; font-weight:800; margin:0;">PAYMENT SUCCESSFUL</h3>
                 <p style="color:#9ca3af; font-size:0.85rem; margin-top:4px;">Transaction Ref: ${txId}</p>
             </div>
