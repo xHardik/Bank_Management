@@ -41,8 +41,11 @@ if (document.readyState === 'loading') {
 function showCustomerLoginPage() {
     closeModal('admin-login-modal');
     openModal('customer-login-modal');
-    populateLoginPageAccounts();
+    const accInput = document.getElementById('customer-page-acc-input');
     const pinInput = document.getElementById('customer-page-pin-input');
+    if (accInput && !accInput.value) {
+        accInput.value = 'ACC1001';
+    }
     if (pinInput) {
         pinInput.value = '';
         setTimeout(() => pinInput.focus(), 150);
@@ -59,26 +62,12 @@ function showAdminLoginPage() {
     }
 }
 
-function showCustomerLoginPage() {
-    closeModal('admin-login-modal');
-    openModal('customer-login-modal');
-    const accInput = document.getElementById('customer-page-acc-input');
-    const pinInput = document.getElementById('customer-page-pin-input');
-    if (accInput && !accInput.value) {
-        accInput.value = 'ACC1001';
-    }
-    if (pinInput) {
-        pinInput.value = '';
-        setTimeout(() => pinInput.focus(), 150);
-    }
-}
-
 function verifyCustomerPinPage(event) {
     if (event) {
         event.preventDefault();
         if (event.stopPropagation) event.stopPropagation();
     }
-    const accInput = document.getElementById('customer-page-acc-input') || document.getElementById('login-page-acc-select');
+    const accInput = document.getElementById('customer-page-acc-input');
     const pinInput = document.getElementById('customer-page-pin-input');
     const accNum = accInput ? accInput.value.trim().toUpperCase() : 'ACC1001';
     const pin = pinInput ? pinInput.value.trim() : '';
@@ -117,9 +106,17 @@ function verifyCustomerPinPage(event) {
 }
 
 function verifyAdminPasscodePage(event) {
-    if (event) event.preventDefault();
+    if (event) {
+        event.preventDefault();
+        if (event.stopPropagation) event.stopPropagation();
+    }
     const input = document.getElementById('admin-page-passcode-input');
     const code = input ? input.value.trim() : '';
+
+    if (!code) {
+        alert('Please enter the Admin Security Passcode.');
+        return false;
+    }
 
     if (code === '1234' || code === '6767') {
         isAdminAuthenticated = true;
@@ -129,9 +126,11 @@ function verifyAdminPasscodePage(event) {
         switchPortalRole('admin');
         loadDashboardData();
         loadTransactions();
+        return false;
     } else {
         alert('Invalid Admin Security Passcode! Hint: Default Passcode is 1234');
         if (input) input.value = '';
+        return false;
     }
 }
 
@@ -150,24 +149,13 @@ function navigateToAdminLogin(e) {
 
 function navigateToCustomerLogin(e) {
     if (e) e.preventDefault();
-    window.location.hash = 'customer';
+    window.location.hash = '';
     showCustomerLoginPage();
 }
 
-function populateLoginPageAccounts() {
-    const select = document.getElementById('login-page-acc-select');
-    if (!select) return;
-    const accounts = JSON.parse(localStorage.getItem(LS_ACCOUNTS_KEY) || '[]');
-    if (accounts.length > 0) {
-        select.innerHTML = accounts.map(a => `<option value="${a.accountNumber}">${a.accountNumber} - ${a.holderName} (${a.type})</option>`).join('');
-    } else {
-        select.innerHTML = `<option value="ACC1001">ACC1001 - Hardik Verma (Savings)</option>`;
-    }
-}
-
-function openNewAccountFromLoginPage() {
-    const custPage = document.getElementById('customer-login-page-screen');
-    if (custPage) custPage.classList.add('hidden');
+function openNewAccountFromLoginPage(e) {
+    if (e) e.preventDefault();
+    closeModal('customer-login-modal');
     openModal('create-account-modal');
 }
 
