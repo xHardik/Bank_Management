@@ -27,6 +27,9 @@ function initLoginPage() {
     } else {
         showCustomerLoginPage();
     }
+    if (typeof initFirebaseRealtimeListeners === 'function') {
+        initFirebaseRealtimeListeners(loadDashboardData, loadLoans);
+    }
 }
 
 if (document.readyState === 'loading') {
@@ -602,6 +605,7 @@ async function handleApplyLoanSubmit(e) {
 
     pendingLoans.push(newApp);
     localStorage.setItem(LS_PENDING_LOANS, JSON.stringify(pendingLoans));
+    if (typeof syncLoanToFirebase === 'function') syncLoanToFirebase(newApp);
 
     loadLoans();
 }
@@ -640,7 +644,9 @@ async function approveHighestLoan() {
         if (targetAcc) {
             targetAcc.balance += parseFloat(approvedLoan.amount);
             localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
+            if (typeof syncAccountToFirebase === 'function') syncAccountToFirebase(targetAcc);
         }
+        if (typeof syncApprovedLoanToFirebase === 'function') syncApprovedLoanToFirebase(approvedLoan);
 
         alert(`Highest Priority Loan Approved!\nApp ID: ${approvedLoan.appId || approvedLoan.applicationId}\nApplicant: ${approvedLoan.name || approvedLoan.customerName}\nAmount Credited: ₹${parseFloat(approvedLoan.amount).toLocaleString('en-IN')}`);
     }
@@ -813,6 +819,7 @@ async function handleCreateAccount(e) {
         };
         accounts.push(newAcc);
         localStorage.setItem(LS_ACCOUNTS_KEY, JSON.stringify(accounts));
+        if (typeof syncAccountToFirebase === 'function') syncAccountToFirebase(newAcc);
         alert(`Account Created Successfully!\nAccount #: ${createdAccNum}\nBalance: ₹${newAcc.balance.toFixed(2)}`);
     }
 
